@@ -188,6 +188,10 @@ CHANGELOG:
       </div>
       <h1 class="font-heading text-2xl md:text-3xl font-bold text-cozy-card">Research Express</h1>
       <p class="text-sm text-[#E8DEBE] mt-1 font-medium">Robotics and Intelligent Machines Research Assistant</p>
+      
+      <button id="btn-start-new" type="button" class="mt-4 px-4 py-2 bg-[#f59e0b]/20 hover:bg-[#f59e0b]/40 border border-[#f59e0b] text-[#F4ECD8] rounded-full text-sm font-medium transition-colors inline-flex items-center gap-2">
+        <i class="ph ph-arrow-counter-clockwise"></i> Start New Research
+      </button>
     </div>
 
     <form id="edp-form" class="relative">
@@ -628,6 +632,22 @@ CHANGELOG:
     </div>
   </div>
 
+  <!-- Confirm Reset Modal -->
+  <div id="confirm-reset-modal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="confirm-reset-dialog">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-heading text-xl font-bold text-slate-800 flex items-center gap-2">Start New Research?</h3>
+        <button id="btn-close-reset-modal" class="text-slate-400 hover:text-slate-600 text-xl"><i class="ph ph-x"></i></button>
+      </div>
+      <p class="text-sm text-slate-600 mb-6">This will clear all your current inputs. Make sure you have exported your proposal first!</p>
+      
+      <div class="flex gap-3">
+        <button id="btn-cancel-reset" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-4 rounded-xl transition-colors">Cancel</button>
+        <button id="btn-confirm-reset" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-4 rounded-xl transition-colors">Yes, Clear</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Internal JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -907,6 +927,38 @@ CHANGELOG:
         safeSetItem(apiKeyStorageKey, sessionApiKey);
         closeModal();
       });
+
+      // --- Reset / Start New Logic ---
+      const btnStartNew = document.getElementById('btn-start-new');
+      const resetModal = document.getElementById('confirm-reset-modal');
+      const resetDialog = document.getElementById('confirm-reset-dialog');
+      const btnCloseResetModal = document.getElementById('btn-close-reset-modal');
+      const btnCancelReset = document.getElementById('btn-cancel-reset');
+      const btnConfirmReset = document.getElementById('btn-confirm-reset');
+
+      function closeResetModal() {
+        resetModal.classList.add('opacity-0', 'pointer-events-none');
+        resetDialog.classList.remove('scale-100');
+        resetDialog.classList.add('scale-95');
+      }
+
+      if (btnStartNew) {
+        btnStartNew.addEventListener('click', () => {
+          resetModal.classList.remove('opacity-0', 'pointer-events-none');
+          resetDialog.classList.remove('scale-95');
+          resetDialog.classList.add('scale-100');
+        });
+      }
+
+      if (btnCloseResetModal) btnCloseResetModal.addEventListener('click', closeResetModal);
+      if (btnCancelReset) btnCancelReset.addEventListener('click', closeResetModal);
+      
+      if (btnConfirmReset) {
+        btnConfirmReset.addEventListener('click', () => {
+          localStorage.removeItem(storageKey);
+          window.location.reload();
+        });
+      }
 
       // --- Wizard Navigation Logic ---
       function updateWizard() {
