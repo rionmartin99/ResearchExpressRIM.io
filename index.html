@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[2026-09-06 17:55:00] v2.8.3 - Fix: Eliminated all window.alert calls with top non-blocking toast notifications and auto-open settings; added touch-manipulation and active tap states to Ask AI, Polish & Refine, and Continue buttons; ensured toast pointer-events-none never intercepts mobile clicks; resolved card scoping in AI handlers; and added pointerdown blur handling.
 [2026-09-06 17:15:00] v2.8.2 - Fix: Resolved mobile button unresponsiveness by making secondary gaps optional, auto-expanding/scrolling to invalid fields with visual toast feedback, adding researcher delete buttons, and hardening modal overlay dismissals.
 [2026-09-06 12:50:00] v2.8.1 - Fix: Removed redundant STEM pill badges across all cards and input labels to eliminate duplication with part titles and streamline UI.
 [2026-09-06 12:45:00] v2.8.0 - New Feature: Engineered responsive screen adaptability for mobile phone, tablet, and desktop/laptop modes with unified header, fluid container widths, touch targets, and mobile step indicators.
 [2026-09-06 12:35:00] v2.7.3 - Fix: Resolved node label collision in stepper by removing whitespace-nowrap, adding centered responsive bounds, and expanding container width.
-[2026-09-06 12:30:00] v2.7.2 - Fix: Simplified grade level titles to just the grade number while retaining detailed descriptions in modal and settings.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -453,11 +453,11 @@ CHANGELOG:
         <div class="mt-6 border-t border-slate-200 pt-4">
           <div class="flex flex-col md:flex-row gap-4">
             <button type="button"
-              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs">
+              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-magic-wand text-xl text-indigo-600"></i> Ask AI Mentor for Advice
             </button>
             <button type="button"
-              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs">
+              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-sparkle text-xl text-emerald-600"></i> Polish &amp; Refine My Ideas
             </button>
           </div>
@@ -685,11 +685,11 @@ CHANGELOG:
         <div class="mt-6 border-t border-slate-200 pt-4">
           <div class="flex flex-col md:flex-row gap-4">
             <button type="button"
-              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-magic-wand text-xl"></i> Ask AI for Feedback
             </button>
             <button type="button"
-              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-sparkle text-xl"></i> Refine My Answers
             </button>
           </div>
@@ -841,11 +841,11 @@ CHANGELOG:
         <div class="mt-6 border-t border-slate-200 pt-4">
           <div class="flex flex-col md:flex-row gap-4">
             <button type="button"
-              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-magic-wand text-xl"></i> Ask AI for Feedback
             </button>
             <button type="button"
-              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-medium py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-sparkle text-xl"></i> Refine My Answers
             </button>
           </div>
@@ -1367,11 +1367,11 @@ CHANGELOG:
         <div class="mt-6 border-t border-slate-200 pt-4">
           <div class="flex flex-col md:flex-row gap-4">
             <button type="button"
-              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs">
+              class="btn-ask-ai flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-indigo-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-magic-wand text-xl text-indigo-600"></i> Ask AI Mentor for Advice
             </button>
             <button type="button"
-              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs">
+              class="btn-refine-ai flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-emerald-200 cursor-pointer shadow-xs active:scale-95 touch-manipulation select-none">
               <i class="ph ph-sparkle text-xl text-emerald-600"></i> Polish &amp; Refine My Answers
             </button>
           </div>
@@ -1382,7 +1382,7 @@ CHANGELOG:
       </section>
 
       <!-- Card 5: Project Title -->
-      <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-blue-400 hidden" id="step-5">
+      <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-blue-400" id="step-5">
         <div class="mb-6 text-center">
           <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-3 py-1 rounded-full mb-2">Level 5</span>
           <h2 class="font-heading text-2xl font-bold text-slate-800">Project Title Formulation <span class="text-lg md:text-xl font-medium text-slate-600">(Your Official Science Fair Title)</span></h2>
@@ -1440,7 +1440,7 @@ CHANGELOG:
       </section>
 
       <!-- Card 6: Consolidated Proposal -->
-      <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-purple-400 hidden" id="step-6">
+      <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-purple-400" id="step-6">
         <div class="mb-6 text-center">
           <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-3 py-1 rounded-full mb-2">Level 6</span>
           <h2 class="font-heading text-2xl font-bold text-slate-800">Consolidated Concept Proposal <span class="text-lg md:text-xl font-medium text-slate-600">(🏆 Your Science Fair Blueprint)</span></h2>
@@ -1533,7 +1533,7 @@ CHANGELOG:
             class="text-xs sm:text-sm text-[#E8DEBE] transition-opacity opacity-0 font-medium text-center">Auto-saved</span>
 
           <button type="button" id="btn-next"
-            class="w-full sm:w-auto bg-brand-teal hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 text-sm md:text-base min-h-[44px] touch-manipulation cursor-pointer">
+            class="w-full sm:w-auto bg-brand-teal hover:bg-teal-600 active:scale-95 text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2 text-sm md:text-base min-h-[44px] touch-manipulation cursor-pointer select-none">
             Continue <i class="ph ph-arrow-right"></i>
           </button>
 
@@ -1556,10 +1556,10 @@ CHANGELOG:
     <p id="current-datetime" class="text-xs text-[#E8DEBE]/60 font-medium tracking-wide"></p>
   </footer>
 
-  <!-- Floating Mobile Validation Toast -->
+  <!-- Floating Mobile Validation Toast (Top-anchored, never intercepts taps) -->
   <div id="mobile-validation-toast"
-    class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none opacity-0 transition-all duration-300 max-w-[92vw] text-center transform translate-y-2">
-    <i class="ph ph-warning-circle text-lg shrink-0"></i>
+    class="fixed top-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none opacity-0 transition-all duration-300 max-w-[92vw] text-center transform -translate-y-2">
+    <i id="mobile-validation-toast-icon" class="ph ph-warning-circle text-lg shrink-0"></i>
     <span id="mobile-validation-toast-text">Please complete the required field before continuing</span>
   </div>
 
@@ -2460,7 +2460,8 @@ TONE & VOCABULARY DIRECTIVE:
       });
 
       // --- Settings Modal Logic ---
-      btnOpenSettings.addEventListener('click', () => {
+      function openSettingsModal(focusApiKey = false) {
+        if (!modal || !dialog) return;
         if (settingGradeLevel && currentGradeLevel) {
           settingGradeLevel.value = currentGradeLevel;
         }
@@ -2469,8 +2470,17 @@ TONE & VOCABULARY DIRECTIVE:
           modal.classList.remove('opacity-0', 'pointer-events-none');
           dialog.classList.remove('scale-95');
           dialog.classList.add('scale-100');
+          if (focusApiKey && apiKeyInput) {
+            setTimeout(() => {
+              apiKeyInput.focus();
+              apiKeyInput.classList.add('ring-2', 'ring-amber-400', 'border-amber-400', 'animate-shake');
+              setTimeout(() => apiKeyInput.classList.remove('animate-shake'), 600);
+            }, 150);
+          }
         });
-      });
+      }
+
+      btnOpenSettings.addEventListener('click', () => openSettingsModal(false));
 
       function closeModal() {
         modal.classList.add('opacity-0', 'pointer-events-none');
@@ -2662,11 +2672,11 @@ TONE & VOCABULARY DIRECTIVE:
 
       function handlePdfFileSelection(file) {
         if (!file.type || file.type !== 'application/pdf') {
-          alert('Please select a valid PDF document (.pdf).');
+          showValidationToast('Please select a valid PDF document (.pdf).');
           return;
         }
         if (file.size > 15 * 1024 * 1024) {
-          alert('File is too large (' + (file.size / (1024 * 1024)).toFixed(1) + 'MB). Please upload a PDF under 15MB.');
+          showValidationToast('File is too large (' + (file.size / (1024 * 1024)).toFixed(1) + 'MB). Please upload a PDF under 15MB.');
           return;
         }
 
@@ -2693,14 +2703,14 @@ TONE & VOCABULARY DIRECTIVE:
         btnStartPdfDeconstruct.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please configure your Gemini API Key in Settings first!');
             closePdfModal();
-            btnOpenSettings.click();
+            showValidationToast('Please configure your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
           if (!selectedPdfFile) {
-            alert('Please select a PDF file to deconstruct.');
+            showValidationToast('Please select a PDF file to deconstruct.');
             return;
           }
 
@@ -2829,7 +2839,7 @@ CRITICAL RULES:
 
           } catch (err) {
             console.error("PDF Deconstruction Error:", err);
-            alert("Error analyzing PDF: " + err.message);
+            showValidationToast("Error analyzing PDF: " + err.message);
             resetPdfModalViews();
           }
         });
@@ -3298,6 +3308,9 @@ CRITICAL RULES:
         updateEngineeringGoalPreview();
         cards.forEach((card, index) => {
           card.classList.toggle('active', index === currentStep);
+          if (index === currentStep) {
+            card.classList.remove('hidden');
+          }
         });
 
         const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
@@ -3353,16 +3366,26 @@ CRITICAL RULES:
         }
       }
 
-      // Helper to show non-intrusive floating validation toast
-      function showValidationToast(message) {
+      // Helper to show non-intrusive floating validation toast (permanent pointer-events-none so touches pass right through)
+      function showValidationToast(message, type = 'error') {
         const toast = document.getElementById('mobile-validation-toast');
         const toastText = document.getElementById('mobile-validation-toast-text');
+        const toastIcon = document.getElementById('mobile-validation-toast-icon');
         if (!toast || !toastText) return;
         toastText.textContent = message;
-        toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+        if (type === 'warning') {
+          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-amber-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
+          if (toastIcon) toastIcon.className = 'ph ph-warning text-lg shrink-0';
+        } else if (type === 'success') {
+          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
+          if (toastIcon) toastIcon.className = 'ph ph-check-circle text-lg shrink-0';
+        } else {
+          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
+          if (toastIcon) toastIcon.className = 'ph ph-warning-circle text-lg shrink-0';
+        }
         if (window._validationToastTimer) clearTimeout(window._validationToastTimer);
         window._validationToastTimer = setTimeout(() => {
-          toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+          toast.classList.add('opacity-0', '-translate-y-2');
         }, 3500);
       }
 
@@ -3398,8 +3421,8 @@ CRITICAL RULES:
 
           // 2. Shake button to provide instant physical feedback on click
           if (btnNext) {
-            btnNext.classList.add('animate-shake');
-            setTimeout(() => btnNext.classList.remove('animate-shake'), 450);
+            btnNext.classList.add('animate-shake', 'ring-2', 'ring-red-400');
+            setTimeout(() => btnNext.classList.remove('animate-shake', 'ring-2', 'ring-red-400'), 500);
           }
 
           // 3. Scroll smoothly to first invalid field and focus it
@@ -3422,6 +3445,16 @@ CRITICAL RULES:
 
         return isValid;
       }
+
+      // Blur active input immediately upon touching navigation/AI action buttons to prevent virtual keyboard collapse from swallowing clicks
+      [btnNext, btnPrev, btnSubmit].forEach(b => {
+        if (!b) return;
+        b.addEventListener('pointerdown', () => {
+          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+            document.activeElement.blur();
+          }
+        });
+      });
 
       btnNext.addEventListener('click', (e) => {
         if (e) e.preventDefault();
@@ -3507,21 +3540,25 @@ CRITICAL RULES:
       const aiButtons = document.querySelectorAll('.btn-ask-ai');
 
       aiButtons.forEach((btn, index) => {
+        btn.addEventListener('pointerdown', () => {
+          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+            document.activeElement.blur();
+          }
+        });
+
         btn.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            btn.classList.add('animate-shake', 'ring-2', 'ring-amber-400');
+            setTimeout(() => btn.classList.remove('animate-shake', 'ring-2', 'ring-amber-400'), 600);
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
-          const originalContent = btn.innerHTML;
-          btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Thinking...';
-          btn.disabled = true;
-
-          const currentCard = cards[index];
-          const feedbackBox = currentCard.querySelector('.ai-feedback-box');
-          const feedbackText = feedbackBox.querySelector('p');
+          const currentCard = btn.closest('.step-card') || cards[index];
+          const feedbackBox = currentCard ? currentCard.querySelector('.ai-feedback-box') : null;
+          const feedbackText = feedbackBox ? feedbackBox.querySelector('p') : null;
 
           // Gather inputs for this specific step
           let stepInputs = {};
@@ -3541,10 +3578,12 @@ CRITICAL RULES:
           });
 
           if (hasEmpty) {
-            feedbackText.innerHTML = '<span class="text-red-600 font-bold flex items-center gap-2"><i class="ph ph-warning-circle text-xl"></i> Action Required: You must provide enough information in all boxes above before the AI can give feedback.</span>';
-            feedbackBox.classList.add('active');
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
+            btn.classList.add('animate-shake', 'ring-2', 'ring-rose-400');
+            setTimeout(() => btn.classList.remove('animate-shake', 'ring-2', 'ring-rose-400'), 600);
+            if (feedbackText && feedbackBox) {
+              feedbackText.innerHTML = '<span class="text-rose-600 font-bold flex items-center gap-2"><i class="ph ph-warning-circle text-xl shrink-0"></i> Action Required: You must provide enough information in all required boxes above before the AI can give feedback.</span>';
+              feedbackBox.classList.add('active');
+            }
             if (firstEmptyRequired) {
               const gapBlock = firstEmptyRequired.closest('.gap-block');
               if (gapBlock) {
@@ -3562,8 +3601,24 @@ CRITICAL RULES:
                 setTimeout(() => firstEmptyRequired.classList.remove('animate-shake'), 500);
               }, 300);
             }
-            showValidationToast('Please complete required fields above for AI feedback');
+            let fieldName = 'required box';
+            if (firstEmptyRequired) {
+              const parentContainer = firstEmptyRequired.closest('div');
+              const label = parentContainer?.querySelector('label')?.textContent || firstEmptyRequired.placeholder || 'missing input';
+              fieldName = label.replace(/\([^)]*\)/g, '').replace(/[:*]/g, '').trim();
+              if (fieldName.length > 32) fieldName = fieldName.slice(0, 29) + '...';
+            }
+            showValidationToast(`Please fill in "${fieldName}" for AI advice`);
             return;
+          }
+
+          const originalContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Thinking...';
+          btn.disabled = true;
+          if (feedbackBox && feedbackText) {
+            feedbackText.innerHTML = '<span class="text-indigo-600 font-semibold flex items-center gap-2"><i class="ph ph-spinner animate-spin text-lg"></i> Consulting AI mentor for advice...</span>';
+            feedbackBox.classList.add('active');
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
 
           // Extract overarching project context so feedback is always grounded in user's research
@@ -3676,21 +3731,25 @@ Instructions for you:
       const aiRefineButtons = document.querySelectorAll('.btn-refine-ai');
 
       aiRefineButtons.forEach((btn, index) => {
+        btn.addEventListener('pointerdown', () => {
+          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+            document.activeElement.blur();
+          }
+        });
+
         btn.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            btn.classList.add('animate-shake', 'ring-2', 'ring-amber-400');
+            setTimeout(() => btn.classList.remove('animate-shake', 'ring-2', 'ring-amber-400'), 600);
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
-          const originalContent = btn.innerHTML;
-          btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Refining...';
-          btn.disabled = true;
-
-          const currentCard = cards[index];
-          const feedbackBox = currentCard.querySelector('.ai-feedback-box');
-          const feedbackText = feedbackBox.querySelector('p');
+          const currentCard = btn.closest('.step-card') || cards[index];
+          const feedbackBox = currentCard ? currentCard.querySelector('.ai-feedback-box') : null;
+          const feedbackText = feedbackBox ? feedbackBox.querySelector('p') : null;
 
           let stepInputs = {};
           let hasEmpty = false;
@@ -3710,10 +3769,12 @@ Instructions for you:
           });
 
           if (hasEmpty) {
-            feedbackText.innerHTML = '<span class="text-red-600 font-bold flex items-center gap-2"><i class="ph ph-warning-circle text-xl"></i> Action Required: You must provide enough information in all boxes above before the AI can refine your answers.</span>';
-            feedbackBox.classList.add('active');
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
+            btn.classList.add('animate-shake', 'ring-2', 'ring-rose-400');
+            setTimeout(() => btn.classList.remove('animate-shake', 'ring-2', 'ring-rose-400'), 600);
+            if (feedbackText && feedbackBox) {
+              feedbackText.innerHTML = '<span class="text-rose-600 font-bold flex items-center gap-2"><i class="ph ph-warning-circle text-xl shrink-0"></i> Action Required: You must provide enough information in all required boxes above before the AI can refine your answers.</span>';
+              feedbackBox.classList.add('active');
+            }
             if (firstEmptyRequired) {
               const gapBlock = firstEmptyRequired.closest('.gap-block');
               if (gapBlock) {
@@ -3731,8 +3792,24 @@ Instructions for you:
                 setTimeout(() => firstEmptyRequired.classList.remove('animate-shake'), 500);
               }, 300);
             }
-            showValidationToast('Please complete required fields above for AI refinement');
+            let fieldName = 'required box';
+            if (firstEmptyRequired) {
+              const parentContainer = firstEmptyRequired.closest('div');
+              const label = parentContainer?.querySelector('label')?.textContent || firstEmptyRequired.placeholder || 'missing input';
+              fieldName = label.replace(/\([^)]*\)/g, '').replace(/[:*]/g, '').trim();
+              if (fieldName.length > 32) fieldName = fieldName.slice(0, 29) + '...';
+            }
+            showValidationToast(`Please fill in "${fieldName}" for AI refinement`);
             return;
+          }
+
+          const originalContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Refining...';
+          btn.disabled = true;
+          if (feedbackBox && feedbackText) {
+            feedbackText.innerHTML = '<span class="text-emerald-700 font-semibold flex items-center gap-2"><i class="ph ph-spinner animate-spin text-lg"></i> Analyzing and refining your answers...</span>';
+            feedbackBox.classList.add('active');
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
 
           // Extract overarching project context so refinement preserves domain terminology
@@ -3988,8 +4065,8 @@ CRITICAL REFINEMENT INSTRUCTIONS:
         btn.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -4962,8 +5039,8 @@ Instructions:
         btnPrefillMetrics.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -4976,7 +5053,7 @@ Instructions:
           const qps = document.getElementById('qps')?.value.trim();
 
           if (!broadArea || !specificProblem) {
-            alert('Please complete Phase 1 and 2 first so the AI has context.');
+            showValidationToast('Please complete Phase 1 first so the AI has context.');
             btnPrefillMetrics.innerHTML = originalContent;
             btnPrefillMetrics.disabled = false;
             return;
@@ -5034,7 +5111,7 @@ CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
             }
           } catch (error) {
             console.error("AI Auto-fill Error:", error);
-            alert('Failed to auto-fill. ' + error.message);
+            showValidationToast('Failed to auto-fill: ' + error.message);
           } finally {
             btnPrefillMetrics.innerHTML = originalContent;
             btnPrefillMetrics.disabled = false;
@@ -5054,8 +5131,8 @@ CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
         btnRefineProcedure.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -5063,7 +5140,7 @@ CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
           const currentText = procTextarea ? procTextarea.value.trim() : '';
 
           if (!currentText || currentText.length < 15) {
-            alert('Please write a few draft notes or steps about how you will test your prototype first. The AI will then polish them into a formal scientific protocol!');
+            showValidationToast('Please write a few draft notes about testing first!');
             if (procTextarea) procTextarea.focus();
             return;
           }
@@ -5122,7 +5199,7 @@ Instructions:
             }
           } catch (err) {
             console.error("Refine Procedure Error:", err);
-            alert("Error refining procedure: " + err.message);
+            showValidationToast("Error refining procedure: " + err.message);
           } finally {
             btnRefineProcedure.innerHTML = originalContent;
             btnRefineProcedure.disabled = false;
@@ -5165,8 +5242,8 @@ Instructions:
         btnRefineHypothesis.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -5174,7 +5251,7 @@ Instructions:
           const currentText = hypoTextarea ? hypoTextarea.value.trim() : '';
 
           if (!currentText || currentText.length < 10) {
-            alert('Please write a quick guess or prediction in the box first! Then the AI will polish it into official science fair predictions.');
+            showValidationToast('Please write a quick prediction in the box first!');
             if (hypoTextarea) hypoTextarea.focus();
             return;
           }
@@ -5227,7 +5304,7 @@ Instructions:
             }
           } catch (err) {
             console.error("Refine Hypothesis Error:", err);
-            alert("Error refining hypothesis: " + err.message);
+            showValidationToast("Error refining hypothesis: " + err.message);
           } finally {
             btnRefineHypothesis.innerHTML = originalContent;
             btnRefineHypothesis.disabled = false;
@@ -5264,8 +5341,8 @@ Instructions:
         btnSuggestStatsAi.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -5422,8 +5499,8 @@ Instructions:
         btnSuggestTitle.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -5555,8 +5632,8 @@ Rules for ROBO/RIM Category Titles:
         btnRefineTitle.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
@@ -5714,8 +5791,8 @@ CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, 
         btnGenerateProposal.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
-            alert('Please enter your Gemini API Key in the Settings first!');
-            btnOpenSettings.click();
+            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
