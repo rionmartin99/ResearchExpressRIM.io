@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
-[2026-09-06 17:55:00] v2.8.3 - Fix: Eliminated all window.alert calls with top non-blocking toast notifications and auto-open settings; added touch-manipulation and active tap states to Ask AI, Polish & Refine, and Continue buttons; ensured toast pointer-events-none never intercepts mobile clicks; resolved card scoping in AI handlers; and added pointerdown blur handling.
-[2026-09-06 17:15:00] v2.8.2 - Fix: Resolved mobile button unresponsiveness by making secondary gaps optional, auto-expanding/scrolling to invalid fields with visual toast feedback, adding researcher delete buttons, and hardening modal overlay dismissals.
-[2026-09-06 12:50:00] v2.8.1 - Fix: Removed redundant STEM pill badges across all cards and input labels to eliminate duplication with part titles and streamline UI.
-[2026-09-06 12:45:00] v2.8.0 - New Feature: Engineered responsive screen adaptability for mobile phone, tablet, and desktop/laptop modes with unified header, fluid container widths, touch targets, and mobile step indicators.
-[2026-09-06 12:35:00] v2.7.3 - Fix: Resolved node label collision in stepper by removing whitespace-nowrap, adding centered responsive bounds, and expanding container width.
+[2026-09-10 12:48:00] v3.0.9 - New Feature: Rewrote FMEA & RAMP Safety into simple, intuitive English ('What Could Go Wrong & How Do You Keep It Safe?') with easy-to-follow builder gear (PPE) and machine fail-safe guidelines.
+[2026-09-10 12:42:00] v3.0.8 - New Feature: Streamlined Level 3 hardware design by removing standalone signal-conditioning and power-distribution input boxes, retaining 'How Does Your Machine Make Decisions?', and migrating dynamic Circuit & Power Advice directly to the AI Assistant.
+[2026-09-09 17:50:00] v3.0.7 - New Feature: Simplified Control Architecture, Signal Conditioning, Power Distribution, and Metrological Testing into plain, intuitive English; expanded AI advice, refinement, auto-drafting, and suggestions across all hardware & testing modules.
+[2026-09-09 16:55:00] v3.0.6 - New Feature: Expanded AI Advice, Refinement, and Constraint Suggestion engines to comprehensively evaluate, refine, auto-draft, and adopt 'What Must Your Machine Do Automatically? (Functional Requirements)'.
+[2026-09-09 16:38:00] v3.0.5 - Fix: Resolved button unresponsiveness by fixing TypeError in budget feasibility check, removing pointerdown blur conflicts, adding defensive type coercion, and wrapping initializers in error boundaries.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -159,6 +159,13 @@ CHANGELOG:
     .modal-overlay {
       background: rgba(15, 23, 42, 0.4);
       backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.opacity-0,
+    .modal-overlay.pointer-events-none,
+    .modal-overlay.hidden {
+      pointer-events: none !important;
+      visibility: hidden !important;
     }
 
     .ai-feedback-box {
@@ -338,40 +345,115 @@ CHANGELOG:
 
         <!-- Starter Inspiration Chips (Click to Try!) -->
         <div class="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-4 shadow-sm">
-          <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+          <div class="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
             <span class="flex items-center gap-1.5 text-xs font-bold text-amber-900 uppercase tracking-wide">
               <i class="ph ph-sparkle text-amber-600 text-base"></i> Need Inspiration? Click a starter idea:
             </span>
             <span class="text-[11px] text-amber-700/80 italic">Clicking any chip loads a friendly starter draft</span>
           </div>
+
+          <!-- Category Filter Tabs -->
+          <div class="flex flex-wrap items-center gap-1.5 mb-3" id="starter-filter-tabs">
+            <button type="button" class="btn-chip-filter text-xs font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-amber-700 text-white shadow-xs" data-category="all">All (10)</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="medical">🩺 Medical</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="safety">🛡️ Safety</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="education">📚 Education</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="shelter">🏠 Shelter</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="disaster">🚨 Disaster</button>
+            <button type="button" class="btn-chip-filter text-xs font-semibold px-2.5 py-1 rounded-lg transition-all cursor-pointer bg-white text-amber-900 hover:bg-amber-100/60 border border-amber-200" data-category="agri-eco">🌱 Farming &amp; Eco</button>
+          </div>
+
           <div class="flex flex-wrap gap-2" id="inspiration-chips">
+            <!-- Medical Field -->
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-red-50 text-red-800 border border-red-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="medical"
+              data-area="Medical &amp; Healthcare Support"
+              data-problem="Elderly hypertension and diabetic patients in rural Kidapawan barangays frequently miss critical pill schedules or take incorrect doses due to unorganized pill containers and memory lapses."
+              data-gap="Commercial motorized pill dispensers cost over ₱4,500 and mandate continuous home Wi-Fi and smartphone pairing, which rural households and elderly citizens cannot readily access."
+              data-author="Velasco, J. &amp; Ramos, T." data-year="2023" data-publisher="Philippine Journal of Community Medicine" data-title="Adherence Barriers in Barangay Health Medication Schedules">
+              🩺 Smart Medicine Dispenser
+            </button>
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-rose-50 text-rose-800 border border-rose-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="medical"
+              data-area="Healthcare &amp; Medical Logistics"
+              data-problem="Barangay health workers trekking to remote mountainous Kidapawan sitios face vaccine spoilage when conventional ice packs melt after 4 hours under tropical midday heat."
+              data-gap="Active compressor coolers are excessively heavy (>12 kg) and vehicle-battery dependent, while passive styrofoam ice chests lack real-time digital temperature breach alarms."
+              data-author="Mendoza, R. &amp; Aquino, D." data-year="2024" data-publisher="Journal of Tropical Health Logistics" data-title="Cold-Chain Vulnerabilities in Remote Barangay Immunization Missions">
+              🏥 Solar Vaccine Coldbox
+            </button>
+
+            <!-- Safety (Household, School, etc.) -->
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="safety"
+              data-area="Household Safety &amp; Fire Prevention"
+              data-problem="Unattended residential kitchen gas cooking stoves in Kidapawan City cause undetected LPG leaks and accidental kitchen flare-ups before family members detect the scent."
+              data-gap="Standard commercial gas alarms only emit an audible buzzer and cannot physically shut off the LPG tank regulator valve or trigger mechanical exhaust ventilation automatically."
+              data-author="Castillo, D. &amp; Tan, G." data-year="2023" data-publisher="Fire Safety and Hazard Journal" data-title="Residential Liquefied Petroleum Gas Accident Patterns and Automatic Mitigation">
+              🔥 Smart LPG Leak Sentinel
+            </button>
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-orange-50 text-orange-800 border border-orange-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="safety"
+              data-area="School Zone &amp; Campus Safety"
+              data-problem="Elementary students crossing busy highway school gates in Kidapawan City face severe vehicle collision hazards during heavy afternoon downpours and blind curve corners."
+              data-gap="Handheld crossing signs rely entirely on human guards standing directly in danger, and passive road signage lacks automated ultrasonic vehicle speed detection with flashing strobes."
+              data-author="Navarro, P. &amp; Flores, C." data-year="2024" data-publisher="Journal of Transportation Safety" data-title="School Zone Pedestrian Hazards and Automated Active Warning Systems">
+              🚸 School Crossing Guard
+            </button>
+
+            <!-- Education / Assistive Learning -->
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-blue-50 text-blue-800 border border-blue-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="education"
+              data-area="Education &amp; Assistive Learning"
+              data-problem="Visually impaired learners in inclusive Kidapawan public SPED classrooms cannot read printed STEM diagrams, math symbols, and textbook passages independently."
+              data-gap="Commercial refreshable electronic Braille displays cost upwards of ₱75,000, making them completely inaccessible for standard public school SPED centers that still rely on bulky physical paper embossing."
+              data-author="Soriano, K. &amp; Perez, V." data-year="2023" data-publisher="Philippine Educational Technology Review" data-title="Low-Cost Tactile Display Feasibility for Inclusive SPED Classrooms">
+              📖 Tactile Braille Reader
+            </button>
+
+            <!-- Shelter & Resilient Housing -->
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-cyan-50 text-cyan-800 border border-cyan-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="shelter"
+              data-area="Shelter &amp; Climate-Resilient Housing"
+              data-problem="Corrugated tin-roof emergency evacuation shelters and low-income community homes in Kidapawan reach indoor temperatures exceeding 42°C during dry seasons, causing dangerous heat exhaustion."
+              data-gap="Motorized air conditioning is unaffordable and overloads emergency camp generators, while passive wind spinners fail completely during humid, windless afternoons."
+              data-author="Bernardo, F. &amp; Lim, A." data-year="2024" data-publisher="Journal of Sustainable Housing and Habitat" data-title="Thermal Heat Stress in Evacuation Centers and Low-Cost Tin Roofing">
+              🏠 Eco-Cool Shelter Vent
+            </button>
+
+            <!-- Disaster Mitigation and Response -->
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-purple-50 text-purple-800 border border-purple-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="disaster"
+              data-area="Disaster Mitigation &amp; Early Warning"
+              data-problem="Steep hillside farming barangays along Mount Apo slopes in Kidapawan experience sudden slope destabilization and mudslides following continuous monsoon rainfall."
+              data-gap="Regional weather radar and seismic stations cannot detect micro-ground displacement and localized subterranean saturation levels hours before sudden shallow slope failures occur."
+              data-author="Bautista, L. &amp; Fernandez, H." data-year="2023" data-publisher="Philippine Journal of Disaster Preparedness" data-title="Ground-Based Soil Moisture and Tilt Micro-Sensors for Barangay Slope Failure Alerts">
+              ⛰️ Landslide Early Warning
+            </button>
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-indigo-50 text-indigo-800 border border-indigo-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="disaster"
+              data-area="Disaster Response &amp; Flood Safety"
+              data-problem="Creek water in low-lying Kidapawan residential zones surges rapidly during midnight flash rainstorms without timely localized sirens to awaken sleeping households."
+              data-gap="City-wide river gauge telemetry is restricted to major river basins, leaving tributary creeks without autonomous solar-powered water level monitors and local horn sirens."
+              data-author="Dela Cruz, A. &amp; Morales, E." data-year="2023" data-publisher="Disaster Risk Reduction Bulletin" data-title="Flash Flood Reaction Times in Urban Creek Corridors">
+              🚨 Flash Flood Siren
+            </button>
+
+            <!-- Agriculture & Environment -->
             <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-              data-area="Smart Farming & Agriculture"
+              data-category="agri-eco"
+              data-area="Smart Farming &amp; Agriculture"
               data-problem="Rooftop garden tomato seedlings in Kidapawan City frequently dry out and suffer 30% crop loss because watering manually every few hours during school is impossible."
               data-gap="Commercial smart farm irrigation systems cost over ₱3,500 and require Wi-Fi, which small rooftop planters cannot afford."
-              data-author="Santos, M. & Gomez, R." data-year="2023" data-publisher="Mindanao Journal of Agricultural Technology" data-title="Low-Cost Irrigation Bottlenecks for Urban Planters">
+              data-author="Santos, M. &amp; Gomez, R." data-year="2023" data-publisher="Mindanao Journal of Agricultural Technology" data-title="Low-Cost Irrigation Bottlenecks for Urban Planters">
               🌱 Smart Plant Waterer
             </button>
-            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-blue-50 text-blue-800 border border-blue-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-              data-area="School Waste Sorting"
+            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+              data-category="agri-eco"
+              data-area="School Waste Sorting &amp; Recycling"
               data-problem="School cafeteria recycling bins get contaminated with food waste because manually sorting plastic bottles and tin cans is slow and messy."
               data-gap="Industrial sorting conveyors are massive, expensive, and designed only for city recycling centers rather than school hallway bins."
-              data-author="Reyes, C. & Tan, L." data-year="2024" data-publisher="Philippine Journal of School Science" data-title="Hallway Waste Contamination in Public High Schools">
+              data-author="Reyes, C. &amp; Tan, L." data-year="2024" data-publisher="Philippine Journal of School Science" data-title="Hallway Waste Contamination in Public High Schools">
               🗑️ Smart Trash Sorter
-            </button>
-            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-purple-50 text-purple-800 border border-purple-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-              data-area="Community Flood Safety"
-              data-problem="Creek water in low-lying Kidapawan neighborhoods rises rapidly during night storms without early audio warnings for sleeping families."
-              data-gap="City water stations only monitor major rivers, leaving small neighborhood drainage creeks without real-time localized sirens."
-              data-author="Dela Cruz, A. & Morales, E." data-year="2023" data-publisher="Disaster Risk Reduction Bulletin" data-title="Flash Flood Reaction Times in Urban Creek Corridors">
-              🚨 Flood Warning Buzzer
-            </button>
-            <button type="button" class="btn-chip-starter text-xs font-semibold bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 rounded-xl px-3 py-1.5 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
-              data-area="Backyard Poultry Care"
-              data-problem="Backyard chicken hatcheries lose 25% of eggs during rainy cold snaps due to inconsistent incubator temperature control."
-              data-gap="Commercial incubators rely on constant AC power grids and lack cheap battery/solar heating backups during brownouts."
-              data-author="Alvarez, P." data-year="2024" data-publisher="Livestock and Poultry Innovator" data-title="Thermal Drop Hazards in Backyard Egg Incubation">
-              🐣 Smart Egg Incubator
             </button>
           </div>
         </div>
@@ -405,10 +487,11 @@ CHANGELOG:
             <span class="text-xs text-slate-600 font-semibold group-open:rotate-180 transition-transform">▼ Click to Expand</span>
           </summary>
           <ul class="list-disc pl-5 mt-3 space-y-1.5 text-xs text-slate-700 leading-relaxed">
-            <li><b>Pick Local:</b> Choose something you can actually see, touch, and test around Kidapawan City (like garden plants, classroom waste, or pets) rather than giant global problems.</li>
+            <li><b>Pick Local:</b> Choose something you can actually see, touch, and test around Kidapawan City (like health clinic logistics, household gas safety, school crossings, classroom learning aids, storm shelters, flood/landslide sirens, or backyard gardens) rather than giant abstract problems.</li>
+            <li><b>Root Cause (5 Whys):</b> Ask "Why does this problem happen?" 5 times until you isolate the exact unmet physical or electronic bottleneck, avoiding the "solution in search of a problem" trap!</li>
             <li><b>What is a "Technological Gap"?</b> It just means: <i>"What is missing or flawed in existing tools?"</i> (e.g., commercial waterers are too expensive or need internet that isn't available in remote farms).</li>
+            <li><b>Store Gadget Flaws ("Prior Art"):</b> Why can't people just buy an existing product from a store or online? Explaining why store gadgets fail (too expensive, fragile, or missing automatic sensors) proves why your new invention is truly needed!</li>
             <li><b>Real Proof:</b> Science fair rules require citing a real reference (book, journal, or reliable article) with the author and year.</li>
-            <li><b>Ask "Why?" 3 Times:</b> Keep asking why the problem happens until you reach the real root cause!</li>
           </ul>
         </details>
 
@@ -417,10 +500,38 @@ CHANGELOG:
             <div class="flex items-center justify-between gap-2 mb-1">
               <label class="block font-bold text-slate-800">Area of Interest <span class="text-xs font-normal text-slate-500">(🌍 What area do you want to explore?)</span></label>
             </div>
-            <p class="text-xs text-slate-500 mb-2">Pick a topic like farming, recycling, flood safety, pet care, or energy.</p>
-            <input type="text" id="broad-area" class="input-glass w-full rounded-2xl p-4 text-slate-800"
-              placeholder="e.g., Smart Farming, School Recycling, Disaster Safety..." required>
-            <div class="example-text"><i class="ph ph-info"></i><span><strong>Example:</strong> Automated urban farming and rooftop vegetable gardening.</span></div>
+            <p class="text-xs text-slate-500 mb-2">Pick a topic like medical &amp; healthcare, household or school safety, education &amp; assistive tech, resilient shelter, disaster mitigation &amp; response, smart farming, or environmental automation.</p>
+            
+            <!-- Quick-Pick Domain Badges -->
+            <div class="flex flex-wrap items-center gap-1.5 mb-2.5">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Quick Picks:</span>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-800 hover:bg-red-100 transition-colors cursor-pointer" data-val="Medical Field &amp; Healthcare Support">🩺 Medical Field</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 transition-colors cursor-pointer" data-val="Household &amp; Domestic Safety">🛡️ Household Safety</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-orange-200 bg-orange-50 text-orange-800 hover:bg-orange-100 transition-colors cursor-pointer" data-val="School Zone &amp; Campus Safety">🚸 School Safety</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100 transition-colors cursor-pointer" data-val="Education &amp; Assistive Learning Technology">📚 Education</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-800 hover:bg-cyan-100 transition-colors cursor-pointer" data-val="Shelter &amp; Climate-Resilient Housing">🏠 Resilient Shelter</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 transition-colors cursor-pointer" data-val="Disaster Mitigation &amp; Emergency Response">🚨 Disaster Mitigation</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer" data-val="Smart Farming &amp; Agriculture">🌱 Smart Agriculture</button>
+              <button type="button" class="btn-quick-area text-xs font-semibold px-2.5 py-1 rounded-lg border border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100 transition-colors cursor-pointer" data-val="Waste Management &amp; Environmental Automation">♻️ Environmental / Waste</button>
+            </div>
+
+            <input type="text" id="broad-area" list="broad-area-suggestions" class="input-glass w-full rounded-2xl p-4 text-slate-800"
+              placeholder="e.g., Medical Field, Household Safety, School Safety, Education, Resilient Shelter, Disaster Mitigation..." required>
+            
+            <datalist id="broad-area-suggestions">
+              <option value="Medical Field &amp; Healthcare Support">
+              <option value="Rural Health &amp; Vaccine Cold-Chain Logistics">
+              <option value="Household &amp; Domestic Safety (LPG &amp; Fire Prevention)">
+              <option value="School Zone &amp; Campus Pedestrian Safety">
+              <option value="Education &amp; Assistive Learning Technology">
+              <option value="Shelter &amp; Climate-Resilient Housing (Heat/Storm Mitigation)">
+              <option value="Disaster Mitigation &amp; Early Warning Systems">
+              <option value="Flash Flood &amp; Severe Weather Emergency Response">
+              <option value="Smart Farming &amp; Agricultural Robotics">
+              <option value="School Waste Sorting &amp; Environmental Automation">
+            </datalist>
+
+            <div class="example-text"><i class="ph ph-info"></i><span><strong>Examples:</strong> Automated vaccine cooler (Medical), Smart LPG leak shutoff (Household Safety), School crosswalk strobe alert (School Safety), Low-cost tactile Braille reader (Education), Convective heat-reduction shelter vent (Shelter), Barangay landslide early warning beacon (Disaster Mitigation).</span></div>
           </div>
 
           <div>
@@ -437,6 +548,16 @@ CHANGELOG:
             class="mt-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl py-2.5 px-4 flex items-center gap-2 transition-colors border border-indigo-200 border-dashed w-fit cursor-pointer shadow-xs">
             <i class="ph ph-plus-circle text-base"></i> Add Another Missing Tool / Gap
           </button>
+
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <label class="block font-bold text-slate-800">Why Store-Bought Gadgets Fail <span class="text-xs font-normal text-slate-500">(🛒 Prior Art &amp; Market Flaws)</span></label>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">If someone asks, <em>"Why don't you just buy a ready-made gadget online or at the store?"</em>, what goes wrong with it? Why doesn't it work well for regular people in our community (e.g., too expensive, breaks easily, needs constant Wi-Fi, or lacks automated sensors)?</p>
+            <textarea id="prior-art-failures" class="input-glass w-full rounded-2xl p-4 min-h-[85px] text-slate-800 text-sm"
+              placeholder="e.g., Store-bought timer waterers cost over ₱1,500 and only turn on at fixed hours. Because they cannot tell if it already rained, they waste water and drown plant roots during rainy days in Kidapawan City."></textarea>
+            <div class="example-text"><i class="ph ph-lightbulb text-amber-500 text-base"></i><span><strong>💡 Guide for Judges:</strong> When judges ask, <em>"Why can't people just buy what's already in the market?"</em>, tell them the exact flaw: Is it <strong>too expensive for ordinary families</strong>, <strong>fails without home Wi-Fi</strong>, or <strong>lacks smart sensors</strong> to react to real-time changes?</span></div>
+          </div>
 
           <div>
             <div class="flex items-center justify-between gap-2 mb-1">
@@ -486,7 +607,7 @@ CHANGELOG:
           </summary>
           <ul class="list-disc pl-5 mt-3 space-y-1.5 text-xs text-slate-700 leading-relaxed">
             <li><b>Use Exact Numbers:</b> Judges love real numbers! Say <i>"loses 30% of crops"</i> instead of <i>"loses lots of plants"</i>.</li>
-            <li><b>The Solution:</b> Your action should be a tangible machine you can actually assemble (a circuit, sensor, or automated pump).</li>
+            <li><b>Automatic Tasks ("Functional Requirements"):</b> Describe what job your machine does all by itself without someone pushing buttons (e.g., checks sensors every 10 seconds, turns on a pump when dry, and alerts the user).</li>
             <li><b>Physical Limits:</b> Real inventors set rules before building: how heavy it is, how fast it reacts, and the maximum money in your pocket.</li>
           </ul>
         </details>
@@ -519,33 +640,38 @@ CHANGELOG:
               placeholder="[4. Dream target: e.g., reducing crop loss to 10%]" required> by
             <input type="text" id="qps-action"
               class="input-glass rounded-xl px-3 py-1.5 w-full md:w-auto inline-block border-b-2 border-brand-amber/50 bg-white shadow-sm text-sm"
-              placeholder="[5. Action: e.g., building an automatic solar watering robot]" required>, as measured by
+              placeholder="[5. Your machine: e.g., building a solar automated watering pump]" required>,
+            as measured by
             <input type="text" id="qps-target-metric"
               class="input-glass rounded-xl px-3 py-1.5 w-full md:w-auto inline-block border-b-2 border-brand-amber/50 bg-white shadow-sm text-sm"
-              placeholder="[6. Proved by: e.g., 40% steady moisture over 30 days]" required>."
+              placeholder="[6. Goal number: e.g., keeping moisture at 60-70%]" required>."
           </div>
-          <div class="example-text mt-6 bg-white p-4 rounded-xl border border-slate-100 shadow-sm"><i
-              class="ph ph-info text-brand-teal text-lg"></i><span><strong>Example:</strong> "The current state of
-              <u>urban rooftop farming in Kidapawan</u> is measured at <u>a 30% crop loss during dry seasons</u>,
-              resulting in <u>wasted effort and low yields</u>. This research aims to achieve <u>a 15% reduction in crop
-              loss</u> by <u>building a low-cost, automated soil-moisture sensor</u>, as measured by <u>plant survival
-              rate after 30 days</u>."</span></div>
-          <div id="suggest-box-qps"
-            class="hidden mt-4 bg-amber-50/80 border border-amber-200 rounded-xl p-4 shadow-inner">
-            <div class="text-sm font-bold text-amber-700 mb-2 flex items-center gap-1"><i
-                class="ph ph-sparkle text-lg"></i> AI Suggestions (Based on Phase 1) - Write your own version above.
+          <div class="mt-4 text-xs text-slate-500 italic bg-amber-50/50 p-3 rounded-xl border border-amber-100 flex items-center gap-1.5">
+            <i class="ph ph-info text-amber-600 text-sm flex-shrink-0"></i>
+            <span><strong>Teacher Tip:</strong> Just fill in each blank with short phrases. As you type, the complete sentence forms automatically below!</span>
+          </div>
+
+          <!-- Live Sentence Preview -->
+          <div class="mt-4 p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80">
+            <div class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1 flex items-center gap-1">
+              <i class="ph ph-eye text-sm"></i> Live Full Sentence Preview:
             </div>
-            <div class="suggestion-content text-sm text-slate-800 space-y-3"></div>
+            <p id="qps-live-preview" class="text-xs md:text-sm text-slate-700 leading-relaxed font-medium">
+              "The current state of ... is measured at ..., resulting in ... This research aims to achieve ... by ..., as measured by ..."
+            </p>
           </div>
+
+          <!-- Hidden legacy input to ensure full backward compatibility with any script referencing 'qps' -->
+          <input type="hidden" id="qps" name="qps">
         </div>
 
-        <!-- Quantitative Engineering Goal & Design Constraints -->
-        <div class="border-t border-slate-200 pt-6 mt-6 mb-6">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+        <!-- 3 Quantitative Engineering Constraints Section -->
+        <div class="border-t border-slate-200 pt-6 mt-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
             <div>
-              <h3 class="font-bold text-slate-700 text-lg flex items-center gap-2">
-                <i class="ph ph-compass text-amber-600 text-xl"></i> Quantitative Design Constraints Triad <span class="text-sm font-normal text-slate-500">(Engineering Limits)</span>
-              </h3>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-slate-800 text-lg">Engineering Constraints &amp; Rules <span class="text-xs font-normal text-slate-500">(📏 Physical, Speed &amp; Budget Limits)</span></h3>
+              </div>
               <p class="text-sm text-slate-500 mt-0.5">Every real engineering project needs exact limits! Set clear
                 targets for size, weight, reaction speed, and budget so you know when you succeed.</p>
             </div>
@@ -588,6 +714,19 @@ CHANGELOG:
             </div>
           </div>
 
+          <!-- Functional Requirements vs Design Constraints Matrix -->
+          <div class="bg-white/60 p-5 rounded-2xl border border-white shadow-sm mb-5">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <label class="block font-bold text-slate-800 flex items-center gap-1.5">
+                <i class="ph ph-lightning text-amber-600"></i> What Must Your Machine Do Automatically? <span class="text-xs font-normal text-slate-500">(⚡ Functional Requirements)</span>
+              </label>
+            </div>
+            <p class="text-xs text-slate-500 mb-2">When you turn your machine on, what specific job must it do all by itself without a person helping it? (e.g., how often it reads sensors, how much it moves or pumps, and how long it keeps running on battery)</p>
+            <input type="text" id="functional-requirements" class="input-glass w-full rounded-xl p-3 text-slate-800 text-sm"
+              placeholder="e.g., Automatically keep soil moisture between 40% and 60%, pump 150 mL of water per minute when dry, and run for 24 hours on battery." required>
+            <div class="example-text"><i class="ph ph-lightbulb text-amber-500 text-base"></i><span><strong>💡 Easy Guide for Inventors:</strong> <em>Functional Requirements</em> are the <strong>Active Jobs</strong> your machine must do (like sounding a buzzer or pumping water). The <em>Constraints</em> below are the <strong>Rules &amp; Limits</strong> it must obey (like size, weight, and budget)!</span></div>
+          </div>
+
           <!-- 3 Constraint Pillars Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <!-- Pillar 1: Mechanical Constraints -->
@@ -621,18 +760,65 @@ CHANGELOG:
 
           <!-- Pillar 3: Financial Constraint (Budget Limit) -->
           <div class="bg-white/60 p-5 rounded-2xl border border-white shadow-sm mb-5">
-            <label class="block font-medium mb-1 text-slate-700 flex items-center gap-1.5">
-              <i class="ph ph-coins text-emerald-600"></i> Financial Constraints <span class="text-xs font-normal text-slate-400">(3. Budget Ceiling: Maximum Build Cost)</span>
-            </label>
-            <p class="text-xs text-slate-500 mb-2">What is the absolute maximum money in Philippine Pesos (₱) to build
-              this prototype? (Low-cost solutions win awards!)</p>
-            <div class="relative w-full md:w-1/2">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">₱</span>
-              <input type="number" id="budget-limit" class="input-glass w-full rounded-xl pl-8 p-3 text-slate-800"
-                placeholder="e.g., 1500" required>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-1">
+              <label class="block font-medium text-slate-800 flex items-center gap-1.5">
+                <i class="ph ph-coins text-emerald-600 text-lg"></i> Financial Constraints 
+                <span class="text-xs font-normal text-slate-500">(3. Realistic Budget Ceiling: Maximum Build Cost)</span>
+              </label>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full self-start sm:self-auto flex items-center gap-1">
+                <i class="ph ph-shield-check"></i> Feasibility Check
+              </span>
             </div>
-            <div class="example-text mt-2"><i class="ph ph-info"></i><span><strong>Example:</strong> ₱1,500 (Proves the
-                system is affordable for local growers in Kidapawan City).</span></div>
+            <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+              What is the absolute maximum money in Philippine Pesos (₱) to build this prototype? Keep it <strong>realistic and mathematically defensible</strong>. Low-cost solutions win awards, but unrealistic budgets (e.g., ₱400 for a robot with batteries and motors) get penalized by science fair adjudicators!
+            </p>
+
+            <!-- Engineering Trade-off Callout Box (Cost <-> Performance <-> Reliability) -->
+            <div class="bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 border border-amber-200/80 rounded-xl p-3.5 mb-3 text-xs shadow-xs">
+              <div class="flex items-center justify-between gap-2 text-amber-900 font-bold mb-1.5">
+                <div class="flex items-center gap-1.5">
+                  <i class="ph ph-scales text-amber-600 text-base"></i>
+                  <span>Engineering Golden Rule: The Trade-off Triad</span>
+                </div>
+                <span class="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold">Pick 2</span>
+              </div>
+              <div class="text-center font-mono font-bold text-amber-950 bg-white/80 py-1.5 px-2 rounded-lg border border-amber-200/70 mb-2 shadow-2xs">
+                Cost &nbsp;⟷&nbsp; Performance &nbsp;⟷&nbsp; Reliability &nbsp;&nbsp;<span class="text-amber-700 font-extrabold">(Pick 2)</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-700 leading-snug">
+                <div class="bg-white/70 p-2 rounded-lg border border-amber-100/80">
+                  <strong class="text-amber-900 block mb-0.5 flex items-center gap-1"><i class="ph ph-trend-down text-amber-600"></i> Low Cost + High Speed:</strong>
+                  Reliability drops (cheap sensors drift, small batteries drain fast, risk of brownouts).
+                </div>
+                <div class="bg-white/70 p-2 rounded-lg border border-amber-100/80">
+                  <strong class="text-teal-900 block mb-0.5 flex items-center gap-1"><i class="ph ph-check-shield text-teal-600"></i> Low Cost + High Reliability:</strong>
+                  Performance drops (tabletop proof-of-concept scale, slower sampling rate, shorter range).
+                </div>
+                <div class="bg-white/70 p-2 rounded-lg border border-amber-100/80">
+                  <strong class="text-indigo-900 block mb-0.5 flex items-center gap-1"><i class="ph ph-lightning text-indigo-600"></i> High Speed + High Reliability:</strong>
+                  Cost rises (industrial-grade sensors, high-discharge LiFePO4 batteries, custom PCBs).
+                </div>
+              </div>
+            </div>
+
+            <!-- Input Field with Currency Prefix -->
+            <div class="relative w-full md:w-1/2 mb-2">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold text-base">₱</span>
+              <input type="number" id="budget-limit" class="input-glass w-full rounded-xl pl-8 pr-4 p-3 text-slate-800 font-semibold text-base focus:ring-2 focus:ring-emerald-400"
+                placeholder="e.g., 1850" min="100" step="50" required>
+            </div>
+
+            <!-- Real-Time Automated Feasibility Sanity Check Container -->
+            <div id="budget-feasibility-feedback" class="mt-2 transition-all duration-200">
+              <!-- Dynamically populated by checkBudgetFeasibility() -->
+            </div>
+
+            <div class="example-text mt-2.5 bg-slate-50/80 border border-slate-200/70 p-2.5 rounded-xl">
+              <i class="ph ph-info text-slate-500 text-base shrink-0 mt-0.5"></i>
+              <span class="text-xs text-slate-600 leading-relaxed">
+                <strong>Realistic Example:</strong> ₱1,850 (ESP32 MCU: ₱280, capacitive soil moisture sensor: ₱120, 5V mini water pump + relay: ₱250, 18650 Li-ion battery + BMS: ₱350, waterproof ABS housing &amp; tubing: ₱450, wiring/fasteners: ₱400). Proves genuine community affordability for farmers in Kidapawan City without sacrificing electrical reliability.
+              </span>
+            </div>
           </div>
 
           <!-- Dynamic Engineering Goal Summary Preview -->
@@ -827,14 +1013,30 @@ CHANGELOG:
           </div>
         </div>
 
-        <div>
+        <!-- How Does Your Machine Make Decisions? (Brain & Control Logic) -->
+        <div class="mb-6 bg-white/60 p-5 rounded-2xl border border-white shadow-sm">
           <div class="flex items-center justify-between gap-2 mb-1">
-            <label class="block font-bold text-slate-800">RAMP Hazard Management Protocol <span class="text-xs font-normal text-slate-500">(🛡️ Safety Shield)</span></label>
+            <label class="block font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="ph ph-flow-arrow text-indigo-600 text-lg"></i> How Does Your Machine Make Decisions? <span class="text-xs font-normal text-slate-500">(🧠 Computer Brain &amp; Control Logic)</span>
+            </label>
           </div>
-          <p class="text-xs text-slate-500 mb-2">Spot one risk (hot glue/soldering iron, sharp wire, splashes) and how you'll keep yourself safe (safety goggles, adult supervision, master shutoff switch).</p>
+          <p class="text-xs text-slate-500 mb-2">When your machine reads sensor data, how does its computer brain decide when to turn on motors or alarms, and how does it shut off to stay safe? (e.g., how many seconds it waits before reacting, and automatic cutoff if something goes wrong)</p>
+          <input type="text" id="control-architecture" class="input-glass w-full rounded-xl p-3 text-slate-800 text-sm"
+            placeholder="e.g., Check moisture every 10 seconds. If dry for 2 checks in a row, turn on the pump for 15 seconds. Automatically turn off if moisture does not rise within 20 seconds (leak protection)." required>
+          <div class="example-text"><i class="ph ph-lightbulb text-amber-500 text-base"></i><span><strong>💡 Easy Guide for Inventors:</strong> Tell judges how your machine "thinks"! Does it double-check sensor numbers before acting so it doesn't get tricked by noise, and does it turn off automatically if a tube leaks or gets stuck?</span></div>
+        </div>
+
+        <!-- What Could Go Wrong & How Do You Keep It Safe? (Safety Gear & Machine Fail-Safes) -->
+        <div class="mb-6 bg-white/60 p-5 rounded-2xl border border-white shadow-sm">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <label class="block font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="ph ph-shield-check text-teal-700 text-lg"></i> What Could Go Wrong &amp; How Do You Keep It Safe? <span class="text-xs font-normal text-slate-500">(🛡️ Safety Gear &amp; Machine Fail-Safes)</span>
+            </label>
+          </div>
+          <p class="text-xs text-slate-500 mb-2">Every good inventor plans for accidents! What could hurt you while building (like sharp tools or hot parts), what could break the machine (like water spills or a jammed motor), and what is your plan to stay safe?</p>
           <textarea id="ramp-safety" class="input-glass w-full rounded-2xl p-4 min-h-[90px] text-slate-800 text-sm"
-            placeholder="What is one physical danger and how will you protect yourself?" required></textarea>
-          <div class="example-text"><i class="ph ph-info"></i><span><strong>Example:</strong> Water splashes could short the circuit. We will use a waterproof plastic container, low 5V voltage, and safety glasses while soldering. Rule: We will NEVER grow dangerous molds or germs!</span></div>
+            placeholder="e.g., Wear safety goggles and gloves when cutting materials. Put electronics in a splash-proof plastic box. If a motor jams or runs longer than 15 seconds, shut it off automatically so it won't overheat." required></textarea>
+          <div class="example-text"><i class="ph ph-lightbulb text-amber-500 text-base"></i><span><strong>💡 Easy Guide for Inventors:</strong> Judges love seeing you plan ahead! Mention: 1) What safety gear you wear (goggles/gloves), 2) How you protect the circuits (like a waterproof case), and 3) How the machine turns itself off if something goes wrong. (Note: No dangerous chemicals, live 220V mains, or biohazard molds allowed!)</span></div>
         </div>
 
         <!-- AI Feedback Section -->
@@ -1185,6 +1387,32 @@ CHANGELOG:
                   <span id="procedure-apply-status" class="text-xs text-emerald-700 font-semibold ml-auto hidden">✓ Applied!</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Subsystem Verification (Testing Individual Parts on Desk) -->
+            <div class="mb-5 bg-white/60 p-5 rounded-2xl border border-white shadow-sm">
+              <div class="flex items-center gap-2 mb-1">
+                <label class="block font-bold text-slate-800 flex items-center gap-1.5">
+                  <i class="ph ph-test-tube text-teal-600"></i> Testing Individual Parts on the Desk <span class="text-xs font-normal text-slate-500">(🔬 Part Accuracy &amp; Benchtop Testing)</span>
+                </label>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">Before assembling the whole robot, how will you test each sensor and motor on your desk to prove they measure accurately and react quickly?</p>
+              <textarea id="subsystem-verification" class="input-glass w-full rounded-2xl p-4 min-h-[105px] text-slate-800 text-sm"
+                placeholder="e.g., Test the moisture sensor in 30 cups of soil with known water levels, compare readings against a standard digital scale or multimeter, and measure how many milliseconds it takes to respond."></textarea>
+              <div class="example-text"><i class="ph ph-lightbulb text-teal-500 text-base"></i><span><strong>💡 Easy Guide for Inventors:</strong> Always test parts on your desk first! Show judges that you tested your sensors 30 times against a trusted standard meter to prove they tell the truth before putting them in the machine.</span></div>
+            </div>
+
+            <!-- System-Level Validation (Testing Whole Machine in Real Life) -->
+            <div class="mb-5 bg-white/60 p-5 rounded-2xl border border-white shadow-sm">
+              <div class="flex items-center gap-2 mb-1">
+                <label class="block font-bold text-slate-800 flex items-center gap-1.5">
+                  <i class="ph ph-rocket-launch text-indigo-600"></i> Testing the Whole Machine in Real Life <span class="text-xs font-normal text-slate-500">(⚡ Full Robot Real-World Stress Tests)</span>
+                </label>
+              </div>
+              <p class="text-xs text-slate-500 mb-2">When your machine is fully built, how will you test it doing its entire job under tough real-world conditions (low battery, bright sun vs darkness, or someone blocking a sensor)?</p>
+              <textarea id="system-validation" class="input-glass w-full rounded-2xl p-4 min-h-[105px] text-slate-800 text-sm"
+                placeholder="e.g., Run 30 full automated test cycles in both bright daylight and darkness, test how it behaves when the battery drops to 3.4V, and check if it safely shuts off when the water tube is blocked."></textarea>
+              <div class="example-text"><i class="ph ph-lightbulb text-amber-500 text-base"></i><span><strong>💡 Easy Guide for Inventors:</strong> In robotics, your primary test subject is the MACHINE itself—not plants or people! Test if your machine operates reliably, doesn't freeze, and handles edge cases across 30 full runs.</span></div>
             </div>
 
             <!-- Inferential Statistical Treatment & Experimental Power Section -->
@@ -1861,6 +2089,11 @@ CHANGELOG:
 
   <!-- Internal JavaScript -->
   <script>
+    // Global Error Boundary to prevent silent script crashes
+    window.addEventListener('error', (e) => {
+      console.error("ERSA Runtime Script Error:", e.error || e.message);
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       // --- Date Time Footer ---
       const datetimeElement = document.getElementById('current-datetime');
@@ -1977,13 +2210,12 @@ CHANGELOG:
       function closeGradeModal() {
         if (!gradeModal || !gradeDialog) return;
         gradeModal.classList.add('opacity-0', 'pointer-events-none');
+        gradeModal.style.pointerEvents = 'none';
         gradeDialog.classList.remove('scale-100');
         gradeDialog.classList.add('scale-95');
         setTimeout(() => {
-          if (gradeModal.classList.contains('opacity-0')) {
-            gradeModal.classList.add('hidden');
-          }
-        }, 300);
+          gradeModal.classList.add('hidden');
+        }, 150);
       }
 
       if (gradeModal) {
@@ -2289,6 +2521,53 @@ TONE & VOCABULARY DIRECTIVE:
       }
 
       // --- Inspiration Starter Chips Handler (Level 1 Explorer) ---
+      // Category Filter Tabs Handler
+      document.querySelectorAll('.btn-chip-filter').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const cat = tab.dataset.category;
+          document.querySelectorAll('.btn-chip-filter').forEach(t => {
+            t.classList.remove('bg-amber-700', 'text-white', 'shadow-xs');
+            t.classList.add('bg-white', 'text-amber-900', 'hover:bg-amber-100/60');
+          });
+          tab.classList.remove('bg-white', 'text-amber-900', 'hover:bg-amber-100/60');
+          tab.classList.add('bg-amber-700', 'text-white', 'shadow-xs');
+
+          document.querySelectorAll('.btn-chip-starter').forEach(chip => {
+            if (cat === 'all' || chip.dataset.category === cat) {
+              chip.classList.remove('hidden');
+            } else {
+              chip.classList.add('hidden');
+            }
+          });
+        });
+      });
+
+      // Quick-Pick Area Buttons Handler
+      document.querySelectorAll('.btn-quick-area').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const areaInput = document.getElementById('broad-area');
+          if (areaInput && btn.dataset.val) {
+            areaInput.value = btn.dataset.val;
+            areaInput.dispatchEvent(new Event('input', { bubbles: true }));
+            saveFieldToStorage('broad-area', btn.dataset.val);
+
+            btn.classList.add('ring-2', 'ring-amber-500');
+            setTimeout(() => btn.classList.remove('ring-2', 'ring-amber-500'), 800);
+
+            const saveStatus = document.getElementById('save-status');
+            if (saveStatus) {
+              saveStatus.textContent = `✨ Selected Area: ${btn.textContent.trim()}!`;
+              saveStatus.classList.remove('opacity-0');
+              setTimeout(() => {
+                saveStatus.classList.add('opacity-0');
+                saveStatus.textContent = 'Auto-saved';
+              }, 2500);
+            }
+          }
+        });
+      });
+
+      // Starter Chips Click Handler
       document.querySelectorAll('.btn-chip-starter').forEach(btn => {
         btn.addEventListener('click', () => {
           const areaInput = document.getElementById('broad-area');
@@ -2296,10 +2575,12 @@ TONE & VOCABULARY DIRECTIVE:
           
           if (areaInput && btn.dataset.area) {
             areaInput.value = btn.dataset.area;
+            areaInput.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('broad-area', btn.dataset.area);
           }
           if (problemInput && btn.dataset.problem) {
             problemInput.value = btn.dataset.problem;
+            problemInput.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('specific-problem', btn.dataset.problem);
           }
           
@@ -2307,26 +2588,31 @@ TONE & VOCABULARY DIRECTIVE:
           const gap1 = document.getElementById('research-gap-1');
           if (gap1 && btn.dataset.gap) {
             gap1.value = btn.dataset.gap;
+            gap1.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('research-gap-1', btn.dataset.gap);
           }
           const author1 = document.getElementById('gap-author-1');
           if (author1 && btn.dataset.author) {
             author1.value = btn.dataset.author;
+            author1.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('gap-author-1', btn.dataset.author);
           }
           const year1 = document.getElementById('gap-year-1');
           if (year1 && btn.dataset.year) {
             year1.value = btn.dataset.year;
+            year1.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('gap-year-1', btn.dataset.year);
           }
           const pub1 = document.getElementById('gap-publisher-1');
           if (pub1 && btn.dataset.publisher) {
             pub1.value = btn.dataset.publisher;
+            pub1.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('gap-publisher-1', btn.dataset.publisher);
           }
           const title1 = document.getElementById('gap-title-1');
           if (title1 && btn.dataset.title) {
             title1.value = btn.dataset.title;
+            title1.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('gap-title-1', btn.dataset.title);
           }
 
@@ -2484,13 +2770,12 @@ TONE & VOCABULARY DIRECTIVE:
 
       function closeModal() {
         modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.style.pointerEvents = 'none';
         dialog.classList.remove('scale-100');
         dialog.classList.add('scale-95');
         setTimeout(() => {
-          if (modal.classList.contains('opacity-0')) {
-            modal.classList.add('hidden');
-          }
-        }, 300);
+          modal.classList.add('hidden');
+        }, 150);
       }
 
       btnCloseSettings.addEventListener('click', closeModal);
@@ -2523,13 +2808,12 @@ TONE & VOCABULARY DIRECTIVE:
 
       function closeResetModal() {
         resetModal.classList.add('opacity-0', 'pointer-events-none');
+        resetModal.style.pointerEvents = 'none';
         resetDialog.classList.remove('scale-100');
         resetDialog.classList.add('scale-95');
         setTimeout(() => {
-          if (resetModal.classList.contains('opacity-0')) {
-            resetModal.classList.add('hidden');
-          }
-        }, 300);
+          resetModal.classList.add('hidden');
+        }, 150);
       }
 
       if (btnStartNew) {
@@ -2588,6 +2872,7 @@ TONE & VOCABULARY DIRECTIVE:
       function openPdfModal() {
         resetPdfModalViews();
         if (pdfModal) {
+          pdfModal.style.pointerEvents = 'auto';
           pdfModal.classList.remove('hidden');
           requestAnimationFrame(() => {
             pdfModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -2602,15 +2887,14 @@ TONE & VOCABULARY DIRECTIVE:
       function closePdfModal() {
         if (pdfModal) {
           pdfModal.classList.add('opacity-0', 'pointer-events-none');
+          pdfModal.style.pointerEvents = 'none';
           if (pdfDialog) {
             pdfDialog.classList.remove('scale-100');
             pdfDialog.classList.add('scale-95');
           }
           setTimeout(() => {
-            if (pdfModal.classList.contains('opacity-0')) {
-              pdfModal.classList.add('hidden');
-            }
-          }, 300);
+            pdfModal.classList.add('hidden');
+          }, 150);
         }
       }
 
@@ -2748,9 +3032,15 @@ Return your response ONLY as a JSON object matching this exact structure:
 {
   "project-title": "String: Full descriptive research title (formulated via EDP Triad if possible)",
   "researchers": ["String: Researcher Name 1", "String: Researcher Name 2"],
-  "broad-area": "String: Broad field (e.g., Agricultural Robotics, Assistive Technology, Environmental Automation)",
+  "broad-area": "String: Broad field (e.g., Medical & Healthcare, Household/School Safety, Educational Tech, Resilient Shelter, Disaster Mitigation, Agricultural Robotics)",
   "specific-problem": "String: The localized, specific root problem being addressed",
-  "qps": "String: Quantified Problem Statement with baseline metrics (e.g. % loss, error rates, manual labor hours)",
+  "qps-phenomenon": "String: The observed deficit or phenomenon (e.g., erratic soil moisture levels)",
+  "qps-current-metric": "String: Baseline quantified metric (e.g., 35% crop mortality or 4 hours manual labor/day)",
+  "qps-specific-problem": "String: The exact real-world problem (e.g., premature tomato seedling wilting in urban gardens)",
+  "qps-target-state": "String: Desired target state (e.g., automated optimal root hydration)",
+  "qps-action": "String: Engineering mechanism/action (e.g., closed-loop sensor-driven drip irrigation)",
+  "qps-target-metric": "String: Target measurable benchmark (e.g., maintaining 60-70% soil moisture with <5% crop loss)",
+  "prior-art-failures": "String: Prior art and commercial solutions failure analysis and why existing devices fail or remain inaccessible",
   "gaps": [
     {
       "gap": "String: Detailed description of technological bottleneck or missing knowledge",
@@ -2762,6 +3052,7 @@ Return your response ONLY as a JSON object matching this exact structure:
       "type": "Technological Gap"
     }
   ],
+  "functional-requirements": "String: Functional Requirements (FR) vs Design Constraints (DC) engineering matrix",
   "mechanical-constraints": "String: Dimensions, mass, payload capacity, and structural limits",
   "software-constraints": "String: Processing loop speed/Hz, latency in ms, or sensor accuracy %",
   "budget-limit": "String or Number: Development or prototype cost limit in PHP (e.g., 2500)",
@@ -2769,23 +3060,26 @@ Return your response ONLY as a JSON object matching this exact structure:
   "delimitations": "String: What the prototype will NOT do (intentional boundaries)",
   "var-independent": "String: Manipulated variable (e.g., gradient angle, payload weight)",
   "var-dependent": "String: Measured performance metric (e.g., traversal velocity in m/s)",
-  "var-controlled": "String: Environmental constants held rigid",
-  "sense-component": "String: Primary sensors used",
-  "think-component": "String: Central microcontroller or computing board",
-  "act-component": "String: Actuators, motors, drivers, or mechanisms",
-  "power-source": "String: Battery pack, voltage regulator, or power supply",
-  "ramp-hazard": "String: Key electrical or mechanical hazard and safety mitigation",
+  "var-control": "String: Environmental constants held rigid",
+  "mat-sensor": "String: Primary sensors used",
+  "mat-brain": "String: Central microcontroller or computing board",
+  "mat-actuator": "String: Actuators, motors, drivers, or mechanisms",
+  "mat-power": "String: Battery pack, voltage regulator, or power supply",
+  "control-architecture": "String: Algorithmic control architecture, deterministic state machine, and fail-safe transitions",
+  "ramp-safety": "String: Key electrical or mechanical hazard and safety mitigation",
   "testing-mode": "table-top or prototype-1to1 (Select 'table-top' for miniaturized models, or 'prototype-1to1' for actual-size devices tested in bounded test areas)",
   "full-scale-scope": "String: Full real-world application scope (e.g., 100 sqm farm plot)",
-  "scaled-testing-target": "String: Scaled test area or target (e.g., 10 sqm test bed or benchtop box)",
-  "test-scale-ratio": "String: Scale ratio (e.g., 1:10 or 1:1)",
+  "scaled-test-target": "String: Scaled test area or target (e.g., 10 sqm test bed or benchtop box)",
+  "test-scale-size": "String: Scale ratio or benchtop dimensions (e.g., 1:10 or 40cm x 30cm)",
+  "sustainability-justification": "String: Engineering justification for why this scaled testing proves real-world viability",
+  "subsystem-verification": "String: Component-level benchtop verification (RMSE against calibrated instruments, response latency ms, N >= 30 trials)",
+  "system-validation": "String: System-level operational validation under environmental edge cases (testing machine, not plants)",
   "testing-method": "repeatability-reliability or accuracy-calibration or response-latency or controlled-ab or endurance-battery or multi-method",
   "testing-procedure": "String: Step-by-step testing procedure across calibration, trials, and data logging",
-  "statistical-treatment": "two-sample-t-test or one-way-anova or confusion-matrix or descriptive-error-bounds",
-  "statistical-hypotheses": "String: Formal Null (H0) and Alternative (Ha) hypotheses",
   "target-metric": "String: Success benchmark or target metric (e.g., >= 1.0 m/s or >= 90% accuracy)",
   "trials-planned": "String: Number of repeated trials (e.g., 30 or 50)",
-  "scaling-logic": "String: Engineering justification for why this scaled testing proves real-world viability",
+  "statistical-treatment": "two-sample-t-test or one-way-anova or confusion-matrix or descriptive-error-bounds",
+  "statistical-hypothesis": "String: Formal Null (H0) and Alternative (Ha) hypotheses",
   "extraction_summary": {
     "found_fields": ["List of readable section names found, e.g., 'Project Title', 'Literature Gaps', 'Hardware Architecture', 'Statistical Treatment'"],
     "missing_fields": ["List of sections not explicitly documented in the PDF, e.g., 'Mechanical Constraints', 'Budget Limit'"]
@@ -2859,10 +3153,15 @@ CRITICAL RULES:
           { label: 'Researchers', value: extracted.researchers && extracted.researchers.length > 0 ? extracted.researchers.join(', ') : '' },
           { label: 'Broad Area & Specific Problem', value: extracted['broad-area'] && extracted['specific-problem'] ? `${extracted['broad-area']} - ${extracted['specific-problem']}` : '' },
           { label: 'Quantified Problem Statement (QPS)', value: extracted['qps'] },
+          { label: 'Why Store-Bought Gadgets Fail (Prior Art)', value: extracted['prior-art-failures'] },
           { label: 'Literature Gaps & Citations', value: extracted.gaps && extracted.gaps.length > 0 ? `${extracted.gaps.length} gap(s) identified` : '' },
+          { label: 'Automatic Tasks (Functional Requirements)', value: extracted['functional-requirements'] },
           { label: 'Quantitative Constraints (Mechanical/Software/Budget)', value: extracted['mechanical-constraints'] || extracted['software-constraints'] || extracted['budget-limit'] ? 'Identified' : '' },
           { label: 'Variables (Independent, Dependent, Controlled)', value: extracted['var-independent'] && extracted['var-dependent'] ? 'Identified' : '' },
           { label: 'Hardware (Sense-Think-Act)', value: extracted['sense-component'] || extracted['think-component'] || extracted['act-component'] ? 'Identified' : '' },
+          { label: 'Machine Decision & Control Logic', value: extracted['control-architecture'] },
+          { label: 'Subsystem Verification (Bench Metrology)', value: extracted['subsystem-verification'] },
+          { label: 'System Validation (Operational Trials)', value: extracted['system-validation'] },
           { label: 'Testing Protocol & Scaling', value: extracted['testing-method'] || extracted['testing-procedure'] ? 'Identified' : '' },
           { label: 'Inferential Statistical Plan', value: extracted['statistical-treatment'] || extracted['statistical-hypotheses'] ? 'Identified' : '' }
         ];
@@ -2943,29 +3242,78 @@ CRITICAL RULES:
             }
           }
 
-          // 3. Populate Direct Form Fields
-          const directFields = [
-            'broad-area', 'specific-problem', 'qps',
-            'mechanical-constraints', 'software-constraints', 'budget-limit',
-            'project-scope', 'delimitations',
-            'var-independent', 'var-dependent', 'var-controlled',
-            'sense-component', 'think-component', 'act-component', 'power-source',
-            'ramp-hazard',
-            'testing-mode', 'full-scale-scope', 'scaled-testing-target', 'test-scale-ratio',
-            'testing-method', 'testing-procedure',
-            'statistical-treatment', 'statistical-hypotheses',
-            'target-metric', 'trials-planned', 'scaling-logic',
-            'project-title'
-          ];
+          // 3. Populate Direct Form Fields with Full Field Alias Mappings
+          const fieldMappings = {
+            'broad-area': ['broad-area'],
+            'specific-problem': ['specific-problem'],
+            'qps-phenomenon': ['qps-phenomenon'],
+            'qps-current-metric': ['qps-current-metric'],
+            'qps-specific-problem': ['qps-specific-problem', 'specific-problem'],
+            'qps-target-state': ['qps-target-state'],
+            'qps-action': ['qps-action'],
+            'qps-target-metric': ['qps-target-metric', 'target-metric'],
+            'prior-art-failures': ['prior-art-failures', 'commercial-failures', 'prior-art'],
+            'functional-requirements': ['functional-requirements', 'requirements-matrix'],
+            'mechanical-constraints': ['mechanical-constraints'],
+            'software-constraints': ['software-constraints'],
+            'budget-limit': ['budget-limit'],
+            'project-scope': ['project-scope'],
+            'delimitations': ['delimitations'],
+            'var-independent': ['var-independent'],
+            'var-dependent': ['var-dependent'],
+            'var-control': ['var-control', 'var-controlled'],
+            'mat-sensor': ['mat-sensor', 'sense-component'],
+            'mat-brain': ['mat-brain', 'think-component'],
+            'mat-actuator': ['mat-actuator', 'act-component'],
+            'mat-power': ['mat-power', 'power-source'],
+            'control-architecture': ['control-architecture', 'state-machine', 'control-flow'],
+            'ramp-safety': ['ramp-safety', 'ramp-hazard'],
+            'testing-mode': ['testing-mode'],
+            'full-scale-scope': ['full-scale-scope'],
+            'scaled-test-target': ['scaled-test-target', 'scaled-testing-target'],
+            'test-scale-size': ['test-scale-size', 'test-scale-ratio'],
+            'sustainability-justification': ['sustainability-justification', 'scaling-logic'],
+            'subsystem-verification': ['subsystem-verification', 'bench-testing', 'component-verification'],
+            'system-validation': ['system-validation', 'operational-validation', 'stress-testing'],
+            'testing-method': ['testing-method'],
+            'testing-procedure': ['testing-procedure'],
+            'trials-planned': ['trials-planned'],
+            'target-metric': ['target-metric'],
+            'statistical-treatment': ['statistical-treatment'],
+            'statistical-hypothesis': ['statistical-hypothesis', 'statistical-hypotheses'],
+            'project-title': ['project-title']
+          };
 
-          directFields.forEach(fieldId => {
-            if (extractedPdfJson[fieldId] !== undefined && extractedPdfJson[fieldId] !== null) {
-              const el = document.getElementById(fieldId);
+          // If PDF provided legacy 'qps' full sentence instead of 6 slots, fallback-fill empty slots
+          const rawQps = extractedPdfJson['qps'] || '';
+
+          Object.keys(fieldMappings).forEach(domId => {
+            const aliases = fieldMappings[domId];
+            let valueToSet = '';
+            for (const alias of aliases) {
+              if (extractedPdfJson[alias] !== undefined && extractedPdfJson[alias] !== null && String(extractedPdfJson[alias]).trim() !== '') {
+                valueToSet = String(extractedPdfJson[alias]).trim();
+                break;
+              }
+            }
+
+            // Fallback for QPS slots if individual slot wasn't extracted
+            if (!valueToSet && domId.startsWith('qps-')) {
+              if (domId === 'qps-phenomenon') valueToSet = extractedPdfJson['broad-area'] || 'observed inefficiencies';
+              else if (domId === 'qps-current-metric') valueToSet = 'manual baseline measurement';
+              else if (domId === 'qps-specific-problem') valueToSet = extractedPdfJson['specific-problem'] || 'high error rates and delays';
+              else if (domId === 'qps-target-state') valueToSet = 'automated, reliable operation';
+              else if (domId === 'qps-action') valueToSet = 'microcontroller-driven robotics sensing';
+              else if (domId === 'qps-target-metric') valueToSet = extractedPdfJson['target-metric'] || '90% operational reliability';
+            }
+
+            if (valueToSet) {
+              const el = document.getElementById(domId);
               if (el) {
-                el.value = extractedPdfJson[fieldId];
-                saveFieldToStorage(fieldId, extractedPdfJson[fieldId]);
-                el.dispatchEvent(new Event('input'));
-                el.dispatchEvent(new Event('change'));
+                el.value = valueToSet;
+                saveFieldToStorage(domId, valueToSet);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
               }
             }
           });
@@ -2977,18 +3325,14 @@ CRITICAL RULES:
           if (testingMethodSelect) updateTestingMethodDisplay(testingMethodSelect.value);
           if (statTreatmentSelect) updateStatisticalTreatmentDisplay(statTreatmentSelect.value);
 
-          // 5. Navigate to Step 1 and Close Modal
+          // 5. Navigate to Step 1 and Close Modal Immediately
           currentStep = 0;
           updateWizard();
           closePdfModal();
           window.scrollTo({ top: 0, behavior: 'smooth' });
 
-          // 6. Show toast
-          const toast = document.createElement('div');
-          toast.className = 'fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-xl z-50 flex items-center gap-2.5 font-bold text-sm fade-in-up';
-          toast.innerHTML = '<i class="ph ph-check-circle text-xl"></i> Manuscript deconstructed and loaded into all 6 steps!';
-          document.body.appendChild(toast);
-          setTimeout(() => { toast.remove(); }, 4000);
+          // 6. Non-blocking top toast (never covers Continue or navigation buttons)
+          showValidationToast('Manuscript deconstructed and loaded into all 6 steps!', 'success');
         });
       }
 
@@ -3253,16 +3597,20 @@ CRITICAL RULES:
 
       // --- QPS Goal Connection Preview Logic ---
       function updateQpsGoalPreview() {
-        const goalPreview = document.getElementById('qps-goal-preview');
-        if (!goalPreview) return;
+        try {
+          const goalPreview = document.getElementById('qps-goal-preview');
+          if (!goalPreview) return;
 
-        const targetState = (savedData['qps-target-state'] || document.getElementById('qps-target-state')?.value || '').trim();
-        const targetMetric = (savedData['qps-target-metric'] || document.getElementById('qps-target-metric')?.value || '').trim();
+          const targetState = String(document.getElementById('qps-target-state')?.value || savedData['qps-target-state'] || '').trim();
+          const targetMetric = String(document.getElementById('qps-target-metric')?.value || savedData['qps-target-metric'] || '').trim();
 
-        if (targetState || targetMetric) {
-          goalPreview.innerHTML = `Your Problem Statement aims to achieve <span class="text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded">"${targetState || 'your target goal'}"</span> as measured by <span class="text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded">"${targetMetric || 'your metric'}"</span>.`;
-        } else {
-          goalPreview.innerHTML = `<span class="text-slate-500 italic">Fill in your Future Goal and Target Metric in Phase 2, and it will automatically appear here to guide your scaling!</span>`;
+          if (targetState || targetMetric) {
+            goalPreview.innerHTML = `Your Problem Statement aims to achieve <span class="text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded">"${escapeHtml(targetState) || 'your target goal'}"</span> as measured by <span class="text-amber-900 font-bold bg-amber-100/80 px-2 py-0.5 rounded">"${escapeHtml(targetMetric) || 'your metric'}"</span>.`;
+          } else {
+            goalPreview.innerHTML = `<span class="text-slate-500 italic">Fill in your Future Goal and Target Metric in Phase 2, and it will automatically appear here to guide your scaling!</span>`;
+          }
+        } catch (err) {
+          console.warn("Error updating QPS goal preview:", err);
         }
       }
 
@@ -3274,95 +3622,273 @@ CRITICAL RULES:
 
       // --- Quantitative Engineering Goal Preview Logic ---
       function updateEngineeringGoalPreview() {
-        const goalPreview = document.getElementById('engineering-goal-preview');
-        if (!goalPreview) return;
+        try {
+          const goalPreview = document.getElementById('engineering-goal-preview');
+          if (!goalPreview) return;
 
-        const mech = (savedData['mechanical-constraints'] || document.getElementById('mechanical-constraints')?.value || '').trim();
-        const soft = (savedData['software-constraints'] || document.getElementById('software-constraints')?.value || '').trim();
-        const budget = (savedData['budget-limit'] || document.getElementById('budget-limit')?.value || '').trim();
-        const specificProblem = (savedData['specific-problem'] || document.getElementById('specific-problem')?.value || '').trim();
+          const func = String(document.getElementById('functional-requirements')?.value || savedData['functional-requirements'] || '').trim();
+          const mech = String(document.getElementById('mechanical-constraints')?.value || savedData['mechanical-constraints'] || '').trim();
+          const soft = String(document.getElementById('software-constraints')?.value || savedData['software-constraints'] || '').trim();
+          const budget = String(document.getElementById('budget-limit')?.value || savedData['budget-limit'] || '').trim();
+          const specificProblem = String(document.getElementById('specific-problem')?.value || savedData['specific-problem'] || '').trim();
 
-        if (mech || soft || budget) {
-          let parts = [];
-          if (mech) parts.push(`<strong>Mechanical:</strong> ${mech}`);
-          if (soft) parts.push(`<strong>Software/Speed:</strong> ${soft}`);
-          if (budget) parts.push(`<strong>Financial Ceiling:</strong> ₱${budget}`);
+          if (func || mech || soft || budget) {
+            let parts = [];
+            if (func) parts.push(`<strong>Automatic Tasks:</strong> ${escapeHtml(func)}`);
+            if (mech) parts.push(`<strong>Mechanical:</strong> ${escapeHtml(mech)}`);
+            if (soft) parts.push(`<strong>Software/Speed:</strong> ${escapeHtml(soft)}`);
+            if (budget) parts.push(`<strong>Financial Ceiling:</strong> ₱${escapeHtml(budget)}`);
 
-          goalPreview.innerHTML = `Develop a prototype addressing <em>${specificProblem || 'the defined problem'}</em> constrained by: ${parts.join('; ')}.`;
-        } else {
-          goalPreview.innerHTML = `<span class="text-slate-500 italic">Fill in your mechanical, software, and financial limits above to see your formal engineering goal appear here!</span>`;
+            goalPreview.innerHTML = `Develop a prototype addressing <em>${escapeHtml(specificProblem) || 'the defined problem'}</em> ${func ? `that will automatically: <em>${escapeHtml(func)}</em>, ` : ''}constrained by: ${parts.filter(p => !p.includes('Automatic Tasks')).join('; ')}.`;
+          } else {
+            goalPreview.innerHTML = `<span class="text-slate-500 italic">Fill in your automatic machine tasks, mechanical, software, and financial limits above to see your formal engineering goal appear here!</span>`;
+          }
+        } catch (err) {
+          console.warn("Error updating engineering goal preview:", err);
         }
       }
 
+      // --- Real-Time Budget Feasibility Sanity Checker ---
+      function checkBudgetFeasibility() {
+        try {
+          const budgetInput = document.getElementById('budget-limit');
+          const feedbackEl = document.getElementById('budget-feasibility-feedback');
+          if (!budgetInput || !feedbackEl) return;
+
+          const rawVal = String(budgetInput.value || savedData['budget-limit'] || '').trim();
+          if (!rawVal) {
+            feedbackEl.innerHTML = `
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-start gap-2">
+                <i class="ph ph-scales text-slate-500 text-base shrink-0 mt-0.5"></i>
+                <div>
+                  <span class="font-semibold text-slate-700">Realistic Prototype Budget Rule:</span>
+                  Typical high-school microcontroller prototypes (ESP32/Arduino + sensors + battery + casing) realistically cost <strong>₱1,200 – ₱3,500</strong>. Enter your maximum budget ceiling to run an automated feasibility sanity check.
+                </div>
+              </div>
+            `;
+            return;
+          }
+
+          const budget = parseFloat(rawVal);
+          if (isNaN(budget) || budget <= 0) {
+            feedbackEl.innerHTML = `
+              <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2">
+                <i class="ph ph-warning-circle text-rose-600 text-base shrink-0 mt-0.5"></i>
+                <div><strong class="font-bold">Invalid Budget:</strong> Please enter a positive number in Philippine Pesos (₱).</div>
+              </div>
+            `;
+            return;
+          }
+
+          // Check for trade-off contradictions against mechanical/software/hardware fields
+          const func = String(document.getElementById('functional-requirements')?.value || savedData['functional-requirements'] || '').toLowerCase();
+          const mech = String(document.getElementById('mechanical-constraints')?.value || savedData['mechanical-constraints'] || '').toLowerCase();
+          const soft = String(document.getElementById('software-constraints')?.value || savedData['software-constraints'] || '').toLowerCase();
+          const scope = String(document.getElementById('project-scope')?.value || savedData['project-scope'] || '').toLowerCase();
+          const power = String(document.getElementById('mat-power')?.value || savedData['mat-power'] || '').toLowerCase();
+          const actuator = String(document.getElementById('mat-actuator')?.value || savedData['mat-actuator'] || '').toLowerCase();
+          const fullText = `${func} ${mech} ${soft} ${scope} ${power} ${actuator}`;
+
+          const hasBattery = /battery|18650|lipo|li-ion|solar|cell|pack|portable/i.test(fullText);
+          const hasHeavyMotors = /motor|4wd|wheel|chassis|rover|drive|stepper|linear actuator|high-torque|car/i.test(fullText);
+          const hasVisionOrAi = /camera|vision|opencv|ai|image|tracking|esp32-cam|pi|raspberry/i.test(fullText);
+          const hasLongRange = /long range|gsm|gps|lora|telemetry|sms|cellular|satellite/i.test(fullText);
+
+          if (budget < 800) {
+            feedbackEl.innerHTML = `
+              <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 flex items-start gap-2.5 animate-fadeIn">
+                <i class="ph ph-warning text-amber-600 text-lg shrink-0 mt-0.5"></i>
+                <div class="space-y-1">
+                  <div class="font-bold text-amber-950 flex items-center gap-1.5">
+                    <span>⚠️ Feasibility Sanity Warning: ₱${budget.toLocaleString()} is extremely low</span>
+                    <span class="bg-amber-200 text-amber-800 text-[10px] px-1.5 py-0.5 rounded font-bold">Pick 2 Alert</span>
+                  </div>
+                  <p class="leading-relaxed text-amber-900">
+                    In the Philippines, a basic microcontroller (₱250–₱350) + sensor (₱120–₱300) + battery/power module (₱250–₱450) + casing already exceeds ₱850.
+                  </p>
+                  <div class="bg-white/80 p-2 rounded-lg border border-amber-200 font-mono text-[11px] text-amber-950">
+                    <strong>Reconcile Engineering Trade-off:</strong> Cost ⟷ Performance ⟷ Reliability (Pick 2)<br>
+                    <span class="font-sans text-slate-700">If keeping your budget under ₱800, did you sacrifice <em>Reliability</em> by using salvaged/recycled parts? If yes, explicitly document your recycled parts sourcing in your methodology!</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          } else if (budget < 1500 && (hasHeavyMotors || hasVisionOrAi || hasLongRange)) {
+            let conflictTerms = [];
+            if (hasHeavyMotors) conflictTerms.push('motorized chassis/motors');
+            if (hasVisionOrAi) conflictTerms.push('camera/AI vision');
+            if (hasLongRange) conflictTerms.push('long-range/GPS modules');
+
+            feedbackEl.innerHTML = `
+              <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 flex items-start gap-2.5 animate-fadeIn">
+                <i class="ph ph-scales text-amber-600 text-lg shrink-0 mt-0.5"></i>
+                <div class="space-y-1">
+                  <div class="font-bold text-amber-950 flex items-center gap-1.5">
+                    <span>⚠️ Contradictory Feasibility: ₱${budget.toLocaleString()} vs ${conflictTerms.join(' & ')}</span>
+                    <span class="bg-amber-200 text-amber-800 text-[10px] px-1.5 py-0.5 rounded font-bold">Pick 2 Warning</span>
+                  </div>
+                  <p class="leading-relaxed text-amber-900">
+                    You specified <strong>${conflictTerms.join(' and ')}</strong> with a budget of only ₱${budget.toLocaleString()}. Motors, cameras, and batteries quickly consume ₱1,500–₱3,000.
+                  </p>
+                  <div class="bg-white/80 p-2 rounded-lg border border-amber-200 text-[11px] text-slate-800">
+                    <strong>How to reconcile:</strong> Either raise your prototype budget to <strong>₱2,200 – ₱3,500</strong>, OR scale your scope back to a <em>tabletop proof-of-concept bench test</em> (High Reliability + Low Cost, with modest performance).
+                  </div>
+                </div>
+              </div>
+            `;
+          } else if (budget <= 3500) {
+            feedbackEl.innerHTML = `
+              <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-900 flex items-start gap-2.5 animate-fadeIn">
+                <i class="ph ph-check-circle text-emerald-600 text-lg shrink-0 mt-0.5"></i>
+                <div>
+                  <div class="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <span>✅ Realistic Prototype Sweet Spot: ₱${budget.toLocaleString()}</span>
+                    <span class="bg-emerald-200 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded font-bold">Defensible</span>
+                  </div>
+                  <p class="leading-relaxed text-emerald-800 mt-0.5">
+                    Ideal range for Arduino/ESP32 IoT and automated prototypes. Demonstrates genuine low-cost community affordability (e.g., in Kidapawan City) while ensuring functional electrical reliability and sensor precision.
+                  </p>
+                </div>
+              </div>
+            `;
+          } else if (budget <= 7500) {
+            feedbackEl.innerHTML = `
+              <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-2.5 animate-fadeIn">
+                <i class="ph ph-info text-blue-600 text-lg shrink-0 mt-0.5"></i>
+                <div>
+                  <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                    <span>⚙️ Advanced Prototype Budget: ₱${budget.toLocaleString()}</span>
+                    <span class="bg-blue-200 text-blue-800 text-[10px] px-1.5 py-0.5 rounded font-bold">Multi-Actuator</span>
+                  </div>
+                  <p class="leading-relaxed text-blue-800 mt-0.5">
+                    Appropriate for mobile robotic rovers, multi-servo arms, solar charging arrays, or multi-sensor telemetry nodes. Be sure to itemize your Bill of Materials (BOM) in your methodology.
+                  </p>
+                </div>
+              </div>
+            `;
+          } else {
+            feedbackEl.innerHTML = `
+              <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 flex items-start gap-2.5 animate-fadeIn">
+                <i class="ph ph-scales text-amber-600 text-lg shrink-0 mt-0.5"></i>
+                <div>
+                  <div class="font-bold text-amber-950 flex items-center gap-1.5">
+                    <span>⚠️ High Budget Scrutiny Alert: ₱${budget.toLocaleString()}</span>
+                    <span class="bg-amber-200 text-amber-800 text-[10px] px-1.5 py-0.5 rounded font-bold">Judge Caution</span>
+                  </div>
+                  <p class="leading-relaxed text-amber-800 mt-0.5">
+                    Budgets over ₱7,500 draw strict scrutiny from science fair adjudicators regarding real-world community accessibility. Verify that commercial pre-built modules cannot be replaced by lower-cost open-source engineering.
+                  </p>
+                </div>
+              </div>
+            `;
+          }
+        } catch (err) {
+          console.warn("Budget feasibility check warning:", err);
+        }
+      }
+
+      const funcInput = document.getElementById('functional-requirements');
       const mechInput = document.getElementById('mechanical-constraints');
       const softInput = document.getElementById('software-constraints');
       const budgetInput = document.getElementById('budget-limit');
-      if (mechInput) mechInput.addEventListener('input', updateEngineeringGoalPreview);
-      if (softInput) softInput.addEventListener('input', updateEngineeringGoalPreview);
-      if (budgetInput) budgetInput.addEventListener('input', updateEngineeringGoalPreview);
+      if (funcInput) {
+        funcInput.addEventListener('input', () => {
+          updateEngineeringGoalPreview();
+          checkBudgetFeasibility();
+        });
+      }
+      if (mechInput) {
+        mechInput.addEventListener('input', () => {
+          updateEngineeringGoalPreview();
+          checkBudgetFeasibility();
+        });
+      }
+      if (softInput) {
+        softInput.addEventListener('input', () => {
+          updateEngineeringGoalPreview();
+          checkBudgetFeasibility();
+        });
+      }
+      if (budgetInput) {
+        budgetInput.addEventListener('input', () => {
+          updateEngineeringGoalPreview();
+          checkBudgetFeasibility();
+        });
+        budgetInput.addEventListener('change', () => {
+          updateEngineeringGoalPreview();
+          checkBudgetFeasibility();
+        });
+      }
       updateEngineeringGoalPreview();
+      checkBudgetFeasibility();
 
       // --- Wizard Navigation Logic ---
       function updateWizard() {
-        updateQpsGoalPreview();
-        updateEngineeringGoalPreview();
-        cards.forEach((card, index) => {
-          card.classList.toggle('active', index === currentStep);
-          if (index === currentStep) {
-            card.classList.remove('hidden');
+        try {
+          updateQpsGoalPreview();
+          updateEngineeringGoalPreview();
+          cards.forEach((card, index) => {
+            card.classList.toggle('active', index === currentStep);
+            if (index === currentStep) {
+              card.classList.remove('hidden');
+            }
+          });
+
+          const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
+          if (progressBarFill) progressBarFill.style.width = `${progressPercentage}%`;
+
+          // Update mobile step indicator if present
+          const mobileStepNum = document.getElementById('mobile-step-num');
+          const mobileStepName = document.getElementById('mobile-step-name');
+          const mobileStepTitles = [
+            'Problem ID (Explorer)',
+            'QPS & Limits (Architect)',
+            'Variables & BOM (Builder)',
+            'Testing & Stats (Tester)',
+            'Project Title (Author)',
+            'Concept Proposal (Inventor)'
+          ];
+          if (mobileStepNum && mobileStepName) {
+            mobileStepNum.textContent = currentStep + 1;
+            mobileStepName.textContent = mobileStepTitles[currentStep] || `Level ${currentStep + 1}`;
           }
-        });
 
-        const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
-        progressBarFill.style.width = `${progressPercentage}%`;
+          const stepColors = [
+            { activeBg: 'bg-red-400', activeText: 'text-white', activeRing: 'ring-red-200', activeLabel: 'text-red-500', inactiveBg: 'bg-red-50', inactiveBorder: 'border-red-200', inactiveText: 'text-red-300', inactiveLabel: 'text-red-300' },
+            { activeBg: 'bg-orange-400', activeText: 'text-white', activeRing: 'ring-orange-200', activeLabel: 'text-orange-500', inactiveBg: 'bg-orange-50', inactiveBorder: 'border-orange-200', inactiveText: 'text-orange-300', inactiveLabel: 'text-orange-300' },
+            { activeBg: 'bg-yellow-400', activeText: 'text-white', activeRing: 'ring-yellow-200', activeLabel: 'text-yellow-500', inactiveBg: 'bg-yellow-50', inactiveBorder: 'border-yellow-200', inactiveText: 'text-yellow-300', inactiveLabel: 'text-yellow-300' },
+            { activeBg: 'bg-green-400', activeText: 'text-white', activeRing: 'ring-green-200', activeLabel: 'text-green-500', inactiveBg: 'bg-green-50', inactiveBorder: 'border-green-200', inactiveText: 'text-green-300', inactiveLabel: 'text-green-300' },
+            { activeBg: 'bg-blue-400', activeText: 'text-white', activeRing: 'ring-blue-200', activeLabel: 'text-blue-500', inactiveBg: 'bg-blue-50', inactiveBorder: 'border-blue-200', inactiveText: 'text-blue-300', inactiveLabel: 'text-blue-300' },
+            { activeBg: 'bg-purple-400', activeText: 'text-white', activeRing: 'ring-purple-200', activeLabel: 'text-purple-500', inactiveBg: 'bg-purple-50', inactiveBorder: 'border-purple-200', inactiveText: 'text-purple-300', inactiveLabel: 'text-purple-300' }
+          ];
 
-        // Update mobile step indicator if present
-        const mobileStepNum = document.getElementById('mobile-step-num');
-        const mobileStepName = document.getElementById('mobile-step-name');
-        const mobileStepTitles = [
-          'Problem ID (Explorer)',
-          'QPS & Limits (Architect)',
-          'Variables & BOM (Builder)',
-          'Testing & Stats (Tester)',
-          'Project Title (Author)',
-          'Concept Proposal (Inventor)'
-        ];
-        if (mobileStepNum && mobileStepName) {
-          mobileStepNum.textContent = currentStep + 1;
-          mobileStepName.textContent = mobileStepTitles[currentStep] || `Level ${currentStep + 1}`;
-        }
+          stepIndicators.forEach((indicator, index) => {
+            const circle = indicator.querySelector('div');
+            const text = indicator.querySelector('.step-label') || indicator.querySelector('span');
+            const color = stepColors[index];
+            if (circle && color) {
+              if (index <= currentStep) {
+                circle.className = `w-8 h-8 rounded-full ${color.activeBg} ${color.activeText} flex items-center justify-center font-bold text-sm shadow-md transition-colors duration-300 ring-4 ${color.activeRing}`;
+                if (text) text.className = `step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-bold ${color.activeLabel} transition-colors duration-300 pointer-events-none select-none`;
+              } else {
+                circle.className = `w-8 h-8 rounded-full ${color.inactiveBg} border-2 ${color.inactiveBorder} ${color.inactiveText} flex items-center justify-center font-bold text-sm transition-colors duration-300`;
+                if (text) text.className = `step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-medium ${color.inactiveLabel} transition-colors duration-300 pointer-events-none select-none`;
+              }
+            }
+          });
 
-        const stepColors = [
-          { activeBg: 'bg-red-400', activeText: 'text-white', activeRing: 'ring-red-200', activeLabel: 'text-red-500', inactiveBg: 'bg-red-50', inactiveBorder: 'border-red-200', inactiveText: 'text-red-300', inactiveLabel: 'text-red-300' },
-          { activeBg: 'bg-orange-400', activeText: 'text-white', activeRing: 'ring-orange-200', activeLabel: 'text-orange-500', inactiveBg: 'bg-orange-50', inactiveBorder: 'border-orange-200', inactiveText: 'text-orange-300', inactiveLabel: 'text-orange-300' },
-          { activeBg: 'bg-yellow-400', activeText: 'text-white', activeRing: 'ring-yellow-200', activeLabel: 'text-yellow-500', inactiveBg: 'bg-yellow-50', inactiveBorder: 'border-yellow-200', inactiveText: 'text-yellow-300', inactiveLabel: 'text-yellow-300' },
-          { activeBg: 'bg-green-400', activeText: 'text-white', activeRing: 'ring-green-200', activeLabel: 'text-green-500', inactiveBg: 'bg-green-50', inactiveBorder: 'border-green-200', inactiveText: 'text-green-300', inactiveLabel: 'text-green-300' },
-          { activeBg: 'bg-blue-400', activeText: 'text-white', activeRing: 'ring-blue-200', activeLabel: 'text-blue-500', inactiveBg: 'bg-blue-50', inactiveBorder: 'border-blue-200', inactiveText: 'text-blue-300', inactiveLabel: 'text-blue-300' },
-          { activeBg: 'bg-purple-400', activeText: 'text-white', activeRing: 'ring-purple-200', activeLabel: 'text-purple-500', inactiveBg: 'bg-purple-50', inactiveBorder: 'border-purple-200', inactiveText: 'text-purple-300', inactiveLabel: 'text-purple-300' }
-        ];
-
-        stepIndicators.forEach((indicator, index) => {
-          const circle = indicator.querySelector('div');
-          const text = indicator.querySelector('.step-label') || indicator.querySelector('span');
-          const color = stepColors[index];
-          if (index <= currentStep) {
-            circle.className = `w-8 h-8 rounded-full ${color.activeBg} ${color.activeText} flex items-center justify-center font-bold text-sm shadow-md transition-colors duration-300 ring-4 ${color.activeRing}`;
-            text.className = `step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-bold ${color.activeLabel} transition-colors duration-300 pointer-events-none select-none`;
+          if (btnPrev) btnPrev.classList.toggle('hidden', currentStep === 0);
+          const btnStartNew = document.getElementById('btn-start-new');
+          if (currentStep === totalSteps - 1) {
+            if (btnNext) btnNext.classList.add('hidden');
+            if (btnSubmit) btnSubmit.classList.remove('hidden');
           } else {
-            circle.className = `w-8 h-8 rounded-full ${color.inactiveBg} border-2 ${color.inactiveBorder} ${color.inactiveText} flex items-center justify-center font-bold text-sm transition-colors duration-300`;
-            text.className = `step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-medium ${color.inactiveLabel} transition-colors duration-300 pointer-events-none select-none`;
+            if (btnNext) btnNext.classList.remove('hidden');
+            if (btnSubmit) btnSubmit.classList.add('hidden');
+            if (btnStartNew) btnStartNew.classList.add('hidden');
           }
-        });
-
-        btnPrev.classList.toggle('hidden', currentStep === 0);
-        const btnStartNew = document.getElementById('btn-start-new');
-        if (currentStep === totalSteps - 1) {
-          btnNext.classList.add('hidden');
-          btnSubmit.classList.remove('hidden');
-        } else {
-          btnNext.classList.remove('hidden');
-          btnSubmit.classList.add('hidden');
-          if (btnStartNew) btnStartNew.classList.add('hidden');
+        } catch (err) {
+          console.warn("Error updating wizard:", err);
         }
       }
 
@@ -3445,16 +3971,6 @@ CRITICAL RULES:
 
         return isValid;
       }
-
-      // Blur active input immediately upon touching navigation/AI action buttons to prevent virtual keyboard collapse from swallowing clicks
-      [btnNext, btnPrev, btnSubmit].forEach(b => {
-        if (!b) return;
-        b.addEventListener('pointerdown', () => {
-          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-            document.activeElement.blur();
-          }
-        });
-      });
 
       btnNext.addEventListener('click', (e) => {
         if (e) e.preventDefault();
@@ -3540,12 +4056,6 @@ CRITICAL RULES:
       const aiButtons = document.querySelectorAll('.btn-ask-ai');
 
       aiButtons.forEach((btn, index) => {
-        btn.addEventListener('pointerdown', () => {
-          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-            document.activeElement.blur();
-          }
-        });
-
         btn.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
@@ -3560,19 +4070,24 @@ CRITICAL RULES:
           const feedbackBox = currentCard ? currentCard.querySelector('.ai-feedback-box') : null;
           const feedbackText = feedbackBox ? feedbackBox.querySelector('p') : null;
 
-          // Gather inputs for this specific step
+          // Gather inputs for this specific step (including any unfilled sections)
           let stepInputs = {};
           let hasEmpty = false;
           let firstEmptyRequired = null;
           currentCard.querySelectorAll('input, textarea, select').forEach(el => {
             if (el.id && el.id !== 'gemini-api-key') {
-              if (el.value.trim() === '') {
-                if (el.required) {
+              const val = el.value.trim();
+              if (val === '') {
+                if (el.id === 'functional-requirements' || el.id === 'prior-art-failures' || el.id === 'control-architecture' || el.id === 'ramp-safety' || el.id.startsWith('subsystem-') || el.id.startsWith('system-') || el.id === 'delimitations') {
+                  stepInputs[el.id] = '[Not provided yet]';
+                } else if (el.required) {
                   hasEmpty = true;
                   if (!firstEmptyRequired) firstEmptyRequired = el;
+                } else {
+                  stepInputs[el.id] = '[Not provided yet]';
                 }
               } else {
-                stepInputs[el.id] = el.value.trim();
+                stepInputs[el.id] = val;
               }
             }
           });
@@ -3633,6 +4148,8 @@ CRITICAL RULES:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+You are an expert scientific adjudicator and senior mentor acting as the Lead Chief Adjudicator for the National Science & Technology Fair (NSTF) in Robotics & Intelligent Machines (RIM) and an ISEF Grand Award Judge in Robotics.
+
 The student is filling out Level ${index + 1} of an engineering research project.
 
 Researcher's Project Context (from prior steps):
@@ -3647,13 +4164,39 @@ ${JSON.stringify(stepInputs, null, 2)}
 
 Instructions for you:
 1. Provide constructive, encouraging feedback calibrated specifically to the student's Grade Level (${currentGradeLevel}). Ground your evaluation directly in their specific research problem, variables, and technology. If inputs are vague or lack numbers, give clear tips on how to improve.
-2. Keep your answer concise (3 to 4 sentences max) adhering strictly to the tone, reading level, and vocabulary rules for Grade ${currentGradeLevel}.
-3. Demand appropriate rigor for their grade level: ensure metrics have units/numbers, citations have authors/years, and the problem is realistic for their age to build and test.
-4. Strictly enforce that the research MUST focus locally on Kidapawan City.
-5. If this is the safety step, strictly enforce the no bio-hazards rule (no germs or molds).
-6. If this is the testing step (Level 4), evaluate whether their Full Real-World Scope and Scaled Testing Target are realistic and safely scaled down. Check if their selected Testing Method and Step-by-Step Testing Procedure provide enough statistical validity (minimum 20–50 trials per condition to satisfy Central Limit Theorem and statistical power) to reliably prove their prototype works without wasting resources.
-7. Do not use complex formatting, just plain text with bold formatting for key terms.
-8. CRITICAL RULE: If the provided details are inadequate, extremely brief (e.g., random letters), nonsensical, or inappropriate, DO NOT assume the topic is about farming, agriculture, or any default topic. Instead, politely explain that they need to provide proper engineering research details.`;
+2. Evaluate strictly against the 5 ISEF/NSTF RIM Rubric Criteria:
+   - Criterion 1: Engineering Objective & Problem Quantifiability (Does the problem have a quantified baseline and numerical success benchmark? Is it grounded in local community needs, e.g. Kidapawan City?)
+   - Criterion 2: Prior Art & Novelty (Does the proposal address why commercial solutions fail, and identify concrete literature/technological gaps?)
+   - Criterion 3: Technical Compatibility & Architecture (Are microcontrollers, sensors, and actuators electrically matched? E.g., 3.3V logic vs 5V sensors, logic-level shifting, separated motor power rails, flyback diodes, deterministic state-machine control.)
+   - Criterion 4: Metrological Rigor (Are testing procedures verifying the MACHINE and not an incidental biological host? Does it measure sensor RMSE, latency, and drift?)
+   - Criterion 5: Statistical Power (Is the sample size powered at N >= 30 repeated trials to satisfy the Central Limit Theorem and permit inferential testing like t-tests or ANOVA?)
+3. EVALUATION OF UNFILLED & SPECIAL SECTIONS (USE SIMPLE, ENCOURAGING ENGLISH):
+   - If any input in "Current Level ${index + 1} Inputs to Evaluate" is marked '[Not provided yet]' (such as 'prior-art-failures' in Level 1, 'functional-requirements' in Level 2, 'control-architecture' in Level 3, or 'subsystem-verification' / 'system-validation' in Level 4):
+     Explicitly point out to the student that this section is currently empty! Explain in simple, friendly, intuitive words why science fair judges look for it, and provide a clear 1-to-2 sentence starter example tailored to their specific problem!
+   - LEVEL 1 ('prior-art-failures' - Why Store-Bought Gadgets Fail):
+     * If '[Not provided yet]': Explain that judges always ask "Why can't people just buy what's already in the store?", and give a 1-sentence starter tip on common commercial flaws (too expensive, needs constant Wi-Fi, or lacks smart sensors).
+     * If provided: Check whether it clearly explains why existing market devices fail under local conditions.
+   - LEVEL 2 ('functional-requirements' - What Must Your Machine Do Automatically?):
+     * If '[Not provided yet]': Explain why judges demand autonomous behavior (tasks the machine does by itself without human button presses), and give a 1-to-2 sentence starter example (e.g. checking sensors every 15s, triggering actuators at a threshold, and 24h battery runtime).
+     * If provided: Verify it states active autonomous jobs with numbers/units distinct from physical limits (size/budget).
+   - LEVEL 3 (Hardware Decisions & Proactive Circuit Advice):
+     * 'control-architecture' (How Does Your Machine Make Decisions?): If '[Not provided yet]', explain in simple English that judges want to know how the computer brain thinks (e.g., how often it reads sensors, confirming readings twice before acting, and emergency auto-cutoff). Provide a practical starter tip. If provided, verify the decision loop and safety cutoffs are sound.
+     * 'ramp-safety' (What Could Go Wrong & How Do You Keep It Safe?): If '[Not provided yet]', explain in simple words why judges look for safety planning for both the builder (goggles/gloves) and the machine (waterproof housing, auto-turnoff timer if jammed). Provide a starter tip.
+     * PROACTIVE CIRCUIT & POWER ADVICE: Actively review their materials ('mat-brain', 'mat-sensor', 'mat-actuator', 'mat-power'). If you detect any electrical voltage mismatch (e.g., 3.3V ESP32/Pico/STM32 paired with 5V sensors/relays), proactively include a friendly 1-sentence circuit tip recommending a logic level shifter or voltage divider. If they use inductive motors, pumps, or solenoids, advise using separate power rails and a flyback diode (e.g., 1N4007) so motor spikes don't reset the board. Frame this as a helpful mentor tip, never a rejection.
+   - LEVEL 4 (Desk Part Testing vs. Real-Life Robot Stress Testing):
+     * 'subsystem-verification' (Testing Individual Parts on Desk): If '[Not provided yet]', explain why judges love seeing individual sensors tested on the desk across 30 points against a trusted meter before mounting them into the robot. Provide a starter tip.
+     * 'system-validation' (Testing Whole Machine in Real Life): If '[Not provided yet]', explain why testing the fully built machine across 30 stress cycles in tough conditions (daylight/dark, low battery, blocked sensors) proves the robot itself is reliable. Provide a starter tip.
+     * If provided: Verify that testing procedures measure the MACHINE itself (sensor accuracy, response delay, stress cycles) and not incidental plant or biological growth.
+   - AUTOMATED FEASIBILITY SANITY CHECK (Level 2 Budget vs. Performance & Reliability Trade-off):
+     When evaluating Level 2 (Engineering Constraints & QPS), actively cross-examine the student's 'budget-limit' against their mechanical constraints, software speed/precision, and project scope. If the student specifies battery power, mobile chassis, high torque motors, machine vision, or long-range telemetry with an unrealistically low budget (< ₱1,500), or sets an extremely low budget (< ₱800) for a robotics/intelligent machine, challenge them to reconcile the universal engineering trade-off:
+     "Cost ⟷ Performance ⟷ Reliability (Pick 2)"
+     Prompt the student directly on how to resolve the trade-off: either raise the budget to a realistic, defensible figure (e.g., ₱2,000–₱3,500), scale back performance to a tabletop proof-of-concept, or explicitly justify lower cost with documented salvaged/recycled components.
+4. Keep your answer concise (3 to 5 sentences max) adhering strictly to the tone, reading level, and vocabulary rules for Grade ${currentGradeLevel}.
+5. Demand appropriate rigor for their grade level: ensure metrics have units/numbers, citations have authors/years, and the problem is realistic for their age to build and test.
+6. If evaluating Level 3 (Design & Hardware), actively flag any electrical mismatch (e.g. 3.3V ESP32/Pico directly wired to 5V sensors without level shifting, or inductive motors powered from MCU 5V pin without flyback diodes).
+7. If evaluating Level 4 (Testing), verify that Component Verification (benchtop sensor accuracy/latency) is separated from System Validation (closed-loop operational stress testing), and that sample size N >= 30.
+8. Do not use complex formatting, just plain text with bold formatting for key terms.
+9. CRITICAL RULE: If the provided details are inadequate, extremely brief (e.g., random letters), nonsensical, or inappropriate, DO NOT assume the topic is about farming, agriculture, or any default topic. Instead, politely explain that they need to provide proper engineering research details.`;
 
           try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -3731,12 +4274,6 @@ Instructions for you:
       const aiRefineButtons = document.querySelectorAll('.btn-refine-ai');
 
       aiRefineButtons.forEach((btn, index) => {
-        btn.addEventListener('pointerdown', () => {
-          if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
-            document.activeElement.blur();
-          }
-        });
-
         btn.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
           if (!apiKey) {
@@ -3757,13 +4294,18 @@ Instructions for you:
           const inputsList = currentCard.querySelectorAll('input, textarea');
           inputsList.forEach(el => {
             if (el.id && el.id !== 'gemini-api-key') {
-              if (el.value.trim() === '') {
-                if (el.required) {
+              const val = el.value.trim();
+              if (val === '') {
+                if (el.id === 'functional-requirements' || el.id === 'prior-art-failures' || el.id === 'control-architecture' || el.id === 'ramp-safety' || el.id.startsWith('subsystem-') || el.id.startsWith('system-') || el.id === 'delimitations') {
+                  stepInputs[el.id] = '';
+                } else if (el.required) {
                   hasEmpty = true;
                   if (!firstEmptyRequired) firstEmptyRequired = el;
+                } else {
+                  stepInputs[el.id] = '';
                 }
               } else {
-                stepInputs[el.id] = el.value.trim();
+                stepInputs[el.id] = val;
               }
             }
           });
@@ -3807,7 +4349,7 @@ Instructions for you:
           btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Refining...';
           btn.disabled = true;
           if (feedbackBox && feedbackText) {
-            feedbackText.innerHTML = '<span class="text-emerald-700 font-semibold flex items-center gap-2"><i class="ph ph-spinner animate-spin text-lg"></i> Analyzing and refining your answers...</span>';
+            feedbackText.innerHTML = '<span class="text-emerald-700 font-semibold flex items-center gap-2"><i class="ph ph-spinner animate-spin text-lg"></i> Analyzing, refining and drafting answers...</span>';
             feedbackBox.classList.add('active');
             feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
@@ -3828,17 +4370,34 @@ Project Context:
 - Specific Problem: ${specificProblem || 'Defined Problem'}
 - Quantified Problem Statement: ${qps || 'Defined QPS'}
 
-Answers to Refine:
+Answers to Refine & Complete:
 ${JSON.stringify(stepInputs, null, 2)}
           
-CRITICAL REFINEMENT INSTRUCTIONS:
+CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
 1. Target Audience & Reading Level: Adapt strictly to Grade ${currentGradeLevel} as defined in the directive above. Keep vocabulary, complexity, and sentence structure calibrated to Grade ${currentGradeLevel}.
-2. Strengthen clarity and grammar: Fix sentence flow, remove repetition, and make descriptions direct and active.
+2. Strengthen clarity and grammar: Fix sentence flow, remove repetition, and make descriptions direct, clear, and active in plain English.
 3. CRITICAL FOR STEP 2 PROBLEM FORMULA SLOTS (qps-phenomenon, qps-current-metric, qps-specific-problem, qps-target-state, qps-action, qps-target-metric):
    These slots are continuation phrase fragments to fill in blanks, NOT standalone sentences! Start with lowercase and NEVER put a period (.) at the end. For specific-problem, do NOT write "This contributes to" or "resulting in".
-4. Do NOT change the underlying facts, metrics, or core meaning. Preserve all numbers, measurements, component names, and local context (e.g., Kidapawan City) provided by the researcher.
-5. Only refine the fields provided. Do not hallucinate or add missing fields.
-6. Return your response ONLY as a raw JSON object where keys are the exact same IDs provided above, and values are the refined strings.`;
+4. DRAFTING EMPTY FIELDS:
+   If any field in "Answers to Refine & Complete" is currently an empty string ("")—such as "prior-art-failures" in Level 1, "functional-requirements" in Level 2, "control-architecture", "ramp-safety" in Level 3, or "subsystem-verification" and "system-validation" in Level 4:
+   GENERATE a practical, high-quality starting draft calibrated to the researcher's topic (their Broad Area, Specific Problem, and hardware setup) written in plain, intuitive, simple English. This gives the student a great starting proposal to review and adopt with one click!
+5. WHAT MUST YOUR MACHINE DO AUTOMATICALLY? ('functional-requirements' Refinement):
+   - For 'functional-requirements': Formulate a precise, active autonomous job specification that the machine performs independently without human intervention.
+   - Ground it in concrete engineering metrics: specify how often it checks sensors (e.g., every 15–30 seconds), the exact numerical trigger threshold (e.g., when moisture drops below 40%), the mechanical/electrical action it takes (e.g., activate 12V pump at 150 mL/min, sound an 85dB alarm, or adjust servo angle by 45°), and the operational runtime on battery power (e.g., run continuously for 24–48 hours).
+   - If the student provided text: Polish, elevate, and quantify it, converting passive or vague phrasing into clear, autonomous closed-loop actions while preserving their intended operation.
+   - If the student left it empty (""): Draft a tailored, complete autonomous task specification based on their Problem Statement and Variables.
+6. HARDWARE & CONTROL ARCHITECTURE REFINEMENT (Level 3):
+   - 'control-architecture' (How Does Your Machine Make Decisions?): State clear, simple decision rules: how often it reads sensors, how many readings it confirms before acting, the action taken, and an auto-shutoff safety timer to prevent damage.
+   - 'ramp-safety': State practical lab and device safety mitigations in plain English (sealed housings, auto-timeouts, PPE, plus electrical circuit safeguards like decoupled power rails or level shifters when applicable).
+7. METROLOGICAL TESTING & STRESS TRIALS REFINEMENT (Level 4):
+   - 'subsystem-verification' (Testing Individual Parts on the Desk): Formulate a concrete benchtop test: testing the sensor across N >= 30 trials against a calibrated reference scale/meter to calculate accuracy percentage (< 3% error) and response latency (< 150 ms) before robot assembly.
+   - 'system-validation' (Testing the Whole Machine in Real Life): Formulate full closed-loop machine stress testing across N >= 30 cycles under challenging conditions (daylight vs dark, low battery sag at 3.4V, sensor obstruction recovery).
+8. REALISTIC FINANCIAL REFINEMENT & TRADE-OFF BALANCING (budget-limit):
+   - For 'budget-limit': Ensure the value is a realistic prototype build ceiling in Philippine Pesos (₱) (typically ₱1,500 to ₱3,200 for student RIM projects).
+   - If 'budget-limit' is empty, 0, or unrealistically low (< ₱800) for an electronic prototype requiring microcontrollers, sensors, and power, refine it to a defensible, realistic figure (e.g., 1850) that respects the "Cost ⟷ Performance ⟷ Reliability (Pick 2)" engineering rule.
+   - Align mechanical, software, and financial limits so they do not contradict each other.
+9. Preserved Details: For fields already provided by the student, preserve their underlying facts, numbers, or local context (e.g., Kidapawan City), except where correction of an impossible budget or contradictory constraint is necessary.
+10. Return your response ONLY as a raw JSON object where keys are the exact same IDs provided above, and values are the refined or drafted strings.`;
 
           try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -3874,7 +4433,7 @@ CRITICAL REFINEMENT INSTRUCTIONS:
                     el: el,
                     id: el.id,
                     label: labelText,
-                    before: stepInputs[el.id] || '',
+                    before: currentVal || '(Empty - Ready for Draft)',
                     after: refinedVal
                   });
                 }
@@ -4106,10 +4665,14 @@ CRITICAL REFINEMENT INSTRUCTIONS:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
-The student has formulated their Quantified Problem Statement (QPS) and must now establish an Engineering Goal with three quantitative design and performance constraints:
-1. Mechanical Constraints: Mass, physical dimensions, and payload/load tolerances in metric units (e.g., mass under 1.5 kg, dimensions 25cm x 25cm, payload 2 kg).
-2. Software / Electronic Constraints: Processing loop speed/frequency (Hz), reaction latency (ms), or sensor precision/accuracy (%).
-3. Financial Constraints: A strict upper limit on prototype build and fabrication cost in Philippine Pesos (₱). Low-cost prototypes (< ₱2,500) demonstrate exceptional feasibility.
+The student has formulated their Quantified Problem Statement (QPS) and must now establish an Engineering Goal with quantitative design and performance constraints:
+1. What Must Your Machine Do Automatically? (Functional Requirements): The active jobs the machine does autonomously without human intervention (e.g., monitor sensor every 15–30 seconds, automatically activate pump/actuator when threshold breached, alert user, and sustain 24-hr runtime on battery).
+2. Mechanical Constraints: Mass, physical dimensions, and payload/load tolerances in metric units (e.g., mass under 1.5 kg, dimensions 25cm x 25cm x 15cm, payload 2 kg).
+3. Software / Electronic Constraints: Processing loop speed/frequency (Hz), reaction latency (ms), or sensor precision/accuracy (%).
+4. Financial Constraints: A strict, REALISTIC upper limit on prototype build and fabrication cost in Philippine Pesos (₱). Must be mathematically defensible:
+   - Typical simple benchtop sensor prototype: ₱1,400 – ₱1,900
+   - Automated actuator / mobile / battery-operated prototype: ₱2,000 – ₱3,500
+   - Must reconcile the universal engineering trade-off: Cost ⟷ Performance ⟷ Reliability (Pick 2).
 
 Context:
 - Broad Area: ${broadArea}
@@ -4119,16 +4682,23 @@ Context:
 - Dependent Variable: ${depVar}
 
 Instructions:
-1. Suggest realistic, quantifiable mechanical, software, and financial limits that prove solid engineering thinking while being achievable for a Grade ${currentGradeLevel} student.
-2. Explain the rationale adhering to the tone and vocabulary directive for Grade ${currentGradeLevel}.
-3. Provide a synthesized Engineering Goal statement suitable for Grade ${currentGradeLevel}.
-4. Return your response ONLY as a JSON object with this exact structure:
+1. Suggest realistic, quantifiable autonomous tasks (functional requirements), mechanical, software, and financial limits that prove solid engineering thinking while being achievable for a Grade ${currentGradeLevel} student.
+2. Formulate "functionalRequirements" as active autonomous jobs with explicit intervals, trigger thresholds, and runtimes.
+3. Ensure the suggested budget is realistic for the components needed (ESP32/Arduino + sensors + battery/power + chassis/actuator).
+4. Include an itemized component budget breakdown summary in "budgetBreakdown" (e.g., "MCU: ₱280, Sensors: ₱320, Battery/BMS: ₱400, Chassis/Wiring: ₱500").
+5. Explicitly declare the engineering trade-off prioritized in "tradeoff" using the "Cost ⟷ Performance ⟷ Reliability (Pick 2)" rule (e.g., "Prioritized Low Cost and High Reliability; accepted tabletop testing scale and modest 5 Hz loop speed").
+6. Explain the rationale calibrated to Grade ${currentGradeLevel}.
+7. Provide a synthesized Engineering Goal statement suitable for Grade ${currentGradeLevel}.
+8. Return your response ONLY as a JSON object with this exact structure:
 {
-  "mechanical": "Mass under 2.0 kg, dimensions within 30cm x 30cm x 15cm, payload capacity up to 2.5 kg",
-  "software": "Reaction latency under 200 ms, loop frequency >= 5 Hz, sensor reading precision within ±3%",
-  "budget": 1500,
-  "rationale": "Explanation calibrated to Grade ${currentGradeLevel} explaining why these constraints are optimal.",
-  "synthesizedGoal": "Develop a prototype addressing [specific problem] constrained by mass under 2 kg, latency under 200 ms, and budget under ₱1,500."
+  "functionalRequirements": "Continuously monitor soil moisture every 30 seconds, automatically activate the 12V mini-pump for 15 seconds whenever moisture drops below 45%, and sustain continuous unattended operation for 24 hours on a 12V battery pack.",
+  "mechanical": "Mass under 1.8 kg, dimensions within 25cm x 20cm x 15cm, weatherproof enclosure",
+  "software": "Reaction latency under 150 ms, loop frequency >= 5 Hz, sensor reading accuracy within ±3%",
+  "budget": 1850,
+  "budgetBreakdown": "ESP32 (₱280) + Sensors (₱320) + 18650 Battery & BMS (₱400) + Mini Pump & Relay (₱350) + Waterproof Housing (₱500)",
+  "tradeoff": "Prioritized Low Cost & High Reliability; accepted modest loop speed (5 Hz) and tabletop testing scale.",
+  "rationale": "Explanation calibrated to Grade ${currentGradeLevel} explaining why these constraints and budget envelope are optimal.",
+  "synthesizedGoal": "Develop a prototype addressing [specific problem] constrained by mass under 1.8 kg, latency under 150 ms, and budget under ₱1,850."
 }`;
 
             try {
@@ -4153,6 +4723,22 @@ Instructions:
                     <strong class="block text-amber-950 font-bold mb-1"><i class="ph ph-info"></i> Why these limits work for your project:</strong>
                     ${parsed.rationale || ''}
                   </div>
+
+                  <!-- Engineering Trade-off Reconciled -->
+                  <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-2.5 rounded-xl border border-amber-200 text-xs flex items-start gap-2">
+                    <i class="ph ph-scales text-amber-700 text-base shrink-0 mt-0.5"></i>
+                    <div>
+                      <strong class="text-amber-950 font-bold">Engineering Trade-off Triad (Pick 2):</strong>
+                      <span class="text-slate-700 block mt-0.5">${parsed.tradeoff || 'Balanced for Low Cost and High Reliability.'}</span>
+                    </div>
+                  </div>
+
+                  <!-- Automatic Functionality Suggestion -->
+                  <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
+                    <strong class="text-amber-800 block mb-1 flex items-center gap-1"><i class="ph ph-lightning text-amber-600"></i> What Your Machine Must Do Automatically (Functional Requirements):</strong>
+                    <span class="text-slate-800 font-medium">${parsed.functionalRequirements || ''}</span>
+                  </div>
+
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
                     <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
                       <strong class="text-amber-800 block mb-1 flex items-center gap-1"><i class="ph ph-ruler"></i> Mechanical:</strong>
@@ -4164,7 +4750,8 @@ Instructions:
                     </div>
                     <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
                       <strong class="text-emerald-800 block mb-1 flex items-center gap-1"><i class="ph ph-coins"></i> Budget Ceiling:</strong>
-                      <span class="text-slate-800 font-bold">₱${Number(parsed.budget || 1500).toLocaleString()}</span>
+                      <span class="text-slate-800 font-bold text-sm block">₱${Number(parsed.budget || 1850).toLocaleString()}</span>
+                      ${parsed.budgetBreakdown ? `<span class="text-[10px] text-slate-500 block mt-1 leading-tight">${parsed.budgetBreakdown}</span>` : ''}
                     </div>
                   </div>
                   <div class="bg-white p-3 rounded-xl border border-amber-200 text-xs">
@@ -4181,6 +4768,14 @@ Instructions:
               const btnAdopt = document.getElementById('btn-adopt-constraints');
               if (btnAdopt) {
                 btnAdopt.onclick = () => {
+                  if (parsed.functionalRequirements) {
+                    const el = document.getElementById('functional-requirements');
+                    if (el) {
+                      el.value = parsed.functionalRequirements;
+                      el.dispatchEvent(new Event('input', { bubbles: true }));
+                      saveFieldToStorage('functional-requirements', parsed.functionalRequirements);
+                    }
+                  }
                   if (parsed.mechanical) {
                     const el = document.getElementById('mechanical-constraints');
                     if (el) { el.value = parsed.mechanical; saveFieldToStorage('mechanical-constraints', parsed.mechanical); }
@@ -4194,6 +4789,7 @@ Instructions:
                     if (el) { el.value = parsed.budget; saveFieldToStorage('budget-limit', parsed.budget); }
                   }
                   updateEngineeringGoalPreview();
+                  checkBudgetFeasibility();
                   if (adoptStatus) {
                     adoptStatus.classList.remove('hidden');
                     setTimeout(() => adoptStatus.classList.add('hidden'), 2500);
@@ -4810,6 +5406,7 @@ Instructions:
   "brain": "e.g., ESP32 Development Board (or Arduino Uno R3)",
   "actuator": "e.g., 5V DC Submersible Mini Water Pump, 5V Relay Module, 0.96 inch I2C OLED Display",
   "power": "e.g., 12V 2A DC Power Adapter with Buck Converter (or 9V Rechargeable Battery Pack)",
+  "circuitAdvice": "Helpful 1-to-2 sentence electrical circuit & power tip: if pairing 3.3V board with 5V sensors, mention logic-level shifting; if using motors/pumps, mention flyback diode or separate battery rail.",
   "rationale": "Why these components provide reliable sensing and control within Grade ${currentGradeLevel} engineering constraints."
 }`;
 
@@ -4857,6 +5454,15 @@ Instructions:
                       <span class="text-slate-800">${escapeHtml(parsed.power || '')}</span>
                     </div>
                   </div>
+
+                  ${parsed.circuitAdvice ? `
+                    <div class="bg-amber-50/90 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 flex items-start gap-2 shadow-xs">
+                      <i class="ph ph-lightning text-amber-600 text-base shrink-0 mt-0.5"></i>
+                      <div>
+                        <strong class="font-bold text-amber-950">AI Circuit &amp; Power Tip:</strong>
+                        <span class="ml-1 leading-relaxed">${escapeHtml(parsed.circuitAdvice)}</span>
+                      </div>
+                    </div>` : ''}
 
                   ${parsed.rationale ? `<p class="text-xs text-amber-800 italic bg-amber-100/50 p-2.5 rounded-xl border border-amber-200/60">${escapeHtml(parsed.rationale)}</p>` : ''}
 
@@ -5832,24 +6438,107 @@ Follow this strict academic proposal sequence:
 <h3>A. Background Rationale & Quantified Baseline</h3>
 <p>[Explain the real-world challenge clearly using the student's broad area, specific problem, and Quantified Problem Statement (QPS). Emphasize the starting numbers—such as percentage wasted, time lost, error rates, or manual labor costs—showing why a new solution is urgently needed.]</p>
 
-<h3>B. Literature Review, Gap Analysis & Novelty Verification</h3>
-<p>[Synthesize each research gap provided by the student into a clear story. Formulate proper in-text APA citations using the author, year, title, and source (e.g., 'As demonstrated by Smith & Doe (2023)...' or '...takes too long to react (Santos, 2024)'). Explain in clear language why existing commercial products or previous models fall short (too expensive, too slow, or too bulky) and explain why the student's design is truly new.]</p>
+<h3>B. Literature Review, Prior Art Failure Analysis & Root Cause</h3>
+<p>[Synthesize each research gap provided by the student into a clear narrative with APA in-text citations (Author, Year). Detail the prior art and commercial product failure analysis using the student's prior-art-failures input. Explicitly contrast why existing commercial devices fail, are cost-prohibitive, or fail to operate under local conditions, and formulate a Prior Art Failure Analysis comparison table:]</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Prior Art / Commercial Solution</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Reported Failure Mode & Bottleneck</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Proposed Prototype Countermeasure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Generate rows comparing existing solutions with the proposed prototype's engineering countermeasure -->
+  </tbody>
+</table>
 
-<h3>C. Quantified Engineering Goals & Design Constraints Triad</h3>
-<p>[State the main Engineering Goal. Then explain the three vital guardrails:
-1. <strong>Physical & Mechanical Limits:</strong> Weight, size, payload, and durable casing.
-2. <strong>Speed & Electronics Limits:</strong> How fast the microcontroller checks sensors (Hz), reaction time (ms), and sensor accuracy (%).
-3. <strong>Budget Limits:</strong> Total fabrication and parts cost ceiling in Philippine Pesos (₱).]</p>
+<h3>C. Functional Requirements vs. Design Constraints Matrix</h3>
+<p>[Synthesize the student's Functional Requirements (what the system actively accomplishes) and contrast them against Design Constraints (mechanical dimensions/mass, software/loop latency, and budget ceilings) in a clear matrix including engineering trade-offs:]</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Classification</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Parameter / Requirement</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Trade-off / Justification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Generate rows for Functional Requirements, Mechanical Constraints, Software/Processing Constraints, and Budget Ceilings -->
+  </tbody>
+</table>
 
 <h3>D. Scope & Delimitations</h3>
 <p>[Clearly list what the prototype is designed to do, what conditions it operates in, and what is deliberately left out for future versions.]</p>
 
 <h2>II. PROPOSED METHODOLOGY</h2>
-<h3>A. System Architecture & Narrative Component Integration</h3>
-<p>[<strong>CRITICAL DIRECTIVE:</strong> Do NOT output a bare shopping list of parts. Instead, tell the story of the robot's anatomy using the Sense-Think-Act framework. Explain how each part works together—how the sensors detect the world (Sense), how the microcontroller makes decisions (Think), and how motors or buzzers carry out the task (Act), with clear engineering reasons for choosing each part.]</p>
+<h3>A. System Architecture, Control Theory & State Machine</h3>
+<p>[Detail the anatomy of the prototype using the Sense-Think-Act paradigm. Explain the algorithmic control architecture, deterministic state-machine logic (e.g., IDLE -> SENSING -> EVALUATING -> ACTUATING -> FAILSAFE), and control loops.]</p>
 
-<h3>B. Electrical Safety & RAMP Management Protocol</h3>
-<p>[Explain the electrical safety design (keeping high-power motor lines safely separated from delicate microcontroller circuits using regulators/isolators, plus power switches and fuses) and the four RAMP safety steps: Recognize Hazards, Assess Risks, Minimize Risks (safety glasses, insulated tools), and Prepare for Emergencies.]</p>
+<p><strong>Schematic Block Diagram:</strong></p>
+<p>[CRITICAL DIRECTIVE: Generate an inline, clean SVG schematic block diagram directly in the HTML output using the template below. Replace the placeholder component names with the actual hardware components from the student's inputs (mat-sensor, mat-brain, mat-actuator, mat-power):]</p>
+<div style="text-align: center; margin: 16px 0;">
+<svg viewBox="0 0 760 160" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f766e"/>
+    </marker>
+  </defs>
+  <!-- SENSE BLOCK -->
+  <rect x="20" y="30" width="160" height="95" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="100" y="55" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">SENSE (Inputs)</text>
+  <text x="100" y="75" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Sensor Name]</text>
+  <text x="100" y="95" font-size="9" fill="#64748b" text-anchor="middle">Signal Conditioning</text>
+  <text x="100" y="110" font-size="9" fill="#64748b" text-anchor="middle">ADC / Filtered</text>
+
+  <!-- ARROW SENSE -> THINK -->
+  <line x1="180" y1="75" x2="245" y2="75" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="212" y="68" font-size="9" fill="#0f766e" text-anchor="middle">Data In</text>
+
+  <!-- THINK BLOCK -->
+  <rect x="250" y="20" width="180" height="115" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="340" y="45" font-size="12" font-weight="bold" fill="#15803d" text-anchor="middle">THINK (Processing Core)</text>
+  <text x="340" y="65" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Microcontroller]</text>
+  <text x="340" y="85" font-size="9" fill="#475569" text-anchor="middle">Deterministic State Machine</text>
+  <text x="340" y="100" font-size="9" fill="#475569" text-anchor="middle">Control Algorithm / FSM</text>
+  <text x="340" y="115" font-size="8" fill="#166534" text-anchor="middle">Logic Level Matched</text>
+
+  <!-- ARROW THINK -> ACT -->
+  <line x1="430" y1="75" x2="495" y2="75" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="462" y="68" font-size="9" fill="#0f766e" text-anchor="middle">Control Out</text>
+
+  <!-- ACT BLOCK -->
+  <rect x="500" y="30" width="160" height="95" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="580" y="55" font-size="12" font-weight="bold" fill="#b45309" text-anchor="middle">ACT (Actuation)</text>
+  <text x="580" y="75" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Actuator/Driver]</text>
+  <text x="580" y="95" font-size="9" fill="#64748b" text-anchor="middle">Motor Driver / Relay</text>
+  <text x="580" y="110" font-size="8" fill="#b45309" text-anchor="middle">Flyback Diode Protected</text>
+
+  <!-- POWER SUPPLY BLOCK -->
+  <rect x="675" y="25" width="75" height="105" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <text x="712" y="48" font-size="10" font-weight="bold" fill="#b91c1c" text-anchor="middle">POWER</text>
+  <text x="712" y="68" font-size="9" fill="#0f172a" text-anchor="middle">[Power Unit]</text>
+  <text x="712" y="88" font-size="8" fill="#7f1d1d" text-anchor="middle">Isolated Rails</text>
+  <text x="712" y="103" font-size="8" fill="#7f1d1d" text-anchor="middle">Logic vs Motor</text>
+</svg>
+</div>
+
+<h3>B. Signal Conditioning, Interfacing & FMEA Power Safety Protocol</h3>
+<p>[Detail the electrical interface: logic-level conversion (e.g. 3.3V vs 5V), pull-up/pull-down resistors, noise filtering capacitors, and optoisolation. Provide the power distribution topology (separated MCU vs high-current actuator rails, flyback diodes, common ground). Conclude with a structured FMEA (Failure Mode and Effects Analysis) table:]</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Potential Failure Mode</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Root Cause</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Severity / Effect on Prototype</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Mitigation / Fail-Safe</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Generate rows for Sensor Drift/Disconnection, Voltage Sag/Brownout, Actuator Jam/Overcurrent, and Thermal Buildup -->
+  </tbody>
+</table>
 
 <h3>C. Prototyping Roadmap (V1 to V3 Evolution)</h3>
 <p>[Explain the 3 build stages in simple terms:
@@ -5857,23 +6546,20 @@ Follow this strict academic proposal sequence:
 - <strong>Prototype V2 (Working Model):</strong> Adding the chassis and frame (3D print or acrylic) and tidying up wires.
 - <strong>Prototype V3 (Competition-Ready Model):</strong> Soldered sturdy board, neat wiring harness, and a durable protective case.]</p>
 
-<h3>D. Experimental Testing Setup, Scaling, & Baseline Controls</h3>
-<p>[Detail how the invention will be tested:
-1. <strong>Testing Mode & Scale:</strong> Compare the big real-world setting with the classroom test setup. Explain whether it uses a <strong>Table-Top Model</strong> or a <strong>Classroom-Scale Prototype</strong>, and why this setup proves it will work in real life.
-2. <strong>Fair Test Variables:</strong>
-   - <strong>What We Change (Independent Variable):</strong> The setting or feature being tested.
-   - <strong>What We Measure (Dependent Variable):</strong> The victory score metric and how it is measured.
-   - <strong>What Stays Constant (Controlled Variables):</strong> Things kept identical for every trial to ensure fairness.
-   - <strong>Baseline Comparison:</strong> The standard or manual way things are currently done without the invention.]</p>
+<h3>D. Metrological Testing Protocol: Subsystem Verification vs. System Validation</h3>
+<p>[Structure the experimental methodology into two rigorous phases, adhering strictly to ISEF/NSTF RIM adjudication standards where the primary test subject is the <strong>machine</strong>, not incidental biological growth:]</p>
 
-<h3>E. Step-by-Step Testing Procedure</h3>
-<p>[Provide a clear, numbered recipe for testing: (1) Setup and calibration against a known measurement, (2) Running the test trials, and (3) Recording data and safe shutdown.]</p>
+<h4>Phase 1: Subsystem Verification (Benchtop Metrology)</h4>
+<p>[Detail benchtop calibration and verification: comparing sensor outputs against calibrated laboratory instruments across 30 repeated data points. Measure Root Mean Square Error (RMSE), response latency in milliseconds (ms), sensor noise/repeatability, and actuation positioning accuracy.]</p>
 
-<h3>F. Inferential Statistical Plan & Statistical Power</h3>
+<h4>Phase 2: System Validation (Closed-Loop Operational Trials)</h4>
+<p>[Detail full system testing under environmental edge cases: thermal shifts, voltage drop (simulating discharging battery), ambient lighting noise, and payload changes across N ≥ 30 repeated cycles to demonstrate deterministic operation and statistical reliability.]</p>
+
+<h3>E. Inferential Statistical Plan & Statistical Power</h3>
 <p>[Explain the math proof in straightforward language:
 - State the chosen math test (e.g., Two-Sample t-Test, ANOVA, Confusion Matrix, or Error Bounds).
 - State the <strong>Null Hypothesis (H₀)</strong> and <strong>Alternative Hypothesis (Hₐ)</strong> in simple English.
-- Detail the replication plan: <strong>20 to 30 repeated test runs</strong> to ensure the results aren't just random luck.
+- Detail the replication plan: <strong>20 to 30 repeated test runs</strong> to ensure the results aren't just random luck and fulfill the Central Limit Theorem.
 - State the success target: p < 0.05 (95% statistical confidence that the invention genuinely works!).]</p>
 
 <h2>III. EXPECTED PERFORMANCE TARGETS & VERIFICATION CRITERIA</h2>
@@ -6087,7 +6773,11 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
       }
 
       // Initialize
-      updateWizard();
+      try {
+        updateWizard();
+      } catch (err) {
+        console.error("Initial updateWizard failed:", err);
+      }
     });
   </script>
 </body>
