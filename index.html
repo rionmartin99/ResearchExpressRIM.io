@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[2026-09-16 07:44:00] v3.1.3 - New Feature: Redesigned the Google AI Studio & Video Guide links into high-contrast, eye-catching CTA buttons with dedicated branding (Google AI Blue & YouTube Red), micro-icons, and responsive layout for instant visibility.
 [2026-09-16 07:34:00] v3.1.2 - New Feature: Background draft sync — partial researcher inputs are silently posted to the Google Sheets database every navigation and every 2 minutes as a debounced draft (draft:true), so progress is logged even before Step 6 is reached.
 [2026-09-16 07:31:00] v3.1.1 - New Feature: Auto-save on navigation — all researcher inputs per active step-card are immediately serialized to localStorage whenever Next, Back, or any step indicator is clicked, preventing data loss during session navigation.
 [2026-09-16 07:20:00] v3.1.0 - New Feature: BYOK (Bring Your Own Key) — improved Settings modal with show/hide password toggle, live API Key Status badge, and clearer new-user instructions so students can supply their own Gemini API key without confusion.
 [2026-09-10 12:48:00] v3.0.9 - New Feature: Rewrote FMEA & RAMP Safety into simple, intuitive English ('What Could Go Wrong & How Do You Keep It Safe?') with easy-to-follow builder gear (PPE) and machine fail-safe guidelines.
-[2026-09-10 12:42:00] v3.0.8 - New Feature: Streamlined Level 3 hardware design by removing standalone signal-conditioning and power-distribution input boxes, retaining 'How Does Your Machine Make Decisions?', and migrating dynamic Circuit & Power Advice directly to the AI Assistant.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -1923,16 +1923,35 @@ CHANGELOG:
         </span>
       </div>
       <p class="text-xs text-slate-500 mb-2">Each student must enter their <strong class="text-slate-700">own personal API key</strong> to enable AI feedback, suggestions, and proposal generation. Your key is saved only in your browser — it is never shared.</p>
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 flex items-start gap-3 shadow-sm">
-        <i class="ph ph-key text-amber-600 text-xl mt-0.5 flex-shrink-0"></i>
-        <div class="text-xs text-amber-900">
-          <span class="font-semibold block mb-0.5">🆓 Free API Key — Takes 2 minutes to get!</span>
-          <span class="block text-amber-800 mb-1">Go to <strong>Google AI Studio</strong> → sign in with Google → click <strong>"Get API key"</strong> → copy and paste it below.</span>
+      <div class="bg-gradient-to-br from-amber-50 via-orange-50/50 to-amber-100/40 border border-amber-200/90 rounded-2xl p-3.5 mb-3.5 shadow-sm">
+        <div class="flex items-start gap-2.5 mb-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+            <i class="ph-fill ph-key text-lg"></i>
+          </div>
+          <div class="text-xs text-amber-950 flex-1">
+            <div class="flex items-center justify-between gap-1 mb-0.5">
+              <span class="font-bold text-amber-950 text-xs">Free API Key — Takes 2 minutes!</span>
+              <span class="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 rounded-full uppercase tracking-wider">100% Free</span>
+            </div>
+            <p class="text-[11px] text-amber-900/90 leading-snug">Sign in with Google → click <strong>"Get API key"</strong> → copy and paste it into the field below.</p>
+          </div>
+        </div>
+
+        <!-- Eye-Catching Guide Action Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-amber-200/70">
+          <!-- Guide 1: Google AI Studio Direct Link Button -->
           <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"
-            class="text-amber-700 hover:text-amber-900 underline font-bold transition-colors inline-flex items-center gap-1">Open Google AI Studio <i class="ph ph-arrow-square-out"></i></a>
-          &nbsp;·&nbsp;
+            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline">
+            <i class="ph-bold ph-arrow-square-out text-sm group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+            <span>Open Google AI Studio</span>
+          </a>
+
+          <!-- Guide 2: Video Guide Link Button -->
           <a href="https://www.youtube.com/watch?v=YHFMrZD-_3g" target="_blank" rel="noopener noreferrer"
-            class="text-amber-700 hover:text-amber-900 underline font-bold transition-colors inline-flex items-center gap-1">Watch video guide <i class="ph ph-arrow-square-out"></i></a>
+            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline">
+            <i class="ph-fill ph-play-circle text-base text-white animate-pulse"></i>
+            <span>Watch Video Guide</span>
+          </a>
         </div>
       </div>
       <div class="relative mb-6">
