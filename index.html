@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[2026-09-16 07:34:00] v3.1.2 - New Feature: Background draft sync — partial researcher inputs are silently posted to the Google Sheets database every navigation and every 2 minutes as a debounced draft (draft:true), so progress is logged even before Step 6 is reached.
+[2026-09-16 07:31:00] v3.1.1 - New Feature: Auto-save on navigation — all researcher inputs per active step-card are immediately serialized to localStorage whenever Next, Back, or any step indicator is clicked, preventing data loss during session navigation.
+[2026-09-16 07:20:00] v3.1.0 - New Feature: BYOK (Bring Your Own Key) — improved Settings modal with show/hide password toggle, live API Key Status badge, and clearer new-user instructions so students can supply their own Gemini API key without confusion.
 [2026-09-10 12:48:00] v3.0.9 - New Feature: Rewrote FMEA & RAMP Safety into simple, intuitive English ('What Could Go Wrong & How Do You Keep It Safe?') with easy-to-follow builder gear (PPE) and machine fail-safe guidelines.
 [2026-09-10 12:42:00] v3.0.8 - New Feature: Streamlined Level 3 hardware design by removing standalone signal-conditioning and power-distribution input boxes, retaining 'How Does Your Machine Make Decisions?', and migrating dynamic Circuit & Power Advice directly to the AI Assistant.
-[2026-09-09 17:50:00] v3.0.7 - New Feature: Simplified Control Architecture, Signal Conditioning, Power Distribution, and Metrological Testing into plain, intuitive English; expanded AI advice, refinement, auto-drafting, and suggestions across all hardware & testing modules.
-[2026-09-09 16:55:00] v3.0.6 - New Feature: Expanded AI Advice, Refinement, and Constraint Suggestion engines to comprehensively evaluate, refine, auto-draft, and adopt 'What Must Your Machine Do Automatically? (Functional Requirements)'.
-[2026-09-09 16:38:00] v3.0.5 - Fix: Resolved button unresponsiveness by fixing TypeError in budget feasibility check, removing pointerdown blur conflicts, adding defensive type coercion, and wrapping initializers in error boundaries.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -1916,19 +1916,34 @@ CHANGELOG:
       </div>
 
       <!-- Gemini API Section -->
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Google Gemini API Key</label>
-      <p class="text-xs text-slate-500 mb-2">Required to enable AI feedback, suggestions, and concept consolidation.</p>
-      <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-3 flex items-start gap-3 shadow-sm">
-        <i class="ph-fill ph-youtube-logo text-red-500 text-2xl mt-0.5"></i>
-        <div class="text-xs text-blue-900">
-          <span class="font-semibold block mb-0.5">Need help getting an API key?</span>
+      <div class="flex items-center justify-between mb-1">
+        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Google Gemini API Key</label>
+        <span id="api-key-status-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+          <i class="ph ph-x-circle"></i> No Key Set
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mb-2">Each student must enter their <strong class="text-slate-700">own personal API key</strong> to enable AI feedback, suggestions, and proposal generation. Your key is saved only in your browser — it is never shared.</p>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 flex items-start gap-3 shadow-sm">
+        <i class="ph ph-key text-amber-600 text-xl mt-0.5 flex-shrink-0"></i>
+        <div class="text-xs text-amber-900">
+          <span class="font-semibold block mb-0.5">🆓 Free API Key — Takes 2 minutes to get!</span>
+          <span class="block text-amber-800 mb-1">Go to <strong>Google AI Studio</strong> → sign in with Google → click <strong>"Get API key"</strong> → copy and paste it below.</span>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"
+            class="text-amber-700 hover:text-amber-900 underline font-bold transition-colors inline-flex items-center gap-1">Open Google AI Studio <i class="ph ph-arrow-square-out"></i></a>
+          &nbsp;·&nbsp;
           <a href="https://www.youtube.com/watch?v=YHFMrZD-_3g" target="_blank" rel="noopener noreferrer"
-            class="text-blue-600 hover:text-blue-800 underline font-bold transition-colors flex items-center gap-1">Watch
-            this quick video guide <i class="ph ph-arrow-square-out"></i></a>
+            class="text-amber-700 hover:text-amber-900 underline font-bold transition-colors inline-flex items-center gap-1">Watch video guide <i class="ph ph-arrow-square-out"></i></a>
         </div>
       </div>
-      <input type="password" id="gemini-api-key" class="input-glass w-full rounded-xl p-3 mb-6 text-slate-800 text-sm"
-        placeholder="AIzaSy...">
+      <div class="relative mb-6">
+        <input type="password" id="gemini-api-key" class="input-glass w-full rounded-xl p-3 pr-12 text-slate-800 text-sm"
+          placeholder="Paste your API key here  (AIzaSy...)">
+        <button type="button" id="btn-toggle-api-key-visibility"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1 rounded-lg"
+          title="Show / Hide API Key">
+          <i id="api-key-eye-icon" class="ph ph-eye text-lg"></i>
+        </button>
+      </div>
 
       <!-- Hidden Google Apps Script Webhook URL (Internal System Link) -->
       <input type="hidden" id="gas-webapp-url" value="https://script.google.com/macros/s/AKfycbzpFqGQn3eY-xVYAkywvec57gfmEXzdWNoAP1e_Xix9FB_7Ii-g5iZmGBWXbsYIZl83/exec">
@@ -2785,9 +2800,46 @@ TONE & VOCABULARY DIRECTIVE:
         });
       }
 
+      // --- API Key Show/Hide Toggle ---
+      const btnToggleApiKeyVis = document.getElementById('btn-toggle-api-key-visibility');
+      const apiKeyEyeIcon = document.getElementById('api-key-eye-icon');
+      if (btnToggleApiKeyVis && apiKeyInput) {
+        btnToggleApiKeyVis.addEventListener('click', () => {
+          if (apiKeyInput.type === 'password') {
+            apiKeyInput.type = 'text';
+            if (apiKeyEyeIcon) apiKeyEyeIcon.className = 'ph ph-eye-slash text-lg';
+          } else {
+            apiKeyInput.type = 'password';
+            if (apiKeyEyeIcon) apiKeyEyeIcon.className = 'ph ph-eye text-lg';
+          }
+        });
+      }
+
+      // --- API Key Status Badge ---
+      function updateApiKeyStatusBadge(key) {
+        const badge = document.getElementById('api-key-status-badge');
+        if (!badge) return;
+        if (key && key.length > 8) {
+          badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1';
+          badge.innerHTML = '<i class="ph ph-check-circle"></i> Key Saved';
+        } else {
+          badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1';
+          badge.innerHTML = '<i class="ph ph-x-circle"></i> No Key Set';
+        }
+      }
+      // Sync badge on modal open
+      const _origOpenSettingsModal = openSettingsModal;
+      openSettingsModal = function(focusApiKey) {
+        _origOpenSettingsModal(focusApiKey);
+        updateApiKeyStatusBadge(sessionApiKey);
+      };
+      // Initialize badge
+      updateApiKeyStatusBadge(sessionApiKey);
+
       btnSaveSettings.addEventListener('click', () => {
         sessionApiKey = apiKeyInput.value.trim();
         safeSetItem(apiKeyStorageKey, sessionApiKey);
+        updateApiKeyStatusBadge(sessionApiKey);
         if (gasUrlInput) {
           sessionGasUrl = gasUrlInput.value.trim();
           safeSetItem(gasUrlStorageKey, sessionGasUrl);
@@ -2796,6 +2848,9 @@ TONE & VOCABULARY DIRECTIVE:
           updateGradeLevelUI(settingGradeLevel.value);
         }
         closeModal();
+        if (sessionApiKey) {
+          showValidationToast('API Key saved! AI features are now unlocked.', 'success');
+        }
       });
 
       // --- Reset / Start New Logic ---
@@ -3972,8 +4027,112 @@ CRITICAL RULES:
         return isValid;
       }
 
+      // --- Auto-Save Current Step Data on Navigation ---
+      function saveCurrentStepData() {
+        try {
+          const currentCard = cards[currentStep];
+          if (!currentCard) return;
+          currentCard.querySelectorAll('input, textarea, select').forEach(el => {
+            if (el.id && el.id !== 'gemini-api-key') {
+              saveFieldToStorage(el.id, el.value);
+            }
+          });
+          // Fire a silent background draft sync after each navigation save
+          syncDraftToCloud();
+        } catch (err) {
+          console.warn('Auto-save on navigation failed:', err);
+        }
+      }
+
+      // --- Silent Background Draft Sync to Google Sheets ---
+      // Debounced: minimum 45 seconds between cloud calls to avoid hammering the endpoint.
+      // Posts savedData with { draft: true } so the GAS script can distinguish drafts from finals.
+      let _lastDraftSyncTime = 0;
+      let _draftSyncTimer = null;
+
+      function syncDraftToCloud() {
+        // Only sync if there is at least one meaningful field filled in
+        const hasMeaningfulData = Object.values(savedData).some(v => v && String(v).trim().length > 2);
+        if (!hasMeaningfulData) return;
+
+        const now = Date.now();
+        const DEBOUNCE_MS = 45000; // 45-second minimum between syncs
+
+        clearTimeout(_draftSyncTimer);
+
+        const doSync = () => {
+          _lastDraftSyncTime = Date.now();
+
+          // Subtle save-status indicator (won't disrupt the Step 6 cloud sync UI)
+          if (saveStatus) {
+            saveStatus.textContent = '\u2601\ufe0f Syncing draft...';
+            saveStatus.style.opacity = '1';
+          }
+
+          const webAppUrl = safeGetItem('ersa_gas_webapp_url') || DEFAULT_GAS_WEBAPP_URL;
+
+          // Priority 1: Google Apps Script container runtime
+          if (typeof google !== 'undefined' && typeof google.script !== 'undefined' && google.script.run) {
+            google.script.run
+              .withSuccessHandler(() => {
+                if (saveStatus) {
+                  saveStatus.textContent = '\u2705 Draft synced';
+                  setTimeout(() => {
+                    saveStatus.textContent = 'Auto-saved';
+                    saveStatus.style.opacity = '0';
+                  }, 2000);
+                }
+              })
+              .withFailureHandler((err) => {
+                console.warn('Draft sync (GAS) failed silently:', err);
+                if (saveStatus) saveStatus.style.opacity = '0';
+              })
+              .submitProposal({ ...savedData, _draft: true, _step: currentStep + 1 }, '');
+            return;
+          }
+
+          // Priority 2: Webhook URL
+          if (webAppUrl && webAppUrl.trim().startsWith('http')) {
+            fetch(webAppUrl.trim(), {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                data: { ...savedData, _draft: true, _step: currentStep + 1 },
+                htmlContent: ''
+              })
+            })
+              .then(() => {
+                if (saveStatus) {
+                  saveStatus.textContent = '\u2705 Draft synced';
+                  setTimeout(() => {
+                    saveStatus.textContent = 'Auto-saved';
+                    saveStatus.style.opacity = '0';
+                  }, 2000);
+                }
+              })
+              .catch(err => {
+                // Silent fail — draft sync should never interrupt the user
+                console.warn('Draft sync (webhook) failed silently:', err);
+                if (saveStatus) saveStatus.style.opacity = '0';
+              });
+          } else {
+            // No webhook configured — silently skip cloud sync
+            if (saveStatus) saveStatus.style.opacity = '0';
+          }
+        };
+
+        // If enough time has passed since last sync, fire immediately;
+        // otherwise schedule it for when the debounce window elapses
+        if (now - _lastDraftSyncTime >= DEBOUNCE_MS) {
+          doSync();
+        } else {
+          _draftSyncTimer = setTimeout(doSync, DEBOUNCE_MS - (now - _lastDraftSyncTime));
+        }
+      }
+
       btnNext.addEventListener('click', (e) => {
         if (e) e.preventDefault();
+        saveCurrentStepData();
         if (validateCurrentStep() && currentStep < totalSteps - 1) {
           currentStep++;
           updateWizard();
@@ -3982,6 +4141,7 @@ CRITICAL RULES:
       });
 
       btnPrev.addEventListener('click', () => {
+        saveCurrentStepData();
         if (currentStep > 0) {
           currentStep--;
           updateWizard();
@@ -3993,6 +4153,7 @@ CRITICAL RULES:
       stepIndicators.forEach((indicator, index) => {
         indicator.classList.add('cursor-pointer');
         indicator.addEventListener('click', () => {
+          saveCurrentStepData();
           if (index < currentStep) {
             currentStep = index;
             updateWizard();
@@ -6778,6 +6939,12 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
       } catch (err) {
         console.error("Initial updateWizard failed:", err);
       }
+
+      // --- 2-Minute Heartbeat Draft Sync ---
+      // Covers long idle sessions where the user types a lot without navigating.
+      setInterval(() => {
+        syncDraftToCloud();
+      }, 120000); // every 2 minutes
     });
   </script>
 </body>
