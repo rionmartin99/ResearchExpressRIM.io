@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 16, 2026, 10:37 AM] v3.1.4 - Fix: Deduplicate logged entries with persistent session submission ID, separate AI draft preview sync from final submission, and prevent duplicate rows in Google Sheets.
 [2026-09-16 07:44:00] v3.1.3 - New Feature: Redesigned the Google AI Studio & Video Guide links into high-contrast, eye-catching CTA buttons with dedicated branding (Google AI Blue & YouTube Red), micro-icons, and responsive layout for instant visibility.
 [2026-09-16 07:34:00] v3.1.2 - New Feature: Background draft sync — partial researcher inputs are silently posted to the Google Sheets database every navigation and every 2 minutes as a debounced draft (draft:true), so progress is logged even before Step 6 is reached.
 [2026-09-16 07:31:00] v3.1.1 - New Feature: Auto-save on navigation — all researcher inputs per active step-card are immediately serialized to localStorage whenever Next, Back, or any step indicator is clicked, preventing data loss during session navigation.
 [2026-09-16 07:20:00] v3.1.0 - New Feature: BYOK (Bring Your Own Key) — improved Settings modal with show/hide password toggle, live API Key Status badge, and clearer new-user instructions so students can supply their own Gemini API key without confusion.
-[2026-09-10 12:48:00] v3.0.9 - New Feature: Rewrote FMEA & RAMP Safety into simple, intuitive English ('What Could Go Wrong & How Do You Keep It Safe?') with easy-to-follow builder gear (PPE) and machine fail-safe guidelines.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -2179,6 +2179,12 @@ CHANGELOG:
 
       try { savedData = JSON.parse(safeGetItem(storageKey) || '{}'); } catch (e) { }
 
+      // Ensure persistent submission/draft ID for this research session to prevent duplicate entries
+      if (!savedData['_submission_id']) {
+        savedData['_submission_id'] = 'ERSA-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+        safeSetItem(storageKey, JSON.stringify(savedData));
+      }
+
       // Load API Key & GAS Webhook URL
       sessionApiKey = safeGetItem(apiKeyStorageKey) || '';
       apiKeyInput.value = sessionApiKey;
@@ -4070,8 +4076,10 @@ CRITICAL RULES:
       let _draftSyncTimer = null;
 
       function syncDraftToCloud() {
-        // Only sync if there is at least one meaningful field filled in
-        const hasMeaningfulData = Object.values(savedData).some(v => v && String(v).trim().length > 2);
+        // Only sync if at least one actual research design field is filled (ignore metadata IDs)
+        const hasMeaningfulData = Object.keys(savedData).some(k =>
+          !k.startsWith('_') && k !== 'student_grade_level' && savedData[k] && String(savedData[k]).trim().length > 2
+        );
         if (!hasMeaningfulData) return;
 
         const now = Date.now();
@@ -4084,18 +4092,24 @@ CRITICAL RULES:
 
           // Subtle save-status indicator (won't disrupt the Step 6 cloud sync UI)
           if (saveStatus) {
-            saveStatus.textContent = '\u2601\ufe0f Syncing draft...';
+            saveStatus.textContent = '☁️ Syncing draft...';
             saveStatus.style.opacity = '1';
           }
 
           const webAppUrl = safeGetItem('ersa_gas_webapp_url') || DEFAULT_GAS_WEBAPP_URL;
+          const draftPayload = {
+            ...savedData,
+            _draft: true,
+            _step: currentStep + 1,
+            _submission_id: savedData['_submission_id']
+          };
 
           // Priority 1: Google Apps Script container runtime
           if (typeof google !== 'undefined' && typeof google.script !== 'undefined' && google.script.run) {
             google.script.run
               .withSuccessHandler(() => {
                 if (saveStatus) {
-                  saveStatus.textContent = '\u2705 Draft synced';
+                  saveStatus.textContent = '✅ Draft synced';
                   setTimeout(() => {
                     saveStatus.textContent = 'Auto-saved';
                     saveStatus.style.opacity = '0';
@@ -4106,7 +4120,7 @@ CRITICAL RULES:
                 console.warn('Draft sync (GAS) failed silently:', err);
                 if (saveStatus) saveStatus.style.opacity = '0';
               })
-              .submitProposal({ ...savedData, _draft: true, _step: currentStep + 1 }, '');
+              .submitProposal(draftPayload, '');
             return;
           }
 
@@ -4116,7 +4130,7 @@ CRITICAL RULES:
               method: 'POST',
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({
-                data: { ...savedData, _draft: true, _step: currentStep + 1 },
+                data: draftPayload,
                 htmlContent: ''
               })
             })
@@ -6859,13 +6873,24 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
       }
 
       function syncWithCloudDatabase(data, htmlContent, isFinalSubmit) {
+        const payloadData = {
+          ...data,
+          _submission_id: data['_submission_id'] || savedData['_submission_id'],
+          _draft: !isFinalSubmit,
+          _step: 6
+        };
+
         // Priority 1: Running inside Google Apps Script container
         if (typeof google !== 'undefined' && typeof google.script !== 'undefined' && google.script.run) {
-          showCloudSyncProgress(isFinalSubmit ? "Finalizing submission in Google Sheets..." : "Syncing concept proposal to Google Sheets...");
+          showCloudSyncProgress(isFinalSubmit ? "Finalizing submission in Google Sheets..." : "Saving proposal draft in Google Sheets...");
           google.script.run
             .withSuccessHandler((res) => {
               if (res && res.success) {
-                showCloudSyncSuccess("Proposal and 24 research metrics logged in Google Sheets!", res.sheetUrl, res.pdfUrl);
+                showCloudSyncSuccess(
+                  isFinalSubmit ? "Final proposal and research metrics logged in Google Sheets!" : "Draft concept proposal saved in Google Sheets!",
+                  res.sheetUrl,
+                  res.pdfUrl
+                );
               } else {
                 showCloudSyncNotice("Database note: " + (res ? res.error : "Could not write row."));
               }
@@ -6873,23 +6898,30 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
             .withFailureHandler((err) => {
               showCloudSyncNotice("Google Apps Script connection error: " + (err.message || err));
             })
-            .submitProposal(data, htmlContent);
+            .submitProposal(payloadData, isFinalSubmit ? htmlContent : '');
           return;
         }
 
         // Priority 2: External hosting / Lumina LMS with configured Webhook URL
         const webAppUrl = safeGetItem('ersa_gas_webapp_url') || DEFAULT_GAS_WEBAPP_URL;
         if (webAppUrl && webAppUrl.trim().startsWith('http')) {
-          showCloudSyncProgress("Posting data to Google Sheets Web App...");
+          showCloudSyncProgress(isFinalSubmit ? "Posting finalized proposal to Google Sheets Web App..." : "Posting draft preview to Google Sheets Web App...");
           fetch(webAppUrl.trim(), {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ data: data, htmlContent: htmlContent })
+            body: JSON.stringify({
+              data: payloadData,
+              htmlContent: isFinalSubmit ? htmlContent : ''
+            })
           })
             .then(res => res.json())
             .then(res => {
               if (res && res.success) {
-                showCloudSyncSuccess("Proposal and research metrics logged in Google Sheets!", res.sheetUrl, res.pdfUrl);
+                showCloudSyncSuccess(
+                  isFinalSubmit ? "Final proposal and research metrics logged in Google Sheets!" : "Draft concept proposal saved in Google Sheets!",
+                  res.sheetUrl,
+                  res.pdfUrl
+                );
               } else {
                 showCloudSyncNotice("Database note: " + (res ? res.error : "Webhook returned an error."));
               }
