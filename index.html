@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 16, 2026, 01:45 PM] v3.1.5 - Fix: Prevent blank PDF submissions — added client-side local proposal synthesis when API key is unset or AI generation fails, auto-synthesis before final submission, and clean initialization of proposal container.
 [September 16, 2026, 10:37 AM] v3.1.4 - Fix: Deduplicate logged entries with persistent session submission ID, separate AI draft preview sync from final submission, and prevent duplicate rows in Google Sheets.
 [2026-09-16 07:44:00] v3.1.3 - New Feature: Redesigned the Google AI Studio & Video Guide links into high-contrast, eye-catching CTA buttons with dedicated branding (Google AI Blue & YouTube Red), micro-icons, and responsive layout for instant visibility.
 [2026-09-16 07:34:00] v3.1.2 - New Feature: Background draft sync — partial researcher inputs are silently posted to the Google Sheets database every navigation and every 2 minutes as a debounced draft (draft:true), so progress is logged even before Step 6 is reached.
 [2026-09-16 07:31:00] v3.1.1 - New Feature: Auto-save on navigation — all researcher inputs per active step-card are immediately serialized to localStorage whenever Next, Back, or any step indicator is clicked, preventing data loss during session navigation.
-[2026-09-16 07:20:00] v3.1.0 - New Feature: BYOK (Bring Your Own Key) — improved Settings modal with show/hide password toggle, live API Key Status badge, and clearer new-user instructions so students can supply their own Gemini API key without confusion.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -1743,9 +1743,7 @@ CHANGELOG:
               </button>
             </div>
           </div>
-          <div id="proposal-output" class="p-4 sm:p-6 md:p-8 text-sm text-slate-800 overflow-x-auto">
-            <!-- Proposal content will be injected here -->
-          </div>
+          <div id="proposal-output" class="p-4 sm:p-6 md:p-8 text-sm text-slate-800 overflow-x-auto"></div>
         </div>
       </section>
 
@@ -2150,6 +2148,8 @@ CHANGELOG:
       const btnPrev = document.getElementById('btn-prev');
       const btnNext = document.getElementById('btn-next');
       const btnSubmit = document.getElementById('btn-submit');
+      const proposalOutputContainer = document.getElementById('proposal-output-container');
+      const proposalOutput = document.getElementById('proposal-output');
 
       const modal = document.getElementById('settings-modal');
       const dialog = document.getElementById('settings-dialog');
@@ -4210,6 +4210,254 @@ CRITICAL RULES:
         });
       });
 
+      // --- Client-Side Engineering Proposal Synthesizer ---
+      function escapeHtmlClient(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function generateLocalProposalHtml(data) {
+        if (!data) data = {};
+        const title = escapeHtmlClient(data['project-title'] || 'Engineering Concept Proposal');
+        
+        const researchers = [];
+        for (const key in data) {
+          if (key.indexOf('researcher-') === 0 && data[key] && String(data[key]).trim()) {
+            researchers.push(escapeHtmlClient(String(data[key]).trim()));
+          }
+        }
+        const authors = researchers.length > 0 ? researchers.join(', ') : 'Student Research Team';
+        const broadArea = escapeHtmlClient(data['broad-area'] || 'Robotics and Intelligent Machines (ROBO/RIM)');
+        const specificProb = escapeHtmlClient(data['specific-problem'] || 'Unaddressed real-world engineering challenge');
+        
+        const qps = escapeHtmlClient("The current state of " + (data['qps-phenomenon'] || 'the target environment') + 
+          " is measured at " + (data['qps-current-metric'] || 'baseline parameters') + 
+          ", resulting in " + (data['qps-specific-problem'] || 'operational degradation or risk') + 
+          ". This research aims to achieve " + (data['qps-target-state'] || 'reliable, automated operation') + 
+          " by " + (data['qps-action'] || 'implementing an embedded sensory-actuation prototype') + 
+          ", as measured by " + (data['qps-target-metric'] || 'empirical performance benchmarks') + ".");
+
+        const priorArt = escapeHtmlClient(data['prior-art-failures'] || data['prior-art-matrix'] || 'Commercial solutions suffer from high costs, maintenance complexity, or failure to operate during field network disconnects.');
+        const funcReqs = escapeHtmlClient(data['functional-requirements'] || 'Real-time sensory acquisition, deterministic state-machine processing, and rapid fail-safe actuation.');
+        const mechConst = escapeHtmlClient(data['mechanical-constraints'] || 'Compact modular enclosure, lightweight structure.');
+        const softConst = escapeHtmlClient(data['software-constraints'] || 'Deterministic loop cycle < 200 ms, low latency.');
+        const budget = escapeHtmlClient(data['budget-limit'] || 'Affordable local components');
+        const scope = escapeHtmlClient(data['project-scope'] || data['scope'] || 'Design, assembly, benchtop calibration, and multi-cycle operational testing of the physical prototype.');
+        const delimitations = escapeHtmlClient(data['delimitations'] || 'Excludes industrial mass production and extreme environmental deployment.');
+        const indVar = escapeHtmlClient(data['var-independent'] || 'Operational parameters / input stimuli');
+        const depVar = escapeHtmlClient(data['var-dependent'] || 'Response latency, accuracy, and system reliability');
+        const ctrlVar = escapeHtmlClient(data['var-control'] || 'Supply voltage, ambient temperature, calibration standard');
+        const sensor = escapeHtmlClient(data['mat-sensor'] || 'Sensory Input Transducer');
+        const brain = escapeHtmlClient(data['mat-brain'] || 'Microcontroller Core (MCU)');
+        const actuator = escapeHtmlClient(data['mat-actuator'] || 'Output Actuator / Indicator');
+        const power = escapeHtmlClient(data['mat-power'] || 'Regulated Power Supply Unit');
+        const ctrlArch = escapeHtmlClient(data['control-architecture'] || 'Deterministic state machine (IDLE -> SENSING -> EVALUATING -> ACTUATING)');
+        const sigCond = escapeHtmlClient(data['signal-conditioning'] || 'Pull-up/pull-down bias, RC filtering, and logic-level conversion.');
+        const pwrDist = escapeHtmlClient(data['power-distribution'] || 'Isolated microcontroller logic rail and dedicated high-current actuator rail.');
+        const safety = escapeHtmlClient(data['ramp-safety'] || 'Flyback diodes, overcurrent fuses, and software watchdog timeout.');
+        const subsysVer = escapeHtmlClient(data['subsystem-verification'] || 'Benchtop sensor calibration and error quantification against lab standard.');
+        const sysVal = escapeHtmlClient(data['system-validation'] || 'End-to-end multi-cycle operational testing across continuous trials.');
+        const testingMode = escapeHtmlClient(data['testing-mode'] || 'Table-top benchtop testing');
+        const scaleSize = escapeHtmlClient(data['test-scale-size'] || 'Benchtop prototype scale');
+        const testProc = escapeHtmlClient(data['testing-procedure'] || 'Systematic repeatable trial sequences with automated data logging.');
+        const statTreat = escapeHtmlClient(data['statistical-treatment'] || 'Inferential Two-Sample t-Test (alpha = 0.05)');
+        const statHyp = escapeHtmlClient(data['statistical-hypothesis'] || 'H₀: Prototype performance shows no significant difference vs baseline standard. Hₐ: Prototype achieves statistically significant improvement.');
+        const targetMetric = escapeHtmlClient(data['target-metric'] || 'Success rate >= 95%, latency < 200 ms');
+        const trials = escapeHtmlClient(data['trials-planned'] || '30 repeated trials');
+        const sustain = escapeHtmlClient(data['sustainability-justification'] || 'Low-cost, energy-efficient, locally repairable hardware architecture.');
+
+        let gapsHtml = '';
+        let hasGaps = false;
+        for (let i = 1; i <= 20; i++) {
+          const gDesc = data['research-gap-' + i];
+          if (gDesc && String(gDesc).trim()) {
+            hasGaps = true;
+            const a = escapeHtmlClient(data['gap-author-' + i] || 'Author');
+            const y = escapeHtmlClient(data['gap-year-' + i] || 'n.d.');
+            gapsHtml += `<p class="mb-2"><strong>Technological Gap ${i}:</strong> ${escapeHtmlClient(String(gDesc).trim())} <em>(${a}, ${y})</em></p>`;
+          }
+        }
+        if (!hasGaps) {
+          gapsHtml = `<p class="mb-2"><strong>Technological Gap:</strong> ${specificProb}</p>`;
+        }
+
+        let refsHtml = '';
+        let hasRefs = false;
+        for (let i = 1; i <= 20; i++) {
+          const gDesc = data['research-gap-' + i];
+          if (gDesc && String(gDesc).trim()) {
+            hasRefs = true;
+            const a = escapeHtmlClient(data['gap-author-' + i] || 'Author, N.');
+            const y = escapeHtmlClient(data['gap-year-' + i] || 'n.d.');
+            const t = escapeHtmlClient(data['gap-title-' + i] || 'Engineering Research Study');
+            const p = escapeHtmlClient(data['gap-publisher-' + i] || '');
+            const u = escapeHtmlClient(data['gap-url-' + i] || '');
+            refsHtml += `<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem;">${a} (${y}). <em>${t}</em>${p ? '. ' + p : ''}${u ? '. ' + u : ''}</p>`;
+          }
+        }
+        if (!hasRefs) {
+          refsHtml = '<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem;">Department of Science and Technology. (2024). <em>National Science and Technology Fair (NSTF) Guidelines: Robotics and Intelligent Machines Category</em>. Republic of the Philippines.</p>';
+        }
+
+        return `
+<h1>${title}</h1>
+<p style="text-align: center; margin-bottom: 4px;"><strong>Inventors &amp; Researchers:</strong> ${authors}</p>
+<p style="text-align: center; color: #64748b; font-size: 0.9em; margin-bottom: 24px;"><strong>Category:</strong> ${broadArea} | <strong>Document:</strong> Pre-Experimentation Concept Proposal</p>
+
+<h2>EXECUTIVE SUMMARY</h2>
+<p>This engineering research design proposal presents the technical framework for <strong>${title}</strong>. Developed by ${authors}, the project addresses ${specificProb}. Through the structured Engineering Design Process (EDP), the system integrates sensory data acquisition (${sensor}), real-time embedded computation (${brain}), and deterministic actuation (${actuator}) to establish an offline-capable, high-reliability solution. The proposed prototype aims to fulfill target performance metrics (${targetMetric}) demonstrated across ${trials} with inferential statistical verification (${statTreat}).</p>
+
+<h2>I. INTRODUCTION</h2>
+<h3>A. Background Rationale &amp; Quantified Problem Statement (QPS)</h3>
+<p>${qps}</p>
+<p>Existing manual or commercial methodologies in this domain suffer from operational bottlenecks, including high implementation costs, vulnerability to network or power outages, and delayed response times. The proposed prototype resolves these constraints by implementing a localized, cost-effective engineering architecture.</p>
+
+<h3>B. Technological Gaps &amp; Prior Art Failure Analysis</h3>
+${gapsHtml}
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Prior Art / Conventional Approach</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Reported Failure Mode &amp; Limitation</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Proposed Prototype Countermeasure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Commercial / Proprietary Systems</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${priorArt}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Open-source, modular hardware with local offline processing and rapid fail-safe architecture.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>C. Functional Requirements vs. Design Constraints Matrix</h3>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Classification</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Parameter / Requirement</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Justification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Functional Requirement</strong></td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Core Operational Task</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${funcReqs}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Directly resolves specific problem criteria.</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Mechanical Constraint</strong></td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Form Factor &amp; Chassis</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${mechConst}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Ensures portability, structural rigidity, and thermal dissipation.</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Software Constraint</strong></td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Execution &amp; Loop Latency</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${softConst}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Guarantees deterministic real-time state machine execution.</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Economic Constraint</strong></td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Budget Ceiling</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${budget}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Maintains accessibility for community and educational deployment.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>D. Scope &amp; Delimitations</h3>
+<p><strong>Scope:</strong> ${scope}</p>
+<p><strong>Delimitations:</strong> ${delimitations}</p>
+<p><strong>Variable Formulation:</strong> <em>Independent Variable:</em> ${indVar} | <em>Dependent Variable:</em> ${depVar} | <em>Controlled Variables:</em> ${ctrlVar}.</p>
+
+<h2>II. PROPOSED METHODOLOGY</h2>
+<h3>A. System Architecture, Control Theory &amp; State Machine</h3>
+<p>The system adheres to the Sense-Think-Act paradigm. Algorithmic execution is managed via ${ctrlArch}.</p>
+
+<table class="block-diagram" style="width: 100%; border-collapse: separate; border-spacing: 6px; margin: 12px 0;">
+  <tr>
+    <td style="width: 28%; border: 2px solid #0284c7; background: #e0f2fe; padding: 8px; text-align: center; vertical-align: middle;">
+      <strong style="color: #0369a1; font-size: 10pt; display: block;">SENSE (Inputs)</strong>
+      <span style="font-size: 8.5pt; color: #0f172a;">${sensor}</span>
+    </td>
+    <td style="width: 8%; text-align: center; font-size: 14pt; font-weight: bold; color: #0f766e; vertical-align: middle;">➔</td>
+    <td style="width: 28%; border: 2px solid #16a34a; background: #dcfce7; padding: 8px; text-align: center; vertical-align: middle;">
+      <strong style="color: #15803d; font-size: 10pt; display: block;">THINK (Processing Core)</strong>
+      <span style="font-size: 8.5pt; color: #0f172a;">${brain}</span>
+    </td>
+    <td style="width: 8%; text-align: center; font-size: 14pt; font-weight: bold; color: #0f766e; vertical-align: middle;">➔</td>
+    <td style="width: 28%; border: 2px solid #d97706; background: #fef3c7; padding: 8px; text-align: center; vertical-align: middle;">
+      <strong style="color: #b45309; font-size: 10pt; display: block;">ACT (Actuation)</strong>
+      <span style="font-size: 8.5pt; color: #0f172a;">${actuator}</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="5" style="border: 1.5px dashed #ef4444; background: #fee2e2; padding: 6px; text-align: center;">
+      <strong style="color: #b91c1c; font-size: 9pt;">POWER SUBSYSTEM:</strong> <span style="font-size: 8.5pt; color: #7f1d1d;">${power} (${pwrDist})</span>
+    </td>
+  </tr>
+</table>
+
+<h3>B. Signal Conditioning, Interfacing &amp; Safety Protocol</h3>
+<p><strong>Signal Conditioning:</strong> ${sigCond}</p>
+<p><strong>Safety Protocol &amp; FMEA Mitigations:</strong> ${safety}</p>
+
+<h3>C. Metrological Testing Protocol</h3>
+<p><strong>Phase 1: Subsystem Verification (Benchtop Calibration):</strong> ${subsysVer}</p>
+<p><strong>Phase 2: System Validation (Operational Trials):</strong> ${sysVal}</p>
+<p><strong>Testing Mode:</strong> ${testingMode} (${scaleSize}) | <strong>Procedure:</strong> ${testProc}</p>
+
+<h3>D. Inferential Statistical Plan</h3>
+<p><strong>Statistical Treatment:</strong> ${statTreat}</p>
+<p><strong>Hypotheses:</strong> ${statHyp}</p>
+<p><strong>Sample Size &amp; Power:</strong> ${trials} repeated cycles to satisfy the Central Limit Theorem with significance threshold set at alpha = 0.05.</p>
+
+<h2>III. EXPECTED PERFORMANCE TARGETS &amp; VERIFICATION CRITERIA</h2>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9;">
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Metric</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Verification Procedure</th>
+      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Pass / Fail Criteria</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Core Performance</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${targetMetric}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Phase 2 Operational Trials</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">&gt;= 95% reliable trigger</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">System Safety</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Zero electrical backfeed / stall</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">FMEA Benchtop Stress Testing</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">100% fail-safe shutdown</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Sustainability</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">${sustain}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Component lifecycle audit</td>
+      <td style="border: 1px solid #cbd5e1; padding: 6px;">Meets budget &amp; repair standard</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>REFERENCES (APA 7th Edition)</h2>
+${refsHtml}
+        `;
+      }
+
       // --- Submission Hook ---
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -4220,8 +4468,19 @@ CRITICAL RULES:
         btnSubmit.disabled = true;
         btnPrev.classList.add('hidden');
 
+        // Check if proposal was generated; if missing/errored, synthesize now
+        let currentProposalHtml = proposalOutput ? proposalOutput.innerHTML : '';
+        const strippedProposal = currentProposalHtml.replace(/<!--[\s\S]*?-->/g, '').replace(/<[^>]+>/g, '').trim();
+
+        if (strippedProposal.length < 80 || strippedProposal.toLowerCase().startsWith('error generating proposal')) {
+          currentProposalHtml = generateLocalProposalHtml(savedData);
+          if (proposalOutput) {
+            proposalOutput.innerHTML = currentProposalHtml;
+            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
+          }
+        }
+
         // Sync complete submission to Google Sheets database
-        const currentProposalHtml = proposalOutput ? proposalOutput.innerHTML : '';
         syncWithCloudDatabase(savedData, currentProposalHtml, true);
 
         setTimeout(() => {
@@ -6584,19 +6843,22 @@ CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, 
 
       // --- Phase 6: Generate Final Proposal ---
       const btnGenerateProposal = document.getElementById('btn-generate-proposal');
-      const proposalOutputContainer = document.getElementById('proposal-output-container');
-      const proposalOutput = document.getElementById('proposal-output');
 
       if (btnGenerateProposal) {
         btnGenerateProposal.addEventListener('click', async () => {
           const apiKey = sessionApiKey;
+          const originalContent = btnGenerateProposal.innerHTML;
+
           if (!apiKey) {
-            showValidationToast('Please enter your Gemini API Key in Settings first', 'warning');
-            openSettingsModal(true);
+            // Automatically generate full proposal locally using student's structured parameters
+            showValidationToast('Generated proposal blueprint using your engineering inputs. (Add a Gemini key in Settings for AI polish)', 'info');
+            const localProposalHtml = generateLocalProposalHtml(savedData);
+            if (proposalOutput) proposalOutput.innerHTML = localProposalHtml;
+            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
+            syncWithCloudDatabase(savedData, localProposalHtml, false);
             return;
           }
 
-          const originalContent = btnGenerateProposal.innerHTML;
           btnGenerateProposal.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Building Your Blueprint...';
           btnGenerateProposal.disabled = true;
 
@@ -6796,8 +7058,19 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
             // --- Google Sheets Cloud Database Sync ---
             syncWithCloudDatabase(savedData, aiMessage, false);
           } catch (err) {
-            proposalOutput.innerHTML = `<span class="text-red-500 font-bold">Error generating proposal: ${err.message}</span>`;
-            proposalOutputContainer.classList.remove('hidden');
+            console.warn('Gemini proposal generation note, applying local blueprint synthesizer:', err);
+            const fallbackHtml = generateLocalProposalHtml(savedData);
+            if (proposalOutput) {
+              proposalOutput.innerHTML = `
+                <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
+                  <i class="ph ph-info text-amber-600 text-base flex-shrink-0"></i>
+                  <span>Note: AI writing polish was unavailable (${escapeHtmlClient(err.message)}). Full proposal blueprint successfully synthesized from your parameters!</span>
+                </div>
+                ${fallbackHtml}
+              `;
+            }
+            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
+            syncWithCloudDatabase(savedData, fallbackHtml, false);
           } finally {
             btnGenerateProposal.innerHTML = originalContent;
             btnGenerateProposal.disabled = false;
