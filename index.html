@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 17, 2026, 06:50 AM] v3.2.0 - New Feature: Upgraded AI engine to latest free models (Gemini 3.7 Flash & 3.5 Flash Lite) with automatic rate-limit and quota adaptation fallback chain across all 16 AI features.
 [September 17, 2026, 06:25 AM] v3.1.6 - Fix: Resolved embedded JavaScript syntax error ("Argument expression expected") by constructing the HTML comment stripping RegExp dynamically without literal script-escaping tokens.
 [September 16, 2026, 01:45 PM] v3.1.5 - Fix: Prevent blank PDF submissions — added client-side local proposal synthesis when API key is unset or AI generation fails, auto-synthesis before final submission, and clean initialization of proposal container.
 [September 16, 2026, 10:37 AM] v3.1.4 - Fix: Deduplicate logged entries with persistent session submission ID, separate AI draft preview sync from final submission, and prevent duplicate rows in Google Sheets.
 [2026-09-16 07:44:00] v3.1.3 - New Feature: Redesigned the Google AI Studio & Video Guide links into high-contrast, eye-catching CTA buttons with dedicated branding (Google AI Blue & YouTube Red), micro-icons, and responsive layout for instant visibility.
-[2026-09-16 07:34:00] v3.1.2 - New Feature: Background draft sync — partial researcher inputs are silently posted to the Google Sheets database every navigation and every 2 minutes as a debounced draft (draft:true), so progress is logged even before Step 6 is reached.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -3062,6 +3062,96 @@ TONE & VOCABULARY DIRECTIVE:
         btnReuploadPdf.addEventListener('click', resetPdfModalViews);
       }
 
+      // --- Adaptive Gemini API Engine (Free Models with Fallback) ---
+      // Hierarchy: Primary (3.7 Flash) -> Secondary (3.5 Flash Lite) -> Tertiary (2.5 Flash)
+      const GEMINI_FREE_MODELS = [
+        'gemini-3.7-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-2.5-flash'
+      ];
+      const throttledGeminiModels = {};
+
+      async function callGeminiWithFallback(apiKey, payload, options = {}) {
+        const { silentNotification = false } = options;
+        const now = Date.now();
+
+        // Check which models are currently available vs throttled
+        const sortedModels = [...GEMINI_FREE_MODELS].sort((a, b) => {
+          const aThrottled = (throttledGeminiModels[a] && throttledGeminiModels[a] > now) ? 1 : 0;
+          const bThrottled = (throttledGeminiModels[b] && throttledGeminiModels[b] > now) ? 1 : 0;
+          return aThrottled - bThrottled;
+        });
+
+        let lastError = null;
+        const primaryModel = GEMINI_FREE_MODELS[0];
+        let wasAdapted = false;
+
+        for (let i = 0; i < sortedModels.length; i++) {
+          const model = sortedModels[i];
+          const isThrottled = throttledGeminiModels[model] && throttledGeminiModels[model] > now;
+          if (isThrottled && i < sortedModels.length - 1) {
+            wasAdapted = true;
+            continue;
+          }
+
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            // Detect rate limits (429), temporary overload (503), or model issues (404/400)
+            if (!response.ok || data.error) {
+              const statusCode = response.status || (data.error && data.error.code);
+              const errMsg = (data.error && data.error.message) || `HTTP error ${response.status}`;
+              const lowerMsg = errMsg.toLowerCase();
+              const isRateLimit = statusCode === 429 ||
+                                  errMsg.includes('RESOURCE_EXHAUSTED') ||
+                                  lowerMsg.includes('quota') ||
+                                  lowerMsg.includes('rate limit') ||
+                                  lowerMsg.includes('exceeded');
+              const isTemporary = statusCode === 503 || statusCode === 500 || lowerMsg.includes('overloaded') || lowerMsg.includes('unavailable');
+              const isModelIssue = statusCode === 404 || lowerMsg.includes('not found') || lowerMsg.includes('is not supported');
+
+              if (isRateLimit || isTemporary || isModelIssue) {
+                console.warn(`[Gemini Engine] Model ${model} limit/error (${statusCode}: ${errMsg}). Adapting to fallback...`);
+                // Cooldown model for 60 seconds
+                throttledGeminiModels[model] = Date.now() + 60000;
+                wasAdapted = true;
+                lastError = new Error(errMsg);
+                continue;
+              }
+
+              // Fatal authentication or client error (e.g. invalid key 400/403)
+              throw new Error(errMsg);
+            }
+
+            // Successfully received response
+            if (wasAdapted && model !== primaryModel && !silentNotification) {
+              if (typeof showValidationToast === 'function') {
+                showValidationToast(`Adapted to ${model} (switched from ${primaryModel} due to free tier limit)`, 'info');
+              }
+            }
+
+            return { data, modelUsed: model };
+          } catch (fetchErr) {
+            if (fetchErr.message && (fetchErr.message.includes('API_KEY_INVALID') || fetchErr.message.includes('API key not valid'))) {
+              throw fetchErr;
+            }
+            console.warn(`[Gemini Engine] Error requesting ${model}:`, fetchErr);
+            throttledGeminiModels[model] = Date.now() + 45000;
+            wasAdapted = true;
+            lastError = fetchErr;
+          }
+        }
+
+        throw lastError || new Error('All free Gemini models are currently rate-limited or unavailable. Please try again shortly.');
+      }
+
       // Start Deconstruction with Gemini
       if (btnStartPdfDeconstruct) {
         btnStartPdfDeconstruct.addEventListener('click', async () => {
@@ -3174,33 +3264,26 @@ CRITICAL RULES:
 5. Ensure \\"statistical-treatment\\" is strictly one of the 4 valid option values above.
 6. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [
-                  {
-                    parts: [
-                      {
-                        inline_data: {
-                          mime_type: "application/pdf",
-                          data: base64Data
-                        }
-                      },
-                      {
-                        text: deconstructPrompt
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [
+                {
+                  parts: [
+                    {
+                      inline_data: {
+                        mime_type: "application/pdf",
+                        data: base64Data
                       }
-                    ]
-                  }
-                ],
-                generationConfig: {
-                  response_mime_type: "application/json"
+                    },
+                    {
+                      text: deconstructPrompt
+                    }
+                  ]
                 }
-              })
+              ],
+              generationConfig: {
+                response_mime_type: "application/json"
+              }
             });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const aiText = data.candidates[0].content.parts[0].text;
             extractedPdfJson = JSON.parse(aiText);
@@ -3985,6 +4068,9 @@ CRITICAL RULES:
         } else if (type === 'success') {
           toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
           if (toastIcon) toastIcon.className = 'ph ph-check-circle text-lg shrink-0';
+        } else if (type === 'info') {
+          toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
+          if (toastIcon) toastIcon.className = 'ph ph-info text-lg shrink-0';
         } else {
           toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl z-[9999] flex items-center gap-2.5 font-bold text-xs sm:text-sm pointer-events-none transition-all duration-300 max-w-[92vw] text-center transform translate-y-0';
           if (toastIcon) toastIcon.className = 'ph ph-warning-circle text-lg shrink-0';
@@ -4652,19 +4738,9 @@ Instructions for you:
 9. CRITICAL RULE: If the provided details are inadequate, extremely brief (e.g., random letters), nonsensical, or inappropriate, DO NOT assume the topic is about farming, agriculture, or any default topic. Instead, politely explain that they need to provide proper engineering research details.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-              })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }]
             });
-
-            const data = await response.json();
-
-            if (data.error) {
-              throw new Error(data.error.message);
-            }
 
             const aiMessage = data.candidates[0].content.parts[0].text;
 
@@ -4853,17 +4929,10 @@ CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
 10. Return your response ONLY as a raw JSON object where keys are the exact same IDs provided above, and values are the refined or drafted strings.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { response_mime_type: "application/json" }
-              })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { response_mime_type: "application/json" }
             });
-
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const aiMessage = data.candidates[0].content.parts[0].text;
             const parsedData = JSON.parse(aiMessage);
@@ -5155,16 +5224,10 @@ Instructions:
 }`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: constraintsPrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: constraintsPrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
               const actionsBar = document.getElementById('constraints-plan-actions');
@@ -5320,16 +5383,10 @@ Return ONLY a JSON object with this exact structure:
 }`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: scalePrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: scalePrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
               const scaleOptions = parsed.options || [];
@@ -5526,16 +5583,10 @@ CRITICAL RULES:
 4. Return ONLY valid JSON.`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: testingPrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: testingPrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
               const actionsBar = document.getElementById('testing-plan-actions');
@@ -5709,17 +5760,10 @@ Return ONLY a JSON object with this exact structure:
 }`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: qpsPrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: qpsPrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
               const rawOptions = parsed.options || [];
@@ -5864,17 +5908,10 @@ Instructions:
 }`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: materialsPrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: materialsPrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
 
@@ -5984,17 +6021,10 @@ Instructions:
 }`;
 
             try {
-              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: delimPrompt }] }],
-                  generationConfig: { response_mime_type: "application/json" }
-                })
+              const { data } = await callGeminiWithFallback(apiKey, {
+                contents: [{ parts: [{ text: delimPrompt }] }],
+                generationConfig: { response_mime_type: "application/json" }
               });
-
-              const data = await response.json();
-              if (data.error) throw new Error(data.error.message);
 
               const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
               const list = parsed.delimitations || [];
@@ -6135,13 +6165,9 @@ Trials: [Your suggested number or range, e.g., 20 to 30]
 CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }]
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const aiMessage = data.candidates[0].content.parts[0].text.trim();
             const lines = aiMessage.split('\n');
@@ -6242,13 +6268,9 @@ Instructions:
 5. Output ONLY the refined 3-phase text without conversational chatter or markdown fences.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }]
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const refinedText = data.candidates[0].content.parts[0].text.trim();
             if (refinedText && procedureRefinementBox && procedureRefinementText) {
@@ -6347,13 +6369,9 @@ Instructions:
 4. Output ONLY the refined H₀ and Hₐ lines without conversational fluff or markdown code fences.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }]
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const refinedText = data.candidates[0].content.parts[0].text.trim();
             if (refinedText && hypothesisRefinementBox && hypothesisRefinementText) {
@@ -6458,16 +6476,10 @@ Instructions:
 }`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: statsPrompt }] }],
-                generationConfig: { response_mime_type: "application/json" }
-              })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: statsPrompt }] }],
+              generationConfig: { response_mime_type: "application/json" }
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
 
@@ -6596,16 +6608,10 @@ Rules for ROBO/RIM Category Titles:
 7. CRITICAL RULE: If the provided inputs are inadequate, extremely brief, nonsensical, or inappropriate, DO NOT assume the topic is about farming, agriculture, or any default topic. Instead, return a JSON object with a key "error" explaining that more detail is required.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { response_mime_type: "application/json" }
-              })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { response_mime_type: "application/json" }
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
             const contentBox = suggestBoxTitle.querySelector('.suggestion-content');
@@ -6729,16 +6735,10 @@ Return ONLY a JSON object with the key "project-title" and the refined title as 
 CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, nonsensical, or inappropriate, DO NOT assume the topic is about farming, agriculture, or any default topic. Instead, explicitly flag the details as inadequate and refuse to provide a refinement, returning a JSON object with the key "project-title" containing a message asking the user to provide proper engineering research details.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { response_mime_type: "application/json" }
-              })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { response_mime_type: "application/json" }
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             const parsedData = JSON.parse(data.candidates[0].content.parts[0].text);
             const refinedTitle = parsedData['project-title'];
@@ -7040,13 +7040,9 @@ Follow this strict academic proposal sequence:
 CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gibberish, do NOT fabricate agricultural or generic content. Instead, output an HTML alert box stating that insufficient technical parameters were provided to generate a complete proposal.`;
 
           try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            const { data } = await callGeminiWithFallback(apiKey, {
+              contents: [{ parts: [{ text: prompt }] }]
             });
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
 
             let aiMessage = data.candidates[0].content.parts[0].text;
             // Clean up any markdown code block wrappers if Gemini accidentally includes them
