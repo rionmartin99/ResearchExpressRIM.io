@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 17, 2026, 08:25 AM] v3.2.1 - Fix: Redesigned Technological Gaps & Literature Evidence presentation — replaced messy raw text/URL concatenation with a structured academic Literature Gaps Matrix, clean sequential numbering, proper APA in-text citations, and strict prompt guardrails against raw URLs in proposal body.
 [September 17, 2026, 06:50 AM] v3.2.0 - New Feature: Upgraded AI engine to latest free models (Gemini 3.7 Flash & 3.5 Flash Lite) with automatic rate-limit and quota adaptation fallback chain across all 16 AI features.
 [September 17, 2026, 06:25 AM] v3.1.6 - Fix: Resolved embedded JavaScript syntax error ("Argument expression expected") by constructing the HTML comment stripping RegExp dynamically without literal script-escaping tokens.
 [September 16, 2026, 01:45 PM] v3.1.5 - Fix: Prevent blank PDF submissions — added client-side local proposal synthesis when API key is unset or AI generation fails, auto-synthesis before final submission, and clean initialization of proposal container.
 [September 16, 2026, 10:37 AM] v3.1.4 - Fix: Deduplicate logged entries with persistent session submission ID, separate AI draft preview sync from final submission, and prevent duplicate rows in Google Sheets.
-[2026-09-16 07:44:00] v3.1.3 - New Feature: Redesigned the Google AI Studio & Video Guide links into high-contrast, eye-catching CTA buttons with dedicated branding (Google AI Blue & YouTube Red), micro-icons, and responsive layout for instant visibility.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -4357,19 +4357,50 @@ CRITICAL RULES:
         const trials = escapeHtmlClient(data['trials-planned'] || '30 repeated trials');
         const sustain = escapeHtmlClient(data['sustainability-justification'] || 'Low-cost, energy-efficient, locally repairable hardware architecture.');
 
-        let gapsHtml = '';
-        let hasGaps = false;
+        let gapsRows = '';
+        let gapCount = 0;
         for (let i = 1; i <= 20; i++) {
           const gDesc = data['research-gap-' + i];
           if (gDesc && String(gDesc).trim()) {
-            hasGaps = true;
-            const a = escapeHtmlClient(data['gap-author-' + i] || 'Author');
+            gapCount++;
+            const a = escapeHtmlClient(data['gap-author-' + i] || 'Author, N.');
             const y = escapeHtmlClient(data['gap-year-' + i] || 'n.d.');
-            gapsHtml += `<p class="mb-2"><strong>Technological Gap ${i}:</strong> ${escapeHtmlClient(String(gDesc).trim())} <em>(${a}, ${y})</em></p>`;
+            const t = escapeHtmlClient(data['gap-title-' + i] || '');
+            const pub = escapeHtmlClient(data['gap-publisher-' + i] || '');
+            
+            let citeMeta = `<strong>${a} (${y})</strong>`;
+            if (t) citeMeta += `<br><em>"${t}"</em>`;
+            if (pub) citeMeta += `<br><span style="color: #64748b; font-size: 0.85em;">${pub}</span>`;
+
+            gapsRows += `
+            <tr>
+              <td style="border: 1px solid #cbd5e1; text-align: center; font-weight: bold; vertical-align: top; padding: 6px;">${gapCount}</td>
+              <td style="border: 1px solid #cbd5e1; vertical-align: top; padding: 6px; text-align: justify;">${escapeHtmlClient(String(gDesc).trim())}</td>
+              <td style="border: 1px solid #cbd5e1; vertical-align: top; padding: 6px;">${citeMeta}</td>
+            </tr>`;
           }
         }
-        if (!hasGaps) {
-          gapsHtml = `<p class="mb-2"><strong>Technological Gap:</strong> ${specificProb}</p>`;
+
+        let gapsHtml = '';
+        if (gapCount > 0) {
+          gapsHtml = `
+          <p style="margin-bottom: 8px;">The engineering development of this prototype is directly justified by documented failure points and technical deficiencies in existing solutions. The following matrix details the critical technological gaps identified from literature benchmarks and prior field studies:</p>
+          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+            <thead>
+              <tr style="background-color: #f1f5f9; color: #0f172a;">
+                <th style="border: 1px solid #cbd5e1; width: 8%; text-align: center; padding: 6px;">No.</th>
+                <th style="border: 1px solid #cbd5e1; width: 54%; text-align: left; padding: 6px;">Identified Technological Gap &amp; Technical Deficiency</th>
+                <th style="border: 1px solid #cbd5e1; width: 38%; text-align: left; padding: 6px;">Literature Evidence &amp; In-Text Citation (APA 7th)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${gapsRows}
+            </tbody>
+          </table>
+          <p style="margin-top: 10px; margin-bottom: 6px;">To address these technical shortcomings, the proposed prototype introduces specific engineering countermeasures contrasted against conventional implementations in the matrix below:</p>`;
+        } else {
+          gapsHtml = `
+          <p style="margin-bottom: 8px;"><strong>Core Technical Challenge:</strong> ${specificProb}</p>`;
         }
 
         let refsHtml = '';
@@ -4382,8 +4413,13 @@ CRITICAL RULES:
             const y = escapeHtmlClient(data['gap-year-' + i] || 'n.d.');
             const t = escapeHtmlClient(data['gap-title-' + i] || 'Engineering Research Study');
             const p = escapeHtmlClient(data['gap-publisher-' + i] || '');
-            const u = escapeHtmlClient(data['gap-url-' + i] || '');
-            refsHtml += `<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem;">${a} (${y}). <em>${t}</em>${p ? '. ' + p : ''}${u ? '. ' + u : ''}</p>`;
+            const rawUrl = String(data['gap-url-' + i] || '').trim();
+            let urlHtml = '';
+            if (rawUrl) {
+              const displayUrl = rawUrl.length > 55 ? escapeHtmlClient(rawUrl.substring(0, 52)) + '...' : escapeHtmlClient(rawUrl);
+              urlHtml = `. Available at: <a href="${escapeHtmlClient(rawUrl)}" style="color: #166534; text-decoration: underline; word-break: break-all;" target="_blank">${displayUrl}</a>`;
+            }
+            refsHtml += `<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem; word-break: break-word;">${a} (${y}). <em>${t}</em>${p ? '. ' + p : ''}${urlHtml}</p>`;
           }
         }
         if (!hasRefs) {
@@ -6895,7 +6931,22 @@ Follow this strict academic proposal sequence:
 <p>[Explain the real-world challenge clearly using the student's broad area, specific problem, and Quantified Problem Statement (QPS). Emphasize the starting numbers—such as percentage wasted, time lost, error rates, or manual labor costs—showing why a new solution is urgently needed.]</p>
 
 <h3>B. Literature Review, Prior Art Failure Analysis & Root Cause</h3>
-<p>[Synthesize each research gap provided by the student into a clear narrative with APA in-text citations (Author, Year). Detail the prior art and commercial product failure analysis using the student's prior-art-failures input. Explicitly contrast why existing commercial devices fail, are cost-prohibitive, or fail to operate under local conditions, and formulate a Prior Art Failure Analysis comparison table:]</p>
+<p>[Provide a 1–2 paragraph engineering synthesis introducing the student's research gaps and prior art failure analysis.]</p>
+<p><strong>Literature Gaps &amp; Technological Deficiencies Matrix:</strong></p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+  <thead>
+    <tr style="background-color: #f1f5f9; color: #0f172a;">
+      <th style="border: 1px solid #cbd5e1; width: 8%; text-align: center; padding: 6px;">No.</th>
+      <th style="border: 1px solid #cbd5e1; width: 54%; text-align: left; padding: 6px;">Identified Technological Gap / Engineering Deficiency</th>
+      <th style="border: 1px solid #cbd5e1; width: 38%; text-align: left; padding: 6px;">Literature Evidence &amp; In-Text Citation (APA 7th)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Generate rows for each research gap with clean sequential numbering (1, 2, 3...) and in-text citations like (Author, Year). CRITICAL DIRECTIVE: DO NOT paste raw URLs or web links into this table or body text! Full URLs belong exclusively in the REFERENCES section. -->
+  </tbody>
+</table>
+
+<p><strong>Prior Art &amp; Commercial Failure Mode Analysis:</strong></p>
 <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
   <thead>
     <tr style="background-color: #f1f5f9;">
@@ -7035,7 +7086,7 @@ Follow this strict academic proposal sequence:
 </table>
 
 <h2>REFERENCES</h2>
-<p>[Generate an APA 7th Edition bibliography from the student's research citations. Format each reference entry with a hanging indent using &lt;p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem;"&gt;. Apply standard APA format: Author, A. A. (Year). <em>Title of article or book</em>. Journal or Publisher. URL/DOI. If year is missing, use (n.d.).]</p>
+<p>[Generate an APA 7th Edition bibliography from the student's research citations. Format each reference entry with a hanging indent using &lt;p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem; word-break: break-word;"&gt;. Apply standard APA format: Author, A. A. (Year). <em>Title of article or book</em>. Journal or Publisher. If a URL is present, hyperlink it cleanly with &lt;a href="..." style="color: #166534; text-decoration: underline; word-break: break-all;"&gt;[URL or shortened display]&lt;/a&gt;. If year is missing, use (n.d.).]</p>
 
 CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gibberish, do NOT fabricate agricultural or generic content. Instead, output an HTML alert box stating that insufficient technical parameters were provided to generate a complete proposal.`;
 
