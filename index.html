@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 22, 2026, 07:55 PM] v4.1.0 - New Feature: Live Preview Document panel (slide-over drawer that renders the IM Concept Proposal IMRAD template in real-time as users fill in the ERSA form), Save Draft (exports all form fields as a downloadable .ersa JSON file), and Load Draft (imports a .ersa JSON file and restores all field values).
+[September 22, 2026, 09:00 AM] v4.0.0 - New Feature: IMRAD IM Concept Proposal restructure — generateLocalProposalHtml now produces a proper IM-of-IMRAD formatted document (Title Page, Abstract, I. Introduction [A. Background & Rationale / RRL, B. RRL Matrix, C. Statement of Problem, D. Engineering Goals, E. Scope & Delimitations, F. Research Variables], II. Proposed Methodology [A. System Architecture, B. BOM, C. RAMP Safety, D. Testing Protocol, E. Statistical Treatment], III. Expected Performance Targets, References) per PROJECT-PROPOSAL-IM-of-IMRAD-TEMPLATE.docx.
 [September 17, 2026, 08:25 AM] v3.2.1 - Fix: Redesigned Technological Gaps & Literature Evidence presentation — replaced messy raw text/URL concatenation with a structured academic Literature Gaps Matrix, clean sequential numbering, proper APA in-text citations, and strict prompt guardrails against raw URLs in proposal body.
 [September 17, 2026, 06:50 AM] v3.2.0 - New Feature: Upgraded AI engine to latest free models (Gemini 3.7 Flash & 3.5 Flash Lite) with automatic rate-limit and quota adaptation fallback chain across all 16 AI features.
-[September 17, 2026, 06:25 AM] v3.1.6 - Fix: Resolved embedded JavaScript syntax error ("Argument expression expected") by constructing the HTML comment stripping RegExp dynamically without literal script-escaping tokens.
 [September 16, 2026, 01:45 PM] v3.1.5 - Fix: Prevent blank PDF submissions — added client-side local proposal synthesis when API key is unset or AI generation fails, auto-synthesis before final submission, and clean initialization of proposal container.
-[September 16, 2026, 10:37 AM] v3.1.4 - Fix: Deduplicate logged entries with persistent session submission ID, separate AI draft preview sync from final submission, and prevent duplicate rows in Google Sheets.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +12,7 @@ CHANGELOG:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Research Express: Rapid Engineering Research Design</title>
+  <title>ERSA v2: IMRAD Research Design Express</title>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -212,8 +212,8 @@ CHANGELOG:
         <i class="ph ph-leaf text-xl sm:text-2xl"></i>
       </div>
       <div>
-        <h1 class="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-cozy-card leading-tight">Research Express</h1>
-        <p class="text-xs sm:text-sm text-[#E8DEBE] font-medium">Robotics &amp; Intelligent Machines Research Assistant</p>
+        <h1 class="font-heading text-xl sm:text-2xl md:text-3xl font-bold text-cozy-card leading-tight">Research Express <span class="text-amber-400 text-base font-medium">v2</span></h1>
+        <p class="text-xs sm:text-sm text-[#E8DEBE] font-medium">IMRAD IM Concept Proposal — Robotics &amp; Intelligent Machines</p>
       </div>
     </div>
 
@@ -232,6 +232,28 @@ CHANGELOG:
         <span class="hidden sm:inline">Import PDF</span>
         <span class="sm:hidden">PDF</span>
       </button>
+      <!-- Save Draft -->
+      <button id="btn-save-draft"
+        class="bg-sky-600 hover:bg-sky-700 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-1.5 font-medium text-xs sm:text-sm cursor-pointer touch-manipulation"
+        title="Save Draft — Download your current progress as a .ersa file">
+        <i class="ph ph-floppy-disk text-base sm:text-lg"></i>
+        <span class="hidden sm:inline">Save</span>
+      </button>
+      <!-- Load Draft -->
+      <label id="btn-load-draft-label"
+        class="bg-violet-600 hover:bg-violet-700 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-1.5 font-medium text-xs sm:text-sm cursor-pointer touch-manipulation"
+        title="Load Draft — Restore a previously saved .ersa file">
+        <i class="ph ph-folder-open text-base sm:text-lg"></i>
+        <span class="hidden sm:inline">Load</span>
+        <input type="file" id="load-draft-input" accept=".ersa,.json" class="hidden" />
+      </label>
+      <!-- Preview Document -->
+      <button id="btn-preview-doc"
+        class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 flex items-center gap-1.5 font-medium text-xs sm:text-sm cursor-pointer touch-manipulation"
+        title="Preview Document — See your IM Concept Proposal as you fill it in">
+        <i class="ph ph-file-text text-base sm:text-lg"></i>
+        <span class="hidden sm:inline">Preview</span>
+      </button>
       <button id="btn-open-settings"
         class="bg-cozy-header hover:bg-[#1b3a16] text-cozy-card p-2 sm:p-2.5 rounded-full shadow-lg hover:shadow-xl transition-transform hover:scale-110 flex items-center justify-center cursor-pointer touch-manipulation"
         title="Settings">
@@ -240,13 +262,76 @@ CHANGELOG:
     </div>
   </header>
 
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- PREVIEW DOCUMENT DRAWER                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- Backdrop -->
+  <div id="preview-backdrop"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0"
+    aria-hidden="true">
+  </div>
+  <!-- Drawer panel -->
+  <aside id="preview-drawer"
+    class="fixed top-0 right-0 h-full w-full sm:w-[600px] lg:w-[720px] bg-white z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-400 ease-out"
+    aria-label="IM Concept Proposal Preview">
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-gradient-to-r from-emerald-700 to-teal-600 shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="ph ph-file-text text-2xl text-white"></i>
+        <div>
+          <h2 class="text-white font-bold text-base leading-tight">IM Concept Proposal Preview</h2>
+          <p class="text-emerald-100 text-xs">Live document — updates as you fill in the form</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-preview-refresh"
+          class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors cursor-pointer"
+          title="Refresh Preview">
+          <i class="ph ph-arrows-clockwise text-lg"></i>
+        </button>
+        <button id="btn-preview-close"
+          class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors cursor-pointer"
+          title="Close Preview">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Completion progress bar -->
+    <div class="px-5 py-2 bg-emerald-50 border-b border-emerald-100 shrink-0">
+      <div class="flex items-center justify-between text-xs text-emerald-800 mb-1">
+        <span>Document Completion</span>
+        <span id="preview-completion-pct" class="font-bold">0%</span>
+      </div>
+      <div class="w-full bg-emerald-100 rounded-full h-2">
+        <div id="preview-completion-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+      </div>
+    </div>
+    <!-- Drawer Content (scrollable) -->
+    <div id="preview-doc-body"
+      class="flex-1 overflow-y-auto px-6 py-6 text-slate-800 text-sm leading-relaxed"
+      style="font-family:'Times New Roman',Times,serif;">
+      <div class="text-center text-slate-400 py-20">
+        <i class="ph ph-file-text text-5xl mb-3 block"></i>
+        <p class="font-medium">Click <strong>Preview</strong> or start filling in your form to see your proposal build in real time.</p>
+      </div>
+    </div>
+    <!-- Drawer Footer -->
+    <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 shrink-0 flex items-center justify-between gap-3">
+      <p class="text-xs text-slate-500"><i class="ph ph-info"></i> Highlighted sections show where more information is needed.</p>
+      <button id="btn-preview-close-footer"
+        class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors cursor-pointer">
+        Close Preview
+      </button>
+    </div>
+  </aside>
+
   <main class="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex-grow flex flex-col justify-start mt-2 sm:mt-4">
 
     <!-- Mobile Step Indicator (Phones) -->
     <div class="sm:hidden text-center mb-3">
       <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900 bg-amber-100/90 py-1 px-3.5 rounded-full border border-amber-200/80 shadow-xs">
         <span id="mobile-step-num" class="w-4 h-4 rounded-full bg-amber-600 text-white inline-flex items-center justify-center text-[10px]">1</span>
-        <span id="mobile-step-name">Problem ID (Level 1)</span>
+        <span id="mobile-step-name">Background &amp; RRL (Level 1)</span>
       </span>
     </div>
 
@@ -338,9 +423,9 @@ CHANGELOG:
       <!-- Card 1: Problem Definition -->
       <section class="step-card active glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-red-400" id="step-1">
         <div class="mb-6 text-center">
-          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-700 bg-red-100 px-3 py-1 rounded-full mb-2">Level 1</span>
-          <h2 class="font-heading text-2xl font-bold text-slate-800">Problem Identification <span class="text-lg md:text-xl font-medium text-slate-600">(Find the Real Problem — The Mission Explorer)</span></h2>
-          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">Look around your school, farm, or town in <b>Kidapawan City</b>: what real-world headache can we solve with a smart machine or robot?</p>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-red-700 bg-red-100 px-3 py-1 rounded-full mb-2">Level 1 — IMRAD: I. Introduction (A &amp; B)</span>
+          <h2 class="font-heading text-2xl font-bold text-slate-800">Problem Identification &amp; Literature Review <span class="text-lg md:text-xl font-medium text-slate-600">(Background &amp; RRL — The Mission Explorer)</span></h2>
+          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">This section feeds into the <strong>Background and Rationale</strong> and <strong>Review of Related Literature</strong> sections of your IM Concept Proposal. Look around your school, farm, or town in <b>Kidapawan City</b>: what real-world headache can we solve with a smart machine or robot?</p>
         </div>
 
         <!-- Starter Inspiration Chips (Click to Try!) -->
@@ -591,9 +676,9 @@ CHANGELOG:
       <!-- Card 2: Quantified Problem Statement -->
       <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-orange-400" id="step-2">
         <div class="mb-6 text-center">
-          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-700 bg-orange-100 px-3 py-1 rounded-full mb-2">Level 2</span>
-          <h2 class="font-heading text-2xl font-bold text-slate-800">Quantified Problem Statement &amp; Constraints <span class="text-lg md:text-xl font-medium text-slate-600">(The Problem Formula &amp; Building Limits)</span></h2>
-          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">The "Mad-Libs" formula: Fill in the blanks below to turn your raw idea into an official, competition-ready engineering goal!</p>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-700 bg-orange-100 px-3 py-1 rounded-full mb-2">Level 2 — IMRAD: I. Introduction (C, D, E)</span>
+          <h2 class="font-heading text-2xl font-bold text-slate-800">QPS &amp; Engineering Constraints <span class="text-lg md:text-xl font-medium text-slate-600">(Statement of Problem, Engineering Goals &amp; Scope &mdash; The Architect)</span></h2>
+          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">This section fills in the <strong>Statement of the Engineering Problem</strong>, <strong>Engineering Goals &amp; Specific Objectives</strong>, and <strong>Scope &amp; Delimitations</strong> in your IM Concept Proposal. Fill in the blanks below to turn your raw idea into an official, competition-ready engineering goal!</p>
         </div>
 
         <!-- Collapsible Friendly Teacher's Hint -->
@@ -888,9 +973,9 @@ CHANGELOG:
       <!-- Card 3: Variables & Safety -->
       <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-yellow-400" id="step-3">
         <div class="mb-6 text-center">
-          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-yellow-800 bg-yellow-100 px-3 py-1 rounded-full mb-2">Level 3</span>
-          <h2 class="font-heading text-2xl font-bold text-slate-800">Experimental Variables &amp; Hardware Architecture <span class="text-lg md:text-xl font-medium text-slate-600">(Robot Anatomy, Test Knobs &amp; Safety)</span></h2>
-          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">Pick the one knob you will turn, assemble your robot parts, and put on your safety shield!</p>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-yellow-800 bg-yellow-100 px-3 py-1 rounded-full mb-2">Level 3 — IMRAD: I.F Research Variables + II. Methodology (A, B, C)</span>
+          <h2 class="font-heading text-2xl font-bold text-slate-800">Research Variables &amp; Hardware Architecture <span class="text-lg md:text-xl font-medium text-slate-600">(Variables, System Design &amp; BOM &mdash; The Builder)</span></h2>
+          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">This section fills in <strong>F. Research Variables</strong> and <strong>II. Proposed Methodology (System Architecture, BOM, Safety)</strong> in your IM Concept Proposal. Pick the one knob you will turn, assemble your robot parts, and put on your safety shield!</p>
         </div>
 
         <!-- Collapsible Friendly Teacher's Hint -->
@@ -1060,9 +1145,9 @@ CHANGELOG:
       <!-- Card 4: Data Validation -->
       <section class="step-card glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 border-t-4 border-t-green-400" id="step-4">
         <div class="mb-6 text-center">
-          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mb-2">Level 4</span>
-          <h2 class="font-heading text-2xl font-bold text-slate-800">Testing Protocols, Scaling &amp; Statistics <span class="text-lg md:text-xl font-medium text-slate-600">(Testing, Trials &amp; Math Proof)</span></h2>
-          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">How will you test your invention without wasting materials? Prove with real data that your machine actually works!</p>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mb-2">Level 4 — IMRAD: II. Methodology (D &amp; E)</span>
+          <h2 class="font-heading text-2xl font-bold text-slate-800">Testing Protocol &amp; Statistical Plan <span class="text-lg md:text-xl font-medium text-slate-600">(Testing, Trials &amp; Math Proof &mdash; The Tester)</span></h2>
+          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">This section fills in <strong>D. Testing Protocol</strong> and <strong>E. Statistical Treatment</strong> in your IM Concept Proposal. How will you test your invention without wasting materials? Prove with real data that your machine actually works!</p>
         </div>
 
         <!-- Collapsible Friendly Teacher's Hint -->
@@ -4307,10 +4392,19 @@ CRITICAL RULES:
           .replace(/'/g, '&#039;');
       }
 
+      // --- Client-Side IMRAD IM Concept Proposal Synthesizer ---
+      // Mirrors codev2.gs synthesizeProposalHtml() structure exactly.
+      // ERSA Platform Section -> IMRAD Template Section mapping:
+      //  Level 1 (Problem ID / Explorer)      -> I.A Background & Rationale + I.B RRL
+      //  Level 2 (QPS & Limits / Architect)   -> I.C Statement of Problem + I.D Engineering Goals + I.E Scope & Delimitations
+      //  Level 3 (Variables & BOM / Builder)  -> I.F Research Variables + II.A System Architecture + II.B BOM + II.C Safety
+      //  Level 4 (Testing & Stats / Tester)   -> II.D Testing Protocol + II.E Statistical Treatment
+      //  Level 5 (Project Title / Author)     -> Title Page
+      //  Level 6 (Concept Proposal / Inventor)-> Final Document
       function generateLocalProposalHtml(data) {
         if (!data) data = {};
-        const title = escapeHtmlClient(data['project-title'] || 'Engineering Concept Proposal');
-        
+        const title = escapeHtmlClient(data['project-title'] || 'Engineering IM Concept Proposal');
+
         const researchers = [];
         for (const key in data) {
           if (key.indexOf('researcher-') === 0 && data[key] && String(data[key]).trim()) {
@@ -4320,18 +4414,18 @@ CRITICAL RULES:
         const authors = researchers.length > 0 ? researchers.join(', ') : 'Student Research Team';
         const broadArea = escapeHtmlClient(data['broad-area'] || 'Robotics and Intelligent Machines (ROBO/RIM)');
         const specificProb = escapeHtmlClient(data['specific-problem'] || 'Unaddressed real-world engineering challenge');
-        
-        const qps = escapeHtmlClient("The current state of " + (data['qps-phenomenon'] || 'the target environment') + 
-          " is measured at " + (data['qps-current-metric'] || 'baseline parameters') + 
-          ", resulting in " + (data['qps-specific-problem'] || 'operational degradation or risk') + 
-          ". This research aims to achieve " + (data['qps-target-state'] || 'reliable, automated operation') + 
-          " by " + (data['qps-action'] || 'implementing an embedded sensory-actuation prototype') + 
+
+        const qps = escapeHtmlClient("The current state of " + (data['qps-phenomenon'] || 'the target environment') +
+          " is measured at " + (data['qps-current-metric'] || 'baseline parameters') +
+          ", resulting in " + (data['qps-specific-problem'] || 'operational degradation or risk') +
+          ". This research aims to achieve " + (data['qps-target-state'] || 'reliable, automated operation') +
+          " by " + (data['qps-action'] || 'implementing an embedded sensory-actuation prototype') +
           ", as measured by " + (data['qps-target-metric'] || 'empirical performance benchmarks') + ".");
 
         const priorArt = escapeHtmlClient(data['prior-art-failures'] || data['prior-art-matrix'] || 'Commercial solutions suffer from high costs, maintenance complexity, or failure to operate during field network disconnects.');
         const funcReqs = escapeHtmlClient(data['functional-requirements'] || 'Real-time sensory acquisition, deterministic state-machine processing, and rapid fail-safe actuation.');
         const mechConst = escapeHtmlClient(data['mechanical-constraints'] || 'Compact modular enclosure, lightweight structure.');
-        const softConst = escapeHtmlClient(data['software-constraints'] || 'Deterministic loop cycle < 200 ms, low latency.');
+        const softConst = escapeHtmlClient(data['software-constraints'] || 'Deterministic loop cycle less than 200 ms, low latency.');
         const budget = escapeHtmlClient(data['budget-limit'] || 'Affordable local components');
         const scope = escapeHtmlClient(data['project-scope'] || data['scope'] || 'Design, assembly, benchtop calibration, and multi-cycle operational testing of the physical prototype.');
         const delimitations = escapeHtmlClient(data['delimitations'] || 'Excludes industrial mass production and extreme environmental deployment.');
@@ -4342,7 +4436,7 @@ CRITICAL RULES:
         const brain = escapeHtmlClient(data['mat-brain'] || 'Microcontroller Core (MCU)');
         const actuator = escapeHtmlClient(data['mat-actuator'] || 'Output Actuator / Indicator');
         const power = escapeHtmlClient(data['mat-power'] || 'Regulated Power Supply Unit');
-        const ctrlArch = escapeHtmlClient(data['control-architecture'] || 'Deterministic state machine (IDLE -> SENSING -> EVALUATING -> ACTUATING)');
+        const ctrlArch = escapeHtmlClient(data['control-architecture'] || 'Deterministic state machine (IDLE → SENSING → EVALUATING → ACTUATING)');
         const sigCond = escapeHtmlClient(data['signal-conditioning'] || 'Pull-up/pull-down bias, RC filtering, and logic-level conversion.');
         const pwrDist = escapeHtmlClient(data['power-distribution'] || 'Isolated microcontroller logic rail and dedicated high-current actuator rail.');
         const safety = escapeHtmlClient(data['ramp-safety'] || 'Flyback diodes, overcurrent fuses, and software watchdog timeout.');
@@ -4356,53 +4450,40 @@ CRITICAL RULES:
         const targetMetric = escapeHtmlClient(data['target-metric'] || 'Success rate >= 95%, latency < 200 ms');
         const trials = escapeHtmlClient(data['trials-planned'] || '30 repeated trials');
         const sustain = escapeHtmlClient(data['sustainability-justification'] || 'Low-cost, energy-efficient, locally repairable hardware architecture.');
+        const scalingLogic = escapeHtmlClient(data['scaling-logic'] || 'Proportional scale model validated prior to full deployment; results extrapolated with documented scaling factors.');
+        const submissionDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' });
+        const currentYear = new Date().getFullYear().toString();
 
+        // Build RRL gaps rows
         let gapsRows = '';
-        let gapCount = 0;
+        let rrlGapCount = 0;
         for (let i = 1; i <= 20; i++) {
           const gDesc = data['research-gap-' + i];
           if (gDesc && String(gDesc).trim()) {
-            gapCount++;
+            rrlGapCount++;
             const a = escapeHtmlClient(data['gap-author-' + i] || 'Author, N.');
             const y = escapeHtmlClient(data['gap-year-' + i] || 'n.d.');
             const t = escapeHtmlClient(data['gap-title-' + i] || '');
             const pub = escapeHtmlClient(data['gap-publisher-' + i] || '');
-            
             let citeMeta = `<strong>${a} (${y})</strong>`;
             if (t) citeMeta += `<br><em>"${t}"</em>`;
-            if (pub) citeMeta += `<br><span style="color: #64748b; font-size: 0.85em;">${pub}</span>`;
-
-            gapsRows += `
-            <tr>
-              <td style="border: 1px solid #cbd5e1; text-align: center; font-weight: bold; vertical-align: top; padding: 6px;">${gapCount}</td>
-              <td style="border: 1px solid #cbd5e1; vertical-align: top; padding: 6px; text-align: justify;">${escapeHtmlClient(String(gDesc).trim())}</td>
-              <td style="border: 1px solid #cbd5e1; vertical-align: top; padding: 6px;">${citeMeta}</td>
+            if (pub) citeMeta += `<br><span style="color:#64748b;font-size:0.85em;">${pub}</span>`;
+            gapsRows += `<tr>
+              <td style="border:1px solid #cbd5e1;text-align:center;font-weight:bold;vertical-align:top;padding:6px;">${rrlGapCount}</td>
+              <td style="border:1px solid #cbd5e1;vertical-align:top;padding:6px;text-align:justify;">${escapeHtmlClient(String(gDesc).trim())}</td>
+              <td style="border:1px solid #cbd5e1;vertical-align:top;padding:6px;">${citeMeta}</td>
             </tr>`;
           }
         }
-
-        let gapsHtml = '';
-        if (gapCount > 0) {
-          gapsHtml = `
-          <p style="margin-bottom: 8px;">The engineering development of this prototype is directly justified by documented failure points and technical deficiencies in existing solutions. The following matrix details the critical technological gaps identified from literature benchmarks and prior field studies:</p>
-          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
-            <thead>
-              <tr style="background-color: #f1f5f9; color: #0f172a;">
-                <th style="border: 1px solid #cbd5e1; width: 8%; text-align: center; padding: 6px;">No.</th>
-                <th style="border: 1px solid #cbd5e1; width: 54%; text-align: left; padding: 6px;">Identified Technological Gap &amp; Technical Deficiency</th>
-                <th style="border: 1px solid #cbd5e1; width: 38%; text-align: left; padding: 6px;">Literature Evidence &amp; In-Text Citation (APA 7th)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${gapsRows}
-            </tbody>
-          </table>
-          <p style="margin-top: 10px; margin-bottom: 6px;">To address these technical shortcomings, the proposed prototype introduces specific engineering countermeasures contrasted against conventional implementations in the matrix below:</p>`;
-        } else {
-          gapsHtml = `
-          <p style="margin-bottom: 8px;"><strong>Core Technical Challenge:</strong> ${specificProb}</p>`;
+        if (rrlGapCount === 0) {
+          gapsRows = `<tr>
+            <td style="border:1px solid #cbd5e1;text-align:center;font-weight:bold;">1</td>
+            <td style="border:1px solid #cbd5e1;padding:6px;">${specificProb}</td>
+            <td style="border:1px solid #cbd5e1;padding:6px;"><em>Field observation &amp; stakeholder assessment</em></td>
+          </tr>`;
         }
 
+        // Build References
         let refsHtml = '';
         let hasRefs = false;
         for (let i = 1; i <= 20; i++) {
@@ -4417,165 +4498,325 @@ CRITICAL RULES:
             let urlHtml = '';
             if (rawUrl) {
               const displayUrl = rawUrl.length > 55 ? escapeHtmlClient(rawUrl.substring(0, 52)) + '...' : escapeHtmlClient(rawUrl);
-              urlHtml = `. Available at: <a href="${escapeHtmlClient(rawUrl)}" style="color: #166534; text-decoration: underline; word-break: break-all;" target="_blank">${displayUrl}</a>`;
+              urlHtml = `. Retrieved from <a href="${escapeHtmlClient(rawUrl)}" style="color:#166534;text-decoration:underline;word-break:break-all;" target="_blank">${displayUrl}</a>`;
             }
-            refsHtml += `<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem; word-break: break-word;">${a} (${y}). <em>${t}</em>${p ? '. ' + p : ''}${urlHtml}</p>`;
+            refsHtml += `<p style="padding-left:2rem;text-indent:-2rem;margin-bottom:0.5rem;word-break:break-word;">${a} (${y}). <em>${t}</em>${p ? '. ' + p : ''}${urlHtml}</p>`;
           }
         }
         if (!hasRefs) {
-          refsHtml = '<p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem;">Department of Science and Technology. (2024). <em>National Science and Technology Fair (NSTF) Guidelines: Robotics and Intelligent Machines Category</em>. Republic of the Philippines.</p>';
+          refsHtml = `<p style="padding-left:2rem;text-indent:-2rem;margin-bottom:0.5rem;">Department of Science and Technology. (${currentYear}). <em>National Science and Technology Fair (NSTF) Guidelines: Robotics and Intelligent Machines Category</em>. Republic of the Philippines.</p>`;
         }
 
         return `
-<h1>${title}</h1>
-<p style="text-align: center; margin-bottom: 4px;"><strong>Inventors &amp; Researchers:</strong> ${authors}</p>
-<p style="text-align: center; color: #64748b; font-size: 0.9em; margin-bottom: 24px;"><strong>Category:</strong> ${broadArea} | <strong>Document:</strong> Pre-Experimentation Concept Proposal</p>
+<!-- TITLE PAGE -->
+<div style="text-align:center;padding:20pt 0 16pt 0;border-bottom:2px solid #2E5A27;margin-bottom:18pt;">
+  <p style="font-size:9pt;color:#64748b;margin-bottom:6pt;text-transform:uppercase;letter-spacing:1px;">Pre-Experimentation Concept Proposal</p>
+  <p style="font-size:9pt;color:#64748b;margin-bottom:10pt;">IM (Introduction &amp; Proposed Methodology) Format — IMRAD Template</p>
+  <h1 style="font-size:16pt;font-weight:bold;color:#0f172a;line-height:1.35;margin-bottom:10pt;">${title}</h1>
+  <p style="font-size:10pt;color:#334155;margin-bottom:4pt;"><strong>Student Researchers / Authors:</strong> ${authors}</p>
+  <p style="font-size:9.5pt;color:#475569;margin-bottom:4pt;"><strong>Research Category:</strong> ${broadArea}</p>
+  <p style="font-size:9pt;color:#64748b;">Submitted: ${submissionDate}</p>
+</div>
 
-<h2>EXECUTIVE SUMMARY</h2>
-<p>This engineering research design proposal presents the technical framework for <strong>${title}</strong>. Developed by ${authors}, the project addresses ${specificProb}. Through the structured Engineering Design Process (EDP), the system integrates sensory data acquisition (${sensor}), real-time embedded computation (${brain}), and deterministic actuation (${actuator}) to establish an offline-capable, high-reliability solution. The proposed prototype aims to fulfill target performance metrics (${targetMetric}) demonstrated across ${trials} with inferential statistical verification (${statTreat}).</p>
+<!-- ABSTRACT -->
+<h2>ABSTRACT</h2>
+<p>This pre-experimentation concept proposal presents the engineering design framework for <strong>${title}</strong>, developed by ${authors}. The project addresses ${specificProb}. Employing the Engineering Design Process (EDP) mapped onto the IM-of-IMRAD format, the proposed prototype integrates sensory data acquisition (${sensor}), embedded real-time computation (${brain}), and deterministic actuation (${actuator}) to deliver an offline-capable, community-appropriate engineering solution. The prototype is designed to fulfill target performance benchmarks (${targetMetric}) verified across ${trials}, with inferential statistical validation employing ${statTreat}.</p>
 
+<!-- I. INTRODUCTION -->
 <h2>I. INTRODUCTION</h2>
-<h3>A. Background Rationale &amp; Quantified Problem Statement (QPS)</h3>
+
+<!-- A. Background and Rationale -->
+<h3>A. Background and Rationale</h3>
 <p>${qps}</p>
-<p>Existing manual or commercial methodologies in this domain suffer from operational bottlenecks, including high implementation costs, vulnerability to network or power outages, and delayed response times. The proposed prototype resolves these constraints by implementing a localized, cost-effective engineering architecture.</p>
+<p>Existing manual or commercial methodologies in the domain of <em>${broadArea}</em> exhibit critical operational bottlenecks, including prohibitive implementation costs, dependency on network connectivity, and unacceptable response latencies under field conditions. Prior art failure assessment identifies the following major limitations: <em>${priorArt}</em>. The engineering development of this prototype provides a localized, cost-effective countermeasure addressing these community-level constraints.</p>
 
-<h3>B. Technological Gaps &amp; Prior Art Failure Analysis</h3>
-${gapsHtml}
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+<!-- B. Review of Related Literature and Studies -->
+<h3>B. Review of Related Literature and Studies</h3>
+<p>The following Literature Gaps Matrix presents documented technological deficiencies identified in peer-reviewed and indexed publications that directly justify the need for this engineering prototype:</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
   <thead>
-    <tr style="background-color: #f1f5f9;">
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Prior Art / Conventional Approach</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Reported Failure Mode &amp; Limitation</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Proposed Prototype Countermeasure</th>
+    <tr style="background-color:#f1f5f9;color:#0f172a;">
+      <th style="border:1px solid #cbd5e1;width:6%;text-align:center;padding:6px;">No.</th>
+      <th style="border:1px solid #cbd5e1;width:54%;text-align:left;padding:6px;">Identified Technological Gap &amp; Research Deficiency</th>
+      <th style="border:1px solid #cbd5e1;width:40%;text-align:left;padding:6px;">Literature Evidence &amp; APA 7th Citation</th>
+    </tr>
+  </thead>
+  <tbody>${gapsRows}</tbody>
+</table>
+<p>Based on the reviewed literature, the proposed prototype introduces specific engineering countermeasures against conventional approaches:</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+  <thead>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">Prior Art / Conventional Approach</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Reported Failure Mode &amp; Limitation</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Proposed Prototype Countermeasure</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Commercial / Proprietary Systems</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${priorArt}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Open-source, modular hardware with local offline processing and rapid fail-safe architecture.</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Commercial / Proprietary Systems</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${priorArt}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Open-source, modular hardware with local offline processing, deterministic fail-safe architecture, and community-accessible cost ceiling.</td>
     </tr>
   </tbody>
 </table>
 
-<h3>C. Functional Requirements vs. Design Constraints Matrix</h3>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+<!-- C. Statement of the Engineering Problem -->
+<h3>C. Statement of the Engineering Problem</h3>
+<p>Based on the reviewed literature and identified technological gaps, the core engineering problem is defined as:</p>
+<p style="border-left:3px solid #2E5A27;padding-left:12pt;margin:10pt 0;font-style:italic;">${qps}</p>
+<p>Specifically, this research addresses the problem of <strong>${specificProb}</strong> in the domain of <em>${broadArea}</em>.</p>
+
+<!-- D. Engineering Goals and Specific Objectives -->
+<h3>D. Engineering Goals and Specific Objectives</h3>
+<p>The <strong>general engineering goal</strong> is to design, fabricate, and evaluate a functional prototype resolving the identified problem through autonomous embedded systems engineering. The specific objectives are:</p>
+<ol style="margin-left:18pt;margin-bottom:10pt;">
+  <li>Design and assemble a working prototype integrating ${sensor} (sensing subsystem), ${brain} (processing core), and ${actuator} (actuation subsystem).</li>
+  <li>Implement the following autonomous functional operations: <em>${funcReqs}</em></li>
+  <li>Demonstrate target performance metrics of <strong>${targetMetric}</strong>, verified across ${trials}.</li>
+  <li>Validate prototype performance using ${statTreat} to establish empirical proof at significance level α = 0.05.</li>
+</ol>
+
+<!-- E. Scope and Delimitations -->
+<h3>E. Scope and Delimitations</h3>
+<p><strong>Scope of the Study.</strong> ${scope}</p>
+<p><strong>Delimitations.</strong> ${delimitations}</p>
+<p><strong>Design Constraints Summary:</strong></p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
   <thead>
-    <tr style="background-color: #f1f5f9;">
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Classification</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Parameter / Requirement</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Justification</th>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">Constraint Type</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">ERSA Platform Label</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Specified Parameter</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Design Justification</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Functional Requirement</strong></td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Core Operational Task</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${funcReqs}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Directly resolves specific problem criteria.</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Functional</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 2 — What Must Your Machine Do Automatically?</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${funcReqs}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Resolves specific problem through autonomous closed-loop operation without human intervention.</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Mechanical Constraint</strong></td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Form Factor &amp; Chassis</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${mechConst}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Ensures portability, structural rigidity, and thermal dissipation.</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Mechanical</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 2 — Mechanical Limits</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${mechConst}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Ensures structural portability, rigidity, and thermal management within field deployment conditions.</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Software Constraint</strong></td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Execution &amp; Loop Latency</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${softConst}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Guarantees deterministic real-time state machine execution.</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Software / Speed</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 2 — Software / Speed Limits</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${softConst}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Guarantees deterministic real-time execution and meets latency requirements of autonomous control loop.</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>Economic Constraint</strong></td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Budget Ceiling</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${budget}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Maintains accessibility for community and educational deployment.</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Economic</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 2 — Financial Ceiling (Budget)</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">₱${budget}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Maintains community accessibility and educational deployability within local procurement constraints.</td>
     </tr>
   </tbody>
 </table>
 
-<h3>D. Scope &amp; Delimitations</h3>
-<p><strong>Scope:</strong> ${scope}</p>
-<p><strong>Delimitations:</strong> ${delimitations}</p>
-<p><strong>Variable Formulation:</strong> <em>Independent Variable:</em> ${indVar} | <em>Dependent Variable:</em> ${depVar} | <em>Controlled Variables:</em> ${ctrlVar}.</p>
+<!-- F. Research Variables -->
+<h3>F. Research Variables</h3>
+<p><em>Sourced from ERSA Platform Level 3 — Variables &amp; BOM / Builder, Variable Formulation subsection.</em></p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+  <thead>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">Variable Type</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">ERSA Platform Label</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Definition &amp; Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Independent Variable (IV)</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Change (Input / Stimulus)</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${indVar}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Dependent Variable (DV)</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Measure (Output / Response)</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${depVar}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Controlled Variables (CV)</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Keep Constant</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${ctrlVar}</td>
+    </tr>
+  </tbody>
+</table>
 
+<!-- II. PROPOSED METHODOLOGY -->
 <h2>II. PROPOSED METHODOLOGY</h2>
-<h3>A. System Architecture, Control Theory &amp; State Machine</h3>
-<p>The system adheres to the Sense-Think-Act paradigm. Algorithmic execution is managed via ${ctrlArch}.</p>
 
-<table class="block-diagram" style="width: 100%; border-collapse: separate; border-spacing: 6px; margin: 12px 0;">
+<!-- A. System Architecture -->
+<h3>A. System Architecture and Control Design</h3>
+<p>The proposed prototype adheres to the <strong>Sense-Think-Act (STA) embedded control paradigm</strong>. Decision-making is governed via: <em>${ctrlArch}</em>.</p>
+<table class="block-diagram" style="width:100%;border-collapse:separate;border-spacing:6px;margin:12px 0;">
   <tr>
-    <td style="width: 28%; border: 2px solid #0284c7; background: #e0f2fe; padding: 8px; text-align: center; vertical-align: middle;">
-      <strong style="color: #0369a1; font-size: 10pt; display: block;">SENSE (Inputs)</strong>
-      <span style="font-size: 8.5pt; color: #0f172a;">${sensor}</span>
+    <td style="width:28%;border:2px solid #0284c7;background:#e0f2fe;padding:8px;text-align:center;vertical-align:middle;">
+      <strong style="color:#0369a1;font-size:10pt;display:block;">SENSE (Inputs)</strong>
+      <span style="font-size:8.5pt;color:#0f172a;">${sensor}</span>
     </td>
-    <td style="width: 8%; text-align: center; font-size: 14pt; font-weight: bold; color: #0f766e; vertical-align: middle;">➔</td>
-    <td style="width: 28%; border: 2px solid #16a34a; background: #dcfce7; padding: 8px; text-align: center; vertical-align: middle;">
-      <strong style="color: #15803d; font-size: 10pt; display: block;">THINK (Processing Core)</strong>
-      <span style="font-size: 8.5pt; color: #0f172a;">${brain}</span>
+    <td style="width:8%;text-align:center;font-size:14pt;font-weight:bold;color:#0f766e;vertical-align:middle;">➔</td>
+    <td style="width:28%;border:2px solid #16a34a;background:#dcfce7;padding:8px;text-align:center;vertical-align:middle;">
+      <strong style="color:#15803d;font-size:10pt;display:block;">THINK (Processing Core)</strong>
+      <span style="font-size:8.5pt;color:#0f172a;">${brain}</span>
     </td>
-    <td style="width: 8%; text-align: center; font-size: 14pt; font-weight: bold; color: #0f766e; vertical-align: middle;">➔</td>
-    <td style="width: 28%; border: 2px solid #d97706; background: #fef3c7; padding: 8px; text-align: center; vertical-align: middle;">
-      <strong style="color: #b45309; font-size: 10pt; display: block;">ACT (Actuation)</strong>
-      <span style="font-size: 8.5pt; color: #0f172a;">${actuator}</span>
+    <td style="width:8%;text-align:center;font-size:14pt;font-weight:bold;color:#0f766e;vertical-align:middle;">➔</td>
+    <td style="width:28%;border:2px solid #d97706;background:#fef3c7;padding:8px;text-align:center;vertical-align:middle;">
+      <strong style="color:#b45309;font-size:10pt;display:block;">ACT (Actuation)</strong>
+      <span style="font-size:8.5pt;color:#0f172a;">${actuator}</span>
     </td>
   </tr>
   <tr>
-    <td colspan="5" style="border: 1.5px dashed #ef4444; background: #fee2e2; padding: 6px; text-align: center;">
-      <strong style="color: #b91c1c; font-size: 9pt;">POWER SUBSYSTEM:</strong> <span style="font-size: 8.5pt; color: #7f1d1d;">${power} (${pwrDist})</span>
+    <td colspan="5" style="border:1.5px dashed #ef4444;background:#fee2e2;padding:6px;text-align:center;">
+      <strong style="color:#b91c1c;font-size:9pt;">POWER SUBSYSTEM:</strong>
+      <span style="font-size:8.5pt;color:#7f1d1d;">${power} — ${pwrDist}</span>
     </td>
   </tr>
 </table>
+<p><strong>Signal Conditioning &amp; Electrical Interfacing:</strong> ${sigCond}</p>
 
-<h3>B. Signal Conditioning, Interfacing &amp; Safety Protocol</h3>
-<p><strong>Signal Conditioning:</strong> ${sigCond}</p>
-<p><strong>Safety Protocol &amp; FMEA Mitigations:</strong> ${safety}</p>
-
-<h3>C. Metrological Testing Protocol</h3>
-<p><strong>Phase 1: Subsystem Verification (Benchtop Calibration):</strong> ${subsysVer}</p>
-<p><strong>Phase 2: System Validation (Operational Trials):</strong> ${sysVal}</p>
-<p><strong>Testing Mode:</strong> ${testingMode} (${scaleSize}) | <strong>Procedure:</strong> ${testProc}</p>
-
-<h3>D. Inferential Statistical Plan</h3>
-<p><strong>Statistical Treatment:</strong> ${statTreat}</p>
-<p><strong>Hypotheses:</strong> ${statHyp}</p>
-<p><strong>Sample Size &amp; Power:</strong> ${trials} repeated cycles to satisfy the Central Limit Theorem with significance threshold set at alpha = 0.05.</p>
-
-<h2>III. EXPECTED PERFORMANCE TARGETS &amp; VERIFICATION CRITERIA</h2>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
+<!-- B. Materials and Components -->
+<h3>B. Materials and Components</h3>
+<p>Hardware components were selected for technical suitability, local commercial availability, and adherence to the specified budget ceiling of ₱${budget}:</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
   <thead>
-    <tr style="background-color: #f1f5f9;">
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Metric</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Verification Procedure</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Pass / Fail Criteria</th>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">STA Role</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">ERSA Platform Label</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Selected Component / Technology</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Engineering Justification</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Core Performance</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${targetMetric}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Phase 2 Operational Trials</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">&gt;= 95% reliable trigger</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>SENSE</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — Sense: Sensor / Data Collector</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${sensor}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Primary input stimulus for autonomous detection and measurement of the target variable.</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">System Safety</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Zero electrical backfeed / stall</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">FMEA Benchtop Stress Testing</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">100% fail-safe shutdown</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>THINK</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — Think: Brain (Microcontroller)</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${brain}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Executes the deterministic control algorithm and coordinates all subsystem I/O channels in real time.</td>
     </tr>
     <tr>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Sustainability</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">${sustain}</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Component lifecycle audit</td>
-      <td style="border: 1px solid #cbd5e1; padding: 6px;">Meets budget &amp; repair standard</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>ACT</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — Act: Actuator / Output Device</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${actuator}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Delivers the mechanical, electrical, or visual response as commanded by the processing core.</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>POWER</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — Power Supply</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${power}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Regulated, isolated power rails for logic and actuation subsystems. Distribution: ${pwrDist}</td>
     </tr>
   </tbody>
 </table>
 
-<h2>REFERENCES (APA 7th Edition)</h2>
+<!-- C. Safety and Risk Assessment -->
+<h3>C. Safety and Risk Assessment (RAMP Protocol)</h3>
+<p><em>Sourced from ERSA Platform Level 3 — What Could Go Wrong? (Safety &amp; Fail-Safe)</em></p>
+<p><strong>Identified Hazards and Engineering Mitigations:</strong> ${safety}</p>
+<p><strong>FMEA Countermeasures:</strong> The prototype integrates hardware safety mechanisms including ${sigCond} to prevent electrical damage. Software-level watchdog timers and fail-safe state transitions ensure the system enters a safe idle state on sensor fault or communication timeout.</p>
+
+<!-- D. Testing Protocol -->
+<h3>D. Testing Protocol</h3>
+<p><em>Sourced from ERSA Platform Level 4 — Phase 1 (Subsystem Verification) and Phase 2 (System Validation).</em></p>
+<p><strong>Phase 1 — Subsystem Verification (Benchtop Calibration / Individual Parts on Desk):</strong> ${subsysVer}</p>
+<p><strong>Phase 2 — System Validation (Operational Trials / Whole Machine in Real Life):</strong> ${sysVal}</p>
+<p><strong>Testing Mode:</strong> ${testingMode} (${scaleSize})</p>
+<p><strong>Testing Procedure:</strong> ${testProc}</p>
+<p><strong>Scaling Logic &amp; Feasibility:</strong> ${scalingLogic}</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+  <thead>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">Variable Type</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">ERSA Platform Field</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Testing Definition</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Independent Variable</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Change</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${indVar}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Dependent Variable</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Measure</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${depVar}</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Controlled Variables</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — What You Keep Constant</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${ctrlVar}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- E. Statistical Treatment -->
+<h3>E. Statistical Treatment</h3>
+<p><em>Sourced from ERSA Platform Level 4 — Statistical Plan fields.</em></p>
+<p><strong>Statistical Method:</strong> ${statTreat}</p>
+<p><strong>Null and Alternative Hypotheses:</strong> ${statHyp}</p>
+<p><strong>Sample Size &amp; Statistical Power:</strong> This study plans ${trials} of independent, repeated experimental cycles. This sample size satisfies the <em>Central Limit Theorem</em> (N ≥ 30) and enables detection of statistically significant differences between the prototype and the baseline control at significance level α = 0.05.</p>
+
+<!-- III. EXPECTED PERFORMANCE TARGETS -->
+<h2>III. EXPECTED PERFORMANCE TARGETS AND VERIFICATION CRITERIA</h2>
+<p>Based on the engineering goals and proposed methodology, the following quantified performance benchmarks define the pass/fail criteria for prototype success:</p>
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+  <thead>
+    <tr style="background-color:#f1f5f9;">
+      <th style="border:1px solid #cbd5e1;padding:6px;">Engineering Metric</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">ERSA Platform Section</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Target Specification</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Verification Procedure</th>
+      <th style="border:1px solid #cbd5e1;padding:6px;">Pass / Fail Criterion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Core Performance</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 4 — Target Metric</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${targetMetric}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Phase 2 System Validation — Operational Trials</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">≥ 95% reliable performance across all trials</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>System Safety</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 3 — RAMP Safety</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Zero electrical backfeed / stall events</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">FMEA Benchtop Stress Testing</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">100% fail-safe shutdown on fault detection</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Economic Sustainability</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 2 — Budget Ceiling</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">₱${budget} total BOM cost</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Component lifecycle audit &amp; BOM itemization</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Final build cost ≤ specified budget ceiling</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Sustainability</strong></td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Level 4 — Sustainability</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">${sustain}</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Component lifecycle audit</td>
+      <td style="border:1px solid #cbd5e1;padding:6px;">Meets community repair &amp; longevity standard</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- REFERENCES -->
+<h2>REFERENCES</h2>
+<p style="font-size:0.85em;color:#64748b;margin-bottom:8px;"><em>All citations formatted in APA 7th Edition. Sources from ERSA Platform Level 1 — Literature Evidence fields.</em></p>
 ${refsHtml}
         `;
       }
@@ -7301,6 +7542,255 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
           const icon = btnDownloadWord.querySelector('i');
           icon.className = 'ph ph-check text-emerald-500 text-lg';
           setTimeout(() => { icon.className = 'ph ph-file-doc text-lg'; }, 2000);
+        });
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // FEATURE: LIVE PREVIEW DOCUMENT DRAWER
+      // ═══════════════════════════════════════════════════════════════
+      const previewDrawer   = document.getElementById('preview-drawer');
+      const previewBackdrop = document.getElementById('preview-backdrop');
+      const previewDocBody  = document.getElementById('preview-doc-body');
+      const previewPct      = document.getElementById('preview-completion-pct');
+      const previewBar      = document.getElementById('preview-completion-bar');
+
+      // Key fields used to compute "completion percentage"
+      const COMPLETION_FIELDS = [
+        'project-title', 'broad-area', 'specific-problem',
+        'qps-phenomenon', 'qps-current-metric', 'qps-specific-problem',
+        'qps-target-state', 'qps-action', 'qps-target-metric',
+        'functional-requirements', 'mechanical-constraints', 'software-constraints',
+        'budget-limit', 'project-scope', 'delimitations',
+        'var-independent', 'var-dependent', 'var-control',
+        'mat-sensor', 'mat-brain', 'mat-actuator', 'mat-power',
+        'control-architecture', 'signal-conditioning', 'power-distribution',
+        'ramp-safety', 'subsystem-verification', 'system-validation',
+        'testing-mode', 'testing-procedure', 'statistical-treatment',
+        'statistical-hypothesis', 'target-metric', 'trials-planned'
+      ];
+
+      function computeCompletionPct(data) {
+        if (!data) return 0;
+        let filled = 0;
+        for (const key of COMPLETION_FIELDS) {
+          if (data[key] && String(data[key]).trim().length > 0) filled++;
+        }
+        // Also count at least one researcher
+        for (const key in data) {
+          if (key.indexOf('researcher-') === 0 && data[key] && String(data[key]).trim()) {
+            filled++;
+            break;
+          }
+        }
+        // Count at least one gap
+        if (data['research-gap-1'] && String(data['research-gap-1']).trim()) filled++;
+
+        const total = COMPLETION_FIELDS.length + 2; // +researcher +gap
+        return Math.round((filled / total) * 100);
+      }
+
+      function renderPreview() {
+        const data = typeof collectFormData === 'function' ? collectFormData() : {};
+        const pct  = computeCompletionPct(data);
+
+        // Update completion bar
+        if (previewPct) previewPct.textContent = pct + '%';
+        if (previewBar) previewBar.style.width = pct + '%';
+
+        // Generate the IMRAD HTML
+        let html = '';
+        try {
+          html = generateLocalProposalHtml(data);
+        } catch (e) {
+          html = '<p class="text-red-500">Error rendering preview: ' + e.message + '</p>';
+        }
+
+        // Wrap in document-styled container + highlight empty placeholders
+        const styled = `
+          <style>
+            #preview-doc-body h1 { font-size:1.25rem; font-weight:700; color:#0f172a; text-align:center; margin-bottom:0.5rem; line-height:1.3; }
+            #preview-doc-body h2 { font-size:1rem; font-weight:700; color:#166534; border-bottom:1.5px solid #cbd5e1; padding-bottom:3px; margin-top:1.2rem; margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.4px; }
+            #preview-doc-body h3 { font-size:0.9rem; font-weight:700; color:#1e293b; margin-top:0.9rem; margin-bottom:0.3rem; }
+            #preview-doc-body p  { margin-bottom:0.5rem; text-align:justify; }
+            #preview-doc-body ol,#preview-doc-body ul { margin-left:1.2rem; margin-bottom:0.5rem; }
+            #preview-doc-body li { margin-bottom:0.2rem; }
+            #preview-doc-body table { width:100%; border-collapse:collapse; margin-bottom:0.75rem; font-size:0.8rem; }
+            #preview-doc-body th,#preview-doc-body td { border:1px solid #cbd5e1; padding:4px 6px; vertical-align:top; }
+            #preview-doc-body th { background:#f1f5f9; font-weight:700; color:#0f172a; }
+            #preview-doc-body em { font-style:italic; }
+            #preview-doc-body strong { font-weight:700; }
+            .preview-empty { background:#fef9c3 !important; border-left:3px solid #f59e0b !important; border-radius:3px; padding:2px 4px; color:#92400e; font-style:italic; }
+          </style>
+          ${html}
+        `;
+        if (previewDocBody) previewDocBody.innerHTML = styled;
+      }
+
+      function openPreviewDrawer() {
+        renderPreview();
+        previewBackdrop.classList.remove('hidden');
+        setTimeout(() => {
+          previewBackdrop.classList.remove('opacity-0');
+          previewDrawer.classList.remove('translate-x-full');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closePreviewDrawer() {
+        previewBackdrop.classList.add('opacity-0');
+        previewDrawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          previewBackdrop.classList.add('hidden');
+          document.body.style.overflow = '';
+        }, 400);
+      }
+
+      // Wire Preview buttons
+      const btnPreviewDoc         = document.getElementById('btn-preview-doc');
+      const btnPreviewClose       = document.getElementById('btn-preview-close');
+      const btnPreviewCloseFooter = document.getElementById('btn-preview-close-footer');
+      const btnPreviewRefresh     = document.getElementById('btn-preview-refresh');
+
+      if (btnPreviewDoc)         btnPreviewDoc.addEventListener('click', openPreviewDrawer);
+      if (btnPreviewClose)       btnPreviewClose.addEventListener('click', closePreviewDrawer);
+      if (btnPreviewCloseFooter) btnPreviewCloseFooter.addEventListener('click', closePreviewDrawer);
+      if (previewBackdrop)       previewBackdrop.addEventListener('click', closePreviewDrawer);
+      if (btnPreviewRefresh)     btnPreviewRefresh.addEventListener('click', () => {
+        btnPreviewRefresh.querySelector('i').classList.add('animate-spin');
+        renderPreview();
+        setTimeout(() => btnPreviewRefresh.querySelector('i').classList.remove('animate-spin'), 600);
+      });
+
+      // Auto-refresh preview whenever a step changes (if drawer is open)
+      document.addEventListener('ersa:stepChanged', () => {
+        if (previewDrawer && !previewDrawer.classList.contains('translate-x-full')) {
+          renderPreview();
+        }
+      });
+
+      // ═══════════════════════════════════════════════════════════════
+      // FEATURE: SAVE DRAFT (Export as .ersa JSON file)
+      // ═══════════════════════════════════════════════════════════════
+      function saveDraftFile() {
+        const data = typeof collectFormData === 'function' ? collectFormData() : {};
+        const title = (data['project-title'] || 'ERSA_Draft').replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '_') || 'ERSA_Draft';
+        const now   = new Date();
+        const ts    = now.getFullYear() + '-' +
+                      String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(now.getDate()).padStart(2, '0') + '_' +
+                      String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+
+        const payload = {
+          _ersa_version: '4.1.0',
+          _saved_at: now.toISOString(),
+          _title: data['project-title'] || '',
+          data: data
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = title + '_' + ts + '.ersa';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showValidationToast('Draft saved! File downloaded as ' + a.download, 'success');
+      }
+
+      const btnSaveDraft = document.getElementById('btn-save-draft');
+      if (btnSaveDraft) btnSaveDraft.addEventListener('click', saveDraftFile);
+
+      // ═══════════════════════════════════════════════════════════════
+      // FEATURE: LOAD DRAFT (Import from .ersa JSON file)
+      // ═══════════════════════════════════════════════════════════════
+      function loadDraftFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed  = JSON.parse(e.target.result);
+            const data    = parsed.data || parsed; // support both wrapped and raw format
+
+            let restoredCount = 0;
+            // Restore all simple input/textarea/select fields
+            for (const key in data) {
+              if (key.startsWith('_')) continue;
+              const el = document.getElementById(key);
+              if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) {
+                el.value = data[key] || '';
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                restoredCount++;
+              }
+            }
+
+            // Restore researcher fields (dynamic rows may need population)
+            for (const key in data) {
+              if (key.startsWith('researcher-') && data[key]) {
+                const el = document.getElementById(key);
+                if (el) { el.value = data[key]; el.dispatchEvent(new Event('input', { bubbles: true })); }
+              }
+            }
+
+            // Restore gap fields — rebuild gap blocks if needed
+            let maxGap = 0;
+            for (const key in data) {
+              const m = key.match(/^research-gap-(\d+)$/);
+              if (m && data[key] && String(data[key]).trim()) maxGap = Math.max(maxGap, parseInt(m[1]));
+            }
+
+            const gapsBtnAdd = document.getElementById('btn-add-gap');
+            const gapsCont   = document.getElementById('gaps-container');
+            if (gapsCont && gapsBtnAdd) {
+              // Add gap blocks until we have enough
+              const existingBlocks = gapsCont.querySelectorAll('.gap-block');
+              for (let gi = existingBlocks.length + 1; gi <= maxGap; gi++) {
+                gapsBtnAdd.click();
+              }
+              // Now fill them
+              setTimeout(() => {
+                for (let gi = 1; gi <= maxGap; gi++) {
+                  const fields = ['research-gap-', 'gap-author-', 'gap-year-', 'gap-title-', 'gap-publisher-', 'gap-url-', 'gap-type-'];
+                  for (const prefix of fields) {
+                    const fid = prefix + gi;
+                    const fel = document.getElementById(fid);
+                    if (fel && data[fid] !== undefined) {
+                      fel.value = data[fid];
+                      fel.dispatchEvent(new Event('input', { bubbles: true }));
+                      fel.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                  }
+                }
+                // Trigger local storage save
+                if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+                showValidationToast('Draft loaded successfully! ' + restoredCount + ' fields restored.', 'success');
+              }, 300);
+            } else {
+              if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+              showValidationToast('Draft loaded! ' + restoredCount + ' fields restored.', 'success');
+            }
+
+            // Scroll back to top / step 1
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          } catch (err) {
+            showValidationToast('Could not read file. Make sure it\'s a valid .ersa file.', 'error');
+            console.error('Load draft error:', err);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      const loadDraftInput = document.getElementById('load-draft-input');
+      if (loadDraftInput) {
+        loadDraftInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) loadDraftFile(file);
+          // Reset input so the same file can be loaded again
+          loadDraftInput.value = '';
         });
       }
 
