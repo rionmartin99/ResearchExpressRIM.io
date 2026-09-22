@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 23, 2026, 03:50 AM] v4.6.1 - New Feature: Added real-time APA 7th reference author validation hint alerting users if "et al." is entered in author inputs and reminding them to list all co-authors for complete References attribution while in-text "et al." is auto-formatted.
+[September 23, 2026, 03:45 AM] v4.6.0 - New Feature: Implemented APA 7th author formatting — in-text narrative citations automatically synthesize "et al." for 3+ co-authors and surnames for 1-2 authors, while the References section preserves full co-author names without "et al.".
 [September 22, 2026, 11:20 PM] v4.5.1 - Fix: Resolved preview ReferenceError by initializing trials and target metrics before statistical treatment evaluation, added missing suggest-box-qps container to enable QPS AI suggestions, and added defensive null checks with dismiss actions across all suggestion boxes.
 [September 22, 2026, 10:55 PM] v4.5.0 - New Feature: Adopted IM Concept Proposal Preview document for instant proposal generation in Step 6 and direct database/Google Drive PDF upload, eliminating external AI generation delay and ensuring 100% format fidelity with the preview.
 [September 22, 2026, 10:35 PM] v4.4.1 - Fix: Restored Save Draft and Preview buttons by defining missing btnDownloadWord DOM element reference that caused a ReferenceError halting script initialization, added safe fallback click bindings, and added delay to revokeObjectURL for reliable file downloads.
-[September 22, 2026, 09:55 PM] v4.4.0 - New Feature: Formatted Expected Performance Targets & Verification Criteria into cohesive narrative paragraphs, spelled out FMEA, BOM, and RAMP acronyms, and eliminated all internal ERSA Platform Section labels across all proposal sections.
-[September 22, 2026, 09:48 PM] v4.3.1 - Fix: Deduplicated References section — implemented multi-key fingerprinting (DOI/URL, article title, and author-year) with alphabetical APA sorting so sources cited across multiple research gaps appear exactly once, and cleaned reference header text.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -2947,8 +2947,11 @@ TONE & VOCABULARY DIRECTIVE:
             
             <div class="space-y-3">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Author(s) or Organization</label>
-                <input type="text" id="gap-author-${index}" class="input-glass w-full rounded-xl p-2.5 text-sm text-slate-800" placeholder="e.g., Santos, M. & Gomez, R." value="${aVal}">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Author(s) or Organization <span class="text-[11px] font-normal text-slate-500">(List all co-authors; in-text "et al." is auto-formatted)</span></label>
+                <input type="text" id="gap-author-${index}" class="input-glass w-full rounded-xl p-2.5 text-sm text-slate-800" placeholder="e.g., Santos, M., Gomez, R. &amp; Ramos, K." value="${aVal}">
+                <p id="gap-author-etal-hint-${index}" class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mt-1.5 ${/\bet\s+al\.?\b/i.test(aVal) ? '' : 'hidden'}">
+                  <span class="font-semibold">⚠️ APA 7th Reference Guidance:</span> Avoid typing &quot;et al.&quot; here. In the final References section, all co-authors must be listed. ERSA automatically formats &quot;et al.&quot; for your in-text literature review citations!
+                </p>
               </div>
               <div class="flex gap-3">
                 <div class="w-1/3">
@@ -4998,6 +5001,87 @@ CRITICAL RULES:
         const statTreat = fieldVal(statMethodTitle, 'Inferential Two-Sample t-Test (alpha = 0.05)', 'Statistical Treatment — Step 4');
         const statJustifVal = fieldVal(statJustification, 'The statistical method was chosen to provide rigorous inferential verification that prototype performance meets target specifications.', 'Statistical Method Justification — Step 4');
 
+        // APA 7th in-text narrative citation formatter:
+        // 1 author: Surname (e.g., Santos)
+        // 2 authors: Surname1 and Surname2 (e.g., Santos and Gomez)
+        // 3+ authors: Surname1 et al. (e.g., Santos et al.)
+        function formatInTextCitation(authorStr) {
+          if (!authorStr) return 'Author';
+          let s = String(authorStr).trim();
+
+          // Already contains et al.
+          if (/\bet\s+al\.?/i.test(s)) {
+            const first = s.split(/[,&]|\bet\s+al\b/i)[0].trim();
+            const firstSurname = first.includes(',') ? first.split(',')[0].trim() : (first.split(/\s+/)[0] || first);
+            return `${escapeHtmlClient(firstSurname)} et al.`;
+          }
+
+          // Institutional / organizational author
+          const orgPattern = /\b(department|organization|association|institute|commission|board|ministry|center|centre|agency|who|dost|deped|ched|company|council)\b/i;
+          if (orgPattern.test(s)) {
+            const orgClean = s.includes(',') && !/\b[A-Z]\./.test(s) ? s.split(',')[0].trim() : s;
+            return escapeHtmlClient(orgClean);
+          }
+
+          // Normalize '&' and ' and ' to semicolon delimiter
+          const cleanS = s.replace(/\s+&\s+|\s+and\s+/gi, ';');
+
+          let authors = [];
+          if (cleanS.includes(';')) {
+            const rawAuthors = cleanS.split(';').map(a => a.trim()).filter(Boolean);
+            rawAuthors.forEach(part => {
+              const subParts = part.split(',').map(p => p.trim()).filter(Boolean);
+              if (subParts.length > 2 && subParts.slice(1).every((sp, idx) => idx % 2 === 0 ? (sp.length <= 4 || sp.includes('.')) : true)) {
+                for (let i = 0; i < subParts.length; i += 2) {
+                  authors.push(i + 1 < subParts.length ? `${subParts[i]}, ${subParts[i + 1]}` : subParts[i]);
+                }
+              } else {
+                authors.push(part);
+              }
+            });
+          } else {
+            const subParts = s.split(',').map(p => p.trim()).filter(Boolean);
+            if (subParts.length <= 1) {
+              authors = [s];
+            } else if (subParts.length === 2 && (subParts[1].length <= 4 || subParts[1].includes('.'))) {
+              authors = [s];
+            } else if (subParts.length > 2) {
+              let i = 0;
+              while (i < subParts.length) {
+                if (i + 1 < subParts.length && (subParts[i + 1].length <= 4 || subParts[i + 1].includes('.'))) {
+                  authors.push(`${subParts[i]}, ${subParts[i + 1]}`);
+                  i += 2;
+                } else {
+                  authors.push(subParts[i]);
+                  i += 1;
+                }
+              }
+            } else {
+              authors = subParts;
+            }
+          }
+
+          function getSurname(aStr) {
+            if (!aStr) return '';
+            let str = aStr.trim();
+            if (str.includes(',')) {
+              return str.split(',')[0].trim();
+            }
+            const parts = str.split(/\s+/);
+            if (parts.length > 1 && (parts[0].length <= 3 || parts[0].includes('.'))) {
+              return parts[parts.length - 1].trim();
+            }
+            return parts[0].trim();
+          }
+
+          const surnames = authors.map(getSurname).filter(Boolean).map(escapeHtmlClient);
+
+          if (surnames.length === 0) return escapeHtmlClient(s);
+          if (surnames.length === 1) return surnames[0];
+          if (surnames.length === 2) return `${surnames[0]} and ${surnames[1]}`;
+          return `${surnames[0]} et al.`;
+        }
+
         // Sentence formatting helper for narrative academic citations
         function formatGapSentence(str) {
           if (!str) return '';
@@ -5021,6 +5105,7 @@ CRITICAL RULES:
           if (gDesc && String(gDesc).trim()) {
             rawGapsList.push({
               desc: String(gDesc).trim(),
+              rawAuthor: String(data['gap-author-' + i] || '').trim(),
               author: escapeHtmlClient(data['gap-author-' + i] || 'Author, N.'),
               year: escapeHtmlClient(data['gap-year-' + i] || 'n.d.'),
               title: escapeHtmlClient(data['gap-title-' + i] || ''),
@@ -5047,6 +5132,7 @@ CRITICAL RULES:
               groups.push({
                 key: key,
                 author: g.author,
+                citeAuthor: formatInTextCitation(g.rawAuthor || g.author),
                 year: g.year,
                 title: g.title,
                 sentences: [g.desc]
@@ -5055,11 +5141,11 @@ CRITICAL RULES:
           });
 
           const leadInPatterns = [
-            (grp) => `In a foundational investigation${grp.title ? ` on <em>"${grp.title}"</em>` : ''}, <strong>${grp.author} (${grp.year})</strong> demonstrated that ${formatGapSentence(grp.sentences[0])}`,
-            (grp) => `Examining complementary technological challenges, <strong>${grp.author} (${grp.year})</strong>${grp.title ? ` in <em>"${grp.title}"</em>` : ''} identified that ${formatGapSentence(grp.sentences[0])}`,
-            (grp) => `This operational constraint is further corroborated by <strong>${grp.author} (${grp.year})</strong>${grp.title ? ` in <em>"${grp.title}"</em>` : ''}, who observed that ${formatGapSentence(grp.sentences[0])}`,
-            (grp) => `In related literature, <strong>${grp.author} (${grp.year})</strong>${grp.title ? ` (<em>"${grp.title}"</em>)` : ''} emphasized that ${formatGapSentence(grp.sentences[0])}`,
-            (grp) => `Similarly, research findings documented by <strong>${grp.author} (${grp.year})</strong> indicated that ${formatGapSentence(grp.sentences[0])}`
+            (grp) => `In a foundational investigation${grp.title ? ` on <em>"${grp.title}"</em>` : ''}, <strong>${grp.citeAuthor} (${grp.year})</strong> demonstrated that ${formatGapSentence(grp.sentences[0])}`,
+            (grp) => `Examining complementary technological challenges, <strong>${grp.citeAuthor} (${grp.year})</strong>${grp.title ? ` in <em>"${grp.title}"</em>` : ''} identified that ${formatGapSentence(grp.sentences[0])}`,
+            (grp) => `This operational constraint is further corroborated by <strong>${grp.citeAuthor} (${grp.year})</strong>${grp.title ? ` in <em>"${grp.title}"</em>` : ''}, who observed that ${formatGapSentence(grp.sentences[0])}`,
+            (grp) => `In related literature, <strong>${grp.citeAuthor} (${grp.year})</strong>${grp.title ? ` (<em>"${grp.title}"</em>)` : ''} emphasized that ${formatGapSentence(grp.sentences[0])}`,
+            (grp) => `Similarly, research findings documented by <strong>${grp.citeAuthor} (${grp.year})</strong> indicated that ${formatGapSentence(grp.sentences[0])}`
           ];
 
           const paras = [];
@@ -5072,7 +5158,7 @@ CRITICAL RULES:
               for (let sIdx = 1; sIdx < grp.sentences.length; sIdx++) {
                 const extra = grp.sentences[sIdx];
                 if (sIdx === 1) {
-                  pText += ` Furthermore, <strong>${grp.author} (${grp.year})</strong> emphasized that ${formatGapSentence(extra)}`;
+                  pText += ` Furthermore, <strong>${grp.citeAuthor} (${grp.year})</strong> emphasized that ${formatGapSentence(extra)}`;
                 } else if (sIdx === 2) {
                   pText += ` In addition, their study documented that ${formatGapSentence(extra)}`;
                 } else {
@@ -8183,6 +8269,17 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
       document.addEventListener('input', (e) => {
         if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
           schedulePreviewUpdate();
+        }
+        if (e.target && e.target.id && e.target.id.startsWith('gap-author-')) {
+          const idx = e.target.id.replace('gap-author-', '');
+          const hint = document.getElementById(`gap-author-etal-hint-${idx}`);
+          if (hint) {
+            if (/\bet\s+al\.?\b/i.test(e.target.value)) {
+              hint.classList.remove('hidden');
+            } else {
+              hint.classList.add('hidden');
+            }
+          }
         }
       });
       document.addEventListener('change', (e) => {
