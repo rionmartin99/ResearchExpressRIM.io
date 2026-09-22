@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 22, 2026, 11:20 PM] v4.5.1 - Fix: Resolved preview ReferenceError by initializing trials and target metrics before statistical treatment evaluation, added missing suggest-box-qps container to enable QPS AI suggestions, and added defensive null checks with dismiss actions across all suggestion boxes.
+[September 22, 2026, 10:55 PM] v4.5.0 - New Feature: Adopted IM Concept Proposal Preview document for instant proposal generation in Step 6 and direct database/Google Drive PDF upload, eliminating external AI generation delay and ensuring 100% format fidelity with the preview.
 [September 22, 2026, 10:35 PM] v4.4.1 - Fix: Restored Save Draft and Preview buttons by defining missing btnDownloadWord DOM element reference that caused a ReferenceError halting script initialization, added safe fallback click bindings, and added delay to revokeObjectURL for reliable file downloads.
 [September 22, 2026, 09:55 PM] v4.4.0 - New Feature: Formatted Expected Performance Targets & Verification Criteria into cohesive narrative paragraphs, spelled out FMEA, BOM, and RAMP acronyms, and eliminated all internal ERSA Platform Section labels across all proposal sections.
 [September 22, 2026, 09:48 PM] v4.3.1 - Fix: Deduplicated References section — implemented multi-key fingerprinting (DOI/URL, article title, and author-year) with alphabetical APA sorting so sources cited across multiple research gaps appear exactly once, and cleaned reference header text.
-[September 22, 2026, 09:40 PM] v4.3.0 - New Feature: Formatted Review of Related Literature and Studies (RRL) into traditional academic narrative paragraphs with APA author-year in-text citations and thematic synthesis instead of a tabular matrix.
-[September 22, 2026, 09:30 PM] v4.2.0 - New Feature: Downloadable preview document (.doc with UTF-8 BOM) from drawer header & footer, removed meta-sourcing text, dynamic electrical interfacing & power distribution synthesis from BOM inputs, comprehensive scaling logic & feasibility integration, and academic justification for selected statistical treatments.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -852,6 +852,26 @@ CHANGELOG:
               <i class="ph ph-sparkle text-amber-600 text-sm"></i> Suggest Ideas (AI)
             </button>
           </div>
+
+          <!-- AI Suggestion Container for QPS -->
+          <div id="suggest-box-qps"
+            class="hidden mb-6 bg-gradient-to-br from-amber-50/90 to-orange-50/80 p-5 rounded-2xl border border-amber-200 shadow-sm transition-all duration-300">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 text-amber-900 font-bold text-sm">
+                <i class="ph ph-sparkle text-lg text-amber-600"></i> AI-Suggested Quantified Problem Statements
+              </div>
+              <button type="button"
+                class="btn-close-suggest text-slate-400 hover:text-slate-600 text-xs px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer">
+                <i class="ph ph-x"></i> Dismiss
+              </button>
+            </div>
+            <p class="text-xs text-amber-800/80 mb-3 italic">
+              AI generated tailored options based on your Phase 1 problem &amp; gaps. Click <strong>"Apply to Form Slots"</strong> to fill all 6 inputs automatically!
+            </p>
+            <div class="suggestion-content text-sm text-slate-800 leading-relaxed space-y-3">
+            </div>
+          </div>
+
           <div class="space-y-4 text-sm md:text-base leading-loose text-slate-700">
             "The current state of
             <input type="text" id="qps-phenomenon"
@@ -1125,8 +1145,14 @@ CHANGELOG:
               giant outdoor farm trees. 2. We will NOT test outside Kidapawan City.</span></div>
           <div id="suggest-box-delimitations"
             class="hidden mt-4 bg-amber-50/80 border border-amber-200 rounded-xl p-4 shadow-inner">
-            <div class="text-sm font-bold text-amber-700 mb-2 flex items-center gap-1"><i
-                class="ph ph-sparkle text-lg"></i> AI Suggestions (Based on Phase 1) - Write your own version above.
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-bold text-amber-700 flex items-center gap-1">
+                <i class="ph ph-sparkle text-lg"></i> AI Suggestions (Based on Phase 1) - Write your own version above.
+              </div>
+              <button type="button"
+                class="btn-close-suggest text-slate-400 hover:text-slate-600 text-xs px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer">
+                <i class="ph ph-x"></i> Dismiss
+              </button>
             </div>
             <div class="suggestion-content text-sm text-slate-800 space-y-3"></div>
           </div>
@@ -1301,8 +1327,14 @@ CHANGELOG:
 
           <div id="suggest-box-materials"
             class="hidden mt-4 bg-amber-50/80 border border-amber-200 rounded-xl p-4 shadow-inner">
-            <div class="text-sm font-bold text-amber-700 mb-2 flex items-center gap-1"><i
-                class="ph ph-sparkle text-lg"></i> AI Suggestions (Based on Phase 1) - Write your own version above.
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-bold text-amber-700 flex items-center gap-1">
+                <i class="ph ph-sparkle text-lg"></i> AI Suggestions (Based on Phase 1) - Write your own version above.
+              </div>
+              <button type="button"
+                class="btn-close-suggest text-slate-400 hover:text-slate-600 text-xs px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer">
+                <i class="ph ph-x"></i> Dismiss
+              </button>
             </div>
             <div class="suggestion-content text-sm text-slate-800 space-y-3"></div>
           </div>
@@ -2077,8 +2109,15 @@ CHANGELOG:
 
           <div id="suggest-box-title"
             class="hidden mt-4 bg-amber-50/80 border border-amber-200 rounded-xl p-4 shadow-inner">
-            <div class="text-sm font-bold text-amber-700 mb-2 flex items-center gap-1"><i
-                class="ph ph-sparkle text-lg"></i> AI Title Suggestions</div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-bold text-amber-700 flex items-center gap-1">
+                <i class="ph ph-sparkle text-lg"></i> AI Title Suggestions
+              </div>
+              <button type="button"
+                class="btn-close-suggest text-slate-400 hover:text-slate-600 text-xs px-2 py-0.5 rounded transition-colors flex items-center gap-1 cursor-pointer">
+                <i class="ph ph-x"></i> Dismiss
+              </button>
+            </div>
             <div class="suggestion-content text-sm text-slate-800 space-y-3"></div>
           </div>
         </div>
@@ -2170,13 +2209,20 @@ CHANGELOG:
         <div id="proposal-output-container"
           class="hidden bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
           <div class="bg-slate-50 border-b border-slate-200 p-3 flex justify-between items-center">
-            <span class="font-semibold text-slate-600">Generated Proposal</span>
-            <div class="flex gap-2">
-              <button type="button" id="btn-download-word" class="text-slate-400 hover:text-slate-600 transition-colors"
-                title="Download as Word Document">
+            <span class="font-semibold text-slate-700 text-xs sm:text-sm flex items-center gap-1.5">
+              <i class="ph ph-file-text text-emerald-600 text-base"></i> IM Concept Proposal Blueprint
+            </span>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-polish-ai-proposal"
+                class="hidden sm:inline-flex items-center gap-1 text-xs text-indigo-700 bg-indigo-50 hover:bg-indigo-100 font-semibold px-2.5 py-1 rounded-lg border border-indigo-200 transition-colors cursor-pointer"
+                title="Optional: Use Gemini AI to add creative narrative polish">
+                <i class="ph ph-sparkle text-sm text-indigo-600"></i> Polish with AI
+              </button>
+              <button type="button" id="btn-download-word" class="text-slate-500 hover:text-emerald-700 transition-colors p-1"
+                title="Download as Word Document (.doc)">
                 <i class="ph ph-file-doc text-lg"></i>
               </button>
-              <button type="button" id="btn-copy-proposal" class="text-slate-400 hover:text-slate-600 transition-colors"
+              <button type="button" id="btn-copy-proposal" class="text-slate-500 hover:text-slate-700 transition-colors p-1"
                 title="Copy to Clipboard">
                 <i class="ph ph-copy text-lg"></i>
               </button>
@@ -4910,6 +4956,14 @@ CRITICAL RULES:
         const synthesizedScaling = scalingParts.length > 0 ? scalingParts.join(' ') : rawScaling;
         const scalingLogic = fieldVal(synthesizedScaling, 'Proportional scale model validated prior to full deployment; results extrapolated with documented scaling factors.', 'Scaling Logic — Step 4');
 
+        // Pre-initialize variables used in statistical treatment justification and narrative synthesis
+        const trials = fieldVal(data['trials-planned'], '30 repeated trials', 'Trials Planned — Step 4');
+        const targetMetric = fieldVal(data['target-metric'], 'Success rate >= 95%, latency < 200 ms', 'Target Metric — Step 4');
+        const statHyp = fieldVal(data['statistical-hypothesis'], 'H₀: Prototype performance shows no significant difference vs baseline standard. Hₐ: Prototype achieves statistically significant improvement.', 'Statistical Hypotheses — Step 4');
+        const sustain = fieldVal(data['sustainability-justification'], 'Low-cost, energy-efficient, locally repairable hardware architecture.', 'Sustainability Justification — Step 4');
+        const submissionDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' });
+        const currentYear = new Date().getFullYear().toString();
+
         // Academic Statistical Treatment mapping and justification
         const rawStatSlug = (data['statistical-treatment'] || '').toString().trim();
         let statMethodTitle = '';
@@ -4937,12 +4991,6 @@ CRITICAL RULES:
 
         const statTreat = fieldVal(statMethodTitle, 'Inferential Two-Sample t-Test (alpha = 0.05)', 'Statistical Treatment — Step 4');
         const statJustifVal = fieldVal(statJustification, 'The statistical method was chosen to provide rigorous inferential verification that prototype performance meets target specifications.', 'Statistical Method Justification — Step 4');
-        const statHyp = fieldVal(data['statistical-hypothesis'], 'H₀: Prototype performance shows no significant difference vs baseline standard. Hₐ: Prototype achieves statistically significant improvement.', 'Statistical Hypotheses — Step 4');
-        const targetMetric = fieldVal(data['target-metric'], 'Success rate >= 95%, latency < 200 ms', 'Target Metric — Step 4');
-        const trials = fieldVal(data['trials-planned'], '30 repeated trials', 'Trials Planned — Step 4');
-        const sustain = fieldVal(data['sustainability-justification'], 'Low-cost, energy-efficient, locally repairable hardware architecture.', 'Sustainability Justification — Step 4');
-        const submissionDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' });
-        const currentYear = new Date().getFullYear().toString();
 
         // Sentence formatting helper for narrative academic citations
         function formatGapSentence(str) {
@@ -5356,20 +5404,16 @@ ${refsHtml}
         btnSubmit.disabled = true;
         btnPrev.classList.add('hidden');
 
-        // Check if proposal was generated; if missing/errored, synthesize now
-        let currentProposalHtml = proposalOutput ? proposalOutput.innerHTML : '';
-        const strippedProposal = currentProposalHtml.replace(new RegExp('<' + '!--[\\s\\S]*?-->', 'g'), '').replace(/<[^>]+>/g, '').trim();
-
-        if (strippedProposal.length < 80 || strippedProposal.toLowerCase().startsWith('error generating proposal')) {
-          currentProposalHtml = generateLocalProposalHtml(savedData);
-          if (proposalOutput) {
-            proposalOutput.innerHTML = currentProposalHtml;
-            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
-          }
+        // Always compile the clean IM Concept Proposal Preview document (no placeholder badges) for database upload & PDF conversion
+        const liveData = collectFormData();
+        const currentProposalHtml = generateLocalProposalHtml(liveData, false);
+        if (proposalOutput) {
+          proposalOutput.innerHTML = currentProposalHtml;
+          if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
         }
 
-        // Sync complete submission to Google Sheets database
-        syncWithCloudDatabase(savedData, currentProposalHtml, true);
+        // Sync complete submission to Google Sheets database & Drive PDF
+        syncWithCloudDatabase(liveData, currentProposalHtml, true);
 
         setTimeout(() => {
           try {
@@ -5955,7 +5999,16 @@ CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
 
           const target = btn.getAttribute('data-target');
           const suggestBox = document.getElementById(`suggest-box-${target}`);
+          if (!suggestBox) {
+            console.error(`Suggestion box element #suggest-box-${target} not found.`);
+            showValidationToast(`Suggestion container for ${target} not found.`, 'warning');
+            return;
+          }
           const suggestContent = suggestBox.querySelector('.suggestion-content');
+          if (!suggestContent) {
+            console.error(`Suggestion content element not found in #suggest-box-${target}.`);
+            return;
+          }
 
           const originalContent = btn.innerHTML;
           btn.innerHTML = '<i class="ph ph-spinner animate-spin text-sm"></i> Thinking...';
@@ -7643,29 +7696,43 @@ CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, 
         });
       }
 
-      // --- Phase 6: Generate Final Proposal ---
+      // --- Phase 6: Generate Final Proposal (Uses Instant IM Concept Proposal Preview Blueprint) ---
       const btnGenerateProposal = document.getElementById('btn-generate-proposal');
 
-      if (btnGenerateProposal) {
-        btnGenerateProposal.addEventListener('click', async () => {
-          const apiKey = sessionApiKey;
-          const originalContent = btnGenerateProposal.innerHTML;
+      function buildConceptProposalBlueprint() {
+        const data = collectFormData();
+        const cleanProposalHtml = generateLocalProposalHtml(data, false);
+        if (proposalOutput) {
+          proposalOutput.innerHTML = cleanProposalHtml;
+        }
+        if (proposalOutputContainer) {
+          proposalOutputContainer.classList.remove('hidden');
+          proposalOutputContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        showValidationToast('IM Concept Proposal Blueprint generated successfully!', 'success');
+        syncWithCloudDatabase(data, cleanProposalHtml, false);
+      }
 
+      if (btnGenerateProposal) {
+        btnGenerateProposal.addEventListener('click', buildConceptProposalBlueprint);
+      }
+
+      // Optional: Polish Prose with Gemini AI (Secondary enhancement)
+      const btnPolishAiProposal = document.getElementById('btn-polish-ai-proposal');
+      if (btnPolishAiProposal) {
+        btnPolishAiProposal.addEventListener('click', async () => {
+          const apiKey = sessionApiKey;
           if (!apiKey) {
-            // Automatically generate full proposal locally using student's structured parameters
-            showValidationToast('Generated proposal blueprint using your engineering inputs. (Add a Gemini key in Settings for AI polish)', 'info');
-            const localProposalHtml = generateLocalProposalHtml(savedData);
-            if (proposalOutput) proposalOutput.innerHTML = localProposalHtml;
-            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
-            syncWithCloudDatabase(savedData, localProposalHtml, false);
+            showValidationToast('Please configure your Gemini API Key in Settings first', 'warning');
+            openSettingsModal(true);
             return;
           }
 
-          btnGenerateProposal.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Building Your Blueprint...';
-          btnGenerateProposal.disabled = true;
+          const originalContent = btnPolishAiProposal.innerHTML;
+          btnPolishAiProposal.innerHTML = '<i class="ph ph-spinner animate-spin text-xs"></i> Polishing...';
+          btnPolishAiProposal.disabled = true;
 
-          const contextData = JSON.stringify(savedData, null, 2);
-
+          const contextData = JSON.stringify(collectFormData(), null, 2);
           const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
 ${getGradeLevelDirective(currentGradeLevel)}
@@ -7681,140 +7748,7 @@ LANGUAGE & TONE DIRECTIVE:
 Strictly adhere to the Grade ${currentGradeLevel} Directive provided above. Adjust the vocabulary, syntax complexity, and academic tone according to the student's grade level.
 Maintain strict scientific and engineering rigor. Explain technical concepts directly and vividly.
 
-Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <table>, <thead>, <tbody>, <tr>, <th>, <td>) so it renders beautifully in a browser and exports cleanly to Microsoft Word. DO NOT USE MARKDOWN.
-
-Follow this strict academic proposal sequence:
-
-<h1>[PROJECT TITLE - Formatted with EDP Triad Formula: Target Mechanism/Algorithm + Specific Function/Task + Quantified Target Environment]</h1>
-<p style="text-align: center; margin-bottom: 4px;"><strong>Inventors & Researchers:</strong> [List of Researchers separated by commas]</p>
-<p style="text-align: center; color: #64748b; font-size: 0.9em; margin-bottom: 24px;"><strong>Category:</strong> Robotics and Intelligent Machines (ROBO/RIM) | <strong>Document:</strong> Pre-Experimentation Concept Proposal</p>
-
-<h2>EXECUTIVE SUMMARY</h2>
-<p>[Synthesize the core real-world problem, the proposed invention, the baseline starting numbers, and how it will be tested into an encouraging, concise 150–200 word summary written in plain, clear English.]</p>
-
-<h2>I. INTRODUCTION</h2>
-<h3>A. Background Rationale & Quantified Baseline</h3>
-<p>[Explain the real-world challenge clearly using the student's broad area, specific problem, and Quantified Problem Statement (QPS). Emphasize the starting numbers—such as percentage wasted, time lost, error rates, or manual labor costs—showing why a new solution is urgently needed.]</p>
-
-<h3>B. Review of Related Literature and Studies</h3>
-<p>[Synthesize the student's research citations and literature gaps into a traditional academic narrative composed of cohesive paragraphs with bolded APA in-text citations (<strong>Author, Year</strong>) and italicized study titles (<em>"Title"</em>). Group multiple gaps sharing the same source into continuous flowing paragraphs using academic transitions. Conclude with a rigorous engineering synthesis paragraph discussing commercial prior art failure modes and how the proposed prototype's technical countermeasures overcome them within the prescribed budget constraint. CRITICAL DIRECTIVE: Do NOT output a matrix or table for the literature review; present it strictly through traditional academic paragraphs.]</p>
-
-<h3>C. Functional Requirements vs. Design Constraints Matrix</h3>
-<p>[Synthesize the student's Functional Requirements (what the system actively accomplishes) and contrast them against Design Constraints (mechanical dimensions/mass, software/loop latency, and budget ceilings) in a clear matrix including engineering trade-offs:]</p>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
-  <thead>
-    <tr style="background-color: #f1f5f9;">
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Classification</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Parameter / Requirement</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Target Specification</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Trade-off / Justification</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Generate rows for Functional Requirements, Mechanical Constraints, Software/Processing Constraints, and Budget Ceilings -->
-  </tbody>
-</table>
-
-<h3>D. Scope & Delimitations</h3>
-<p>[Clearly list what the prototype is designed to do, what conditions it operates in, and what is deliberately left out for future versions.]</p>
-
-<h2>II. PROPOSED METHODOLOGY</h2>
-<h3>A. System Architecture, Control Theory & State Machine</h3>
-<p>[Detail the anatomy of the prototype using the Sense-Think-Act paradigm. Explain the algorithmic control architecture, deterministic state-machine logic (e.g., IDLE -> SENSING -> EVALUATING -> ACTUATING -> FAILSAFE), and control loops.]</p>
-
-<p><strong>Schematic Block Diagram:</strong></p>
-<p>[CRITICAL DIRECTIVE: Generate an inline, clean SVG schematic block diagram directly in the HTML output using the template below. Replace the placeholder component names with the actual hardware components from the student's inputs (mat-sensor, mat-brain, mat-actuator, mat-power):]</p>
-<div style="text-align: center; margin: 16px 0;">
-<svg viewBox="0 0 760 160" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f766e"/>
-    </marker>
-  </defs>
-  <!-- SENSE BLOCK -->
-  <rect x="20" y="30" width="160" height="95" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
-  <text x="100" y="55" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">SENSE (Inputs)</text>
-  <text x="100" y="75" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Sensor Name]</text>
-  <text x="100" y="95" font-size="9" fill="#64748b" text-anchor="middle">Signal Conditioning</text>
-  <text x="100" y="110" font-size="9" fill="#64748b" text-anchor="middle">ADC / Filtered</text>
-
-  <!-- ARROW SENSE -> THINK -->
-  <line x1="180" y1="75" x2="245" y2="75" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="212" y="68" font-size="9" fill="#0f766e" text-anchor="middle">Data In</text>
-
-  <!-- THINK BLOCK -->
-  <rect x="250" y="20" width="180" height="115" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-  <text x="340" y="45" font-size="12" font-weight="bold" fill="#15803d" text-anchor="middle">THINK (Processing Core)</text>
-  <text x="340" y="65" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Microcontroller]</text>
-  <text x="340" y="85" font-size="9" fill="#475569" text-anchor="middle">Deterministic State Machine</text>
-  <text x="340" y="100" font-size="9" fill="#475569" text-anchor="middle">Control Algorithm / FSM</text>
-  <text x="340" y="115" font-size="8" fill="#166534" text-anchor="middle">Logic Level Matched</text>
-
-  <!-- ARROW THINK -> ACT -->
-  <line x1="430" y1="75" x2="495" y2="75" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="462" y="68" font-size="9" fill="#0f766e" text-anchor="middle">Control Out</text>
-
-  <!-- ACT BLOCK -->
-  <rect x="500" y="30" width="160" height="95" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-  <text x="580" y="55" font-size="12" font-weight="bold" fill="#b45309" text-anchor="middle">ACT (Actuation)</text>
-  <text x="580" y="75" font-size="10" fill="#0f172a" text-anchor="middle">[Actual Actuator/Driver]</text>
-  <text x="580" y="95" font-size="9" fill="#64748b" text-anchor="middle">Motor Driver / Relay</text>
-  <text x="580" y="110" font-size="8" fill="#b45309" text-anchor="middle">Flyback Diode Protected</text>
-
-  <!-- POWER SUPPLY BLOCK -->
-  <rect x="675" y="25" width="75" height="105" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 2"/>
-  <text x="712" y="48" font-size="10" font-weight="bold" fill="#b91c1c" text-anchor="middle">POWER</text>
-  <text x="712" y="68" font-size="9" fill="#0f172a" text-anchor="middle">[Power Unit]</text>
-  <text x="712" y="88" font-size="8" fill="#7f1d1d" text-anchor="middle">Isolated Rails</text>
-  <text x="712" y="103" font-size="8" fill="#7f1d1d" text-anchor="middle">Logic vs Motor</text>
-</svg>
-</div>
-
-<h3>B. Signal Conditioning, Interfacing & FMEA Power Safety Protocol</h3>
-<p>[Detail the electrical interface: logic-level conversion (e.g. 3.3V vs 5V), pull-up/pull-down resistors, noise filtering capacitors, and optoisolation. Provide the power distribution topology (separated MCU vs high-current actuator rails, flyback diodes, common ground). Conclude with a structured FMEA (Failure Mode and Effects Analysis) table:]</p>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-top: 8px; margin-bottom: 12px; font-size: 0.9em;">
-  <thead>
-    <tr style="background-color: #f1f5f9;">
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Potential Failure Mode</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Root Cause</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Severity / Effect on Prototype</th>
-      <th style="border: 1px solid #cbd5e1; text-align: left; padding: 6px;">Engineering Mitigation / Fail-Safe</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Generate rows for Sensor Drift/Disconnection, Voltage Sag/Brownout, Actuator Jam/Overcurrent, and Thermal Buildup -->
-  </tbody>
-</table>
-
-<h3>C. Prototyping Roadmap (V1 to V3 Evolution)</h3>
-<p>[Explain the 3 build stages in simple terms:
-- <strong>Prototype V1 (Proof-of-Concept):</strong> Quick breadboard setup to test if sensors and code work together.
-- <strong>Prototype V2 (Working Model):</strong> Adding the chassis and frame (3D print or acrylic) and tidying up wires.
-- <strong>Prototype V3 (Competition-Ready Model):</strong> Soldered sturdy board, neat wiring harness, and a durable protective case.]</p>
-
-<h3>D. Metrological Testing Protocol: Subsystem Verification vs. System Validation</h3>
-<p>[Structure the experimental methodology into two rigorous phases, adhering strictly to ISEF/NSTF RIM adjudication standards where the primary test subject is the <strong>machine</strong>, not incidental biological growth:]</p>
-
-<h4>Phase 1: Subsystem Verification (Benchtop Metrology)</h4>
-<p>[Detail benchtop calibration and verification: comparing sensor outputs against calibrated laboratory instruments across 30 repeated data points. Measure Root Mean Square Error (RMSE), response latency in milliseconds (ms), sensor noise/repeatability, and actuation positioning accuracy.]</p>
-
-<h4>Phase 2: System Validation (Closed-Loop Operational Trials)</h4>
-<p>[Detail full system testing under environmental edge cases: thermal shifts, voltage drop (simulating discharging battery), ambient lighting noise, and payload changes across N ≥ 30 repeated cycles to demonstrate deterministic operation and statistical reliability.]</p>
-
-<h3>E. Inferential Statistical Plan & Statistical Power</h3>
-<p>[Explain the math proof in straightforward language:
-- State the chosen math test (e.g., Two-Sample t-Test, ANOVA, Confusion Matrix, or Error Bounds).
-- State the <strong>Null Hypothesis (H₀)</strong> and <strong>Alternative Hypothesis (Hₐ)</strong> in simple English.
-- Detail the replication plan: <strong>20 to 30 repeated test runs</strong> to ensure the results aren't just random luck and fulfill the Central Limit Theorem.
-- State the success target: p < 0.05 (95% statistical confidence that the invention genuinely works!).]</p>
-
-<h2>III. EXPECTED PERFORMANCE TARGETS AND VERIFICATION CRITERIA</h2>
-<p>[Synthesize the expected performance targets and verification criteria into structured, cohesive academic paragraphs rather than a table. Include dedicated paragraphs for: (1) Core Functional Performance Target, (2) System Safety and Failsafe Operations (spelling out Failure Mode and Effects Analysis - FMEA), (3) Economic Feasibility and Cost Ceiling (spelling out Bill of Materials - BOM), and (4) Community Sustainability and Longevity. Strictly avoid any mention of ERSA Platform sections or internal form step names. Ensure all acronyms such as FMEA, BOM, and RAMP are spelled out on first mention.]</p>
-
-<h2>REFERENCES</h2>
-<p>[Generate an APA 7th Edition bibliography from the student's research citations. Format each reference entry with a hanging indent using &lt;p style="padding-left: 2rem; text-indent: -2rem; margin-bottom: 0.5rem; word-break: break-word;"&gt;. Apply standard APA format: Author, A. A. (Year). <em>Title of article or book</em>. Journal or Publisher. If a URL is present, hyperlink it cleanly with &lt;a href="..." style="color: #166534; text-decoration: underline; word-break: break-all;"&gt;[URL or shortened display]&lt;/a&gt;. If year is missing, use (n.d.). Ensure references are strictly deduplicated so each unique source appears exactly once in alphabetical order by first author's surname.]</p>
-
-CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gibberish, do NOT fabricate agricultural or generic content. Instead, output an HTML alert box stating that insufficient technical parameters were provided to generate a complete proposal.`;
+Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <table>, <thead>, <tbody>, <tr>, <th>, <td>) so it renders beautifully in a browser and exports cleanly to Microsoft Word. DO NOT USE MARKDOWN.`;
 
           try {
             const { data } = await callGeminiWithFallback(apiKey, {
@@ -7822,31 +7756,17 @@ CRITICAL GUARDRAIL: If the student inputs are severely incomplete, empty, or gib
             });
 
             let aiMessage = data.candidates[0].content.parts[0].text;
-            // Clean up any markdown code block wrappers if Gemini accidentally includes them
             aiMessage = aiMessage.replace(/^```html\n/, '').replace(/\n```$/, '');
 
-            proposalOutput.innerHTML = aiMessage;
-            proposalOutputContainer.classList.remove('hidden');
-
-            // --- Google Sheets Cloud Database Sync ---
-            syncWithCloudDatabase(savedData, aiMessage, false);
+            if (proposalOutput) proposalOutput.innerHTML = aiMessage;
+            showValidationToast('Concept Proposal enhanced with Gemini AI!', 'success');
+            syncWithCloudDatabase(collectFormData(), aiMessage, false);
           } catch (err) {
-            console.warn('Gemini proposal generation note, applying local blueprint synthesizer:', err);
-            const fallbackHtml = generateLocalProposalHtml(savedData);
-            if (proposalOutput) {
-              proposalOutput.innerHTML = `
-                <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
-                  <i class="ph ph-info text-amber-600 text-base flex-shrink-0"></i>
-                  <span>Note: AI writing polish was unavailable (${escapeHtmlClient(err.message)}). Full proposal blueprint successfully synthesized from your parameters!</span>
-                </div>
-                ${fallbackHtml}
-              `;
-            }
-            if (proposalOutputContainer) proposalOutputContainer.classList.remove('hidden');
-            syncWithCloudDatabase(savedData, fallbackHtml, false);
+            console.warn('AI polish error:', err);
+            showValidationToast('AI Polish note: ' + err.message, 'warning');
           } finally {
-            btnGenerateProposal.innerHTML = originalContent;
-            btnGenerateProposal.disabled = false;
+            btnPolishAiProposal.innerHTML = originalContent;
+            btnPolishAiProposal.disabled = false;
           }
         });
       }
