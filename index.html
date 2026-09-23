@@ -210,6 +210,31 @@ CHANGELOG:
     #confirm-reset-dialog {
       -webkit-overflow-scrolling: touch;
     }
+
+    /* Proposal Output Document Table Styling */
+    #proposal-output table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      margin-top: 8pt;
+      margin-bottom: 12pt;
+      font-size: 9pt;
+    }
+    #proposal-output th,
+    #proposal-output td {
+      border: 1px solid #cbd5e1;
+      padding: 6pt 7pt;
+      text-align: left;
+      vertical-align: top;
+      word-break: normal;
+      overflow-wrap: break-word;
+      box-sizing: border-box;
+    }
+    #proposal-output th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #0f172a;
+    }
   </style>
 </head>
 
@@ -5431,7 +5456,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
   <p style="font-size:9pt;color:#64748b;margin-bottom:10pt;">IM (Introduction &amp; Proposed Methodology) Format — IMRAD Template</p>
   <h1 style="font-size:16pt;font-weight:bold;color:#0f172a;line-height:1.35;margin-bottom:10pt;">${title}</h1>
   <p style="font-size:10pt;color:#334155;margin-bottom:4pt;"><strong>Student Researchers / Authors:</strong> ${authors}</p>
-  <p style="font-size:9.5pt;color:#475569;margin-bottom:4pt;"><strong>Research Category:</strong> ${broadArea}</p>
+  <p style="font-size:9.5pt;color:#475569;margin-bottom:4pt;"><strong>Research Category:</strong> Robotics and Intelligent Machines</p>
   <p style="font-size:9pt;color:#64748b;">Submitted: ${submissionDate}</p>
 </div>
 
@@ -5472,63 +5497,63 @@ ${rrlNarrativeHtml}
 <p><strong>Scope of the Study.</strong> ${scope}</p>
 <p><strong>Delimitations.</strong> ${delimitations}</p>
 <p><strong>Design Constraints Summary:</strong></p>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+<table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:8pt;margin-bottom:12pt;font-size:9pt;">
   <thead>
     <tr style="background-color:#f1f5f9;">
-      <th style="border:1px solid #cbd5e1;padding:6px;">Constraint Category</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Operational Parameter &amp; Boundary</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Design Justification</th>
+      <th style="width:25%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Constraint Category</th>
+      <th style="width:35%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Operational Parameter &amp; Boundary</th>
+      <th style="width:40%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Design Justification</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Functional Autonomy</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${funcReqs}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Resolves specific problem through autonomous closed-loop operation without human intervention.</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Functional Autonomy</strong></td>
+      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${funcReqs}</td>
+      <td style="width:40%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Resolves specific problem through autonomous closed-loop operation without human intervention.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Mechanical Dimensions</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${mechConst}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Ensures structural portability, rigidity, and thermal management within field deployment conditions.</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Mechanical Dimensions</strong></td>
+      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${mechConst}</td>
+      <td style="width:40%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Ensures structural portability, rigidity, and thermal management within field deployment conditions.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Software &amp; Latency Limits</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${softConst}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Guarantees deterministic real-time execution and meets latency requirements of autonomous control loop.</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Software &amp; Latency Limits</strong></td>
+      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${softConst}</td>
+      <td style="width:40%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Guarantees deterministic real-time execution and meets latency requirements of autonomous control loop.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Economic Budget Ceiling</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">₱${budget} total Bill of Materials (BOM) cost</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Maintains community accessibility and educational deployability within local procurement constraints.</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Economic Budget Ceiling</strong></td>
+      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">₱${budget} total Bill of Materials (BOM) cost</td>
+      <td style="width:40%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Maintains community accessibility and educational deployability within local procurement constraints.</td>
     </tr>
   </tbody>
 </table>
 
 <!-- F. Research Variables -->
 <h3>F. Research Variables</h3>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+<table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:8pt;margin-bottom:12pt;font-size:9pt;">
   <thead>
     <tr style="background-color:#f1f5f9;">
-      <th style="border:1px solid #cbd5e1;padding:6px;">Variable Classification</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Experimental Role</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Operational Parameter &amp; Description</th>
+      <th style="width:25%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Variable Classification</th>
+      <th style="width:30%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Experimental Role</th>
+      <th style="width:45%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Operational Parameter &amp; Description</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Independent Variable (IV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Manipulated Input / External Stimulus</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${indVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Independent Variable (IV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Manipulated Input / External Stimulus</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${indVar}</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Dependent Variable (DV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Measured Output / Performance Response</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${depVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Dependent Variable (DV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Measured Output / Performance Response</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${depVar}</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Controlled Variables (CV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Regulated Baseline (Constant Environmental &amp; Electrical Factors)</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${ctrlVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Controlled Variables (CV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Regulated Baseline (Constant Environmental &amp; Electrical Factors)</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${ctrlVar}</td>
     </tr>
   </tbody>
 </table>
@@ -5568,39 +5593,39 @@ ${rrlNarrativeHtml}
 <!-- B. Materials and Components -->
 <h3>B. Bill of Materials (BOM) and Component Specifications</h3>
 <p>Hardware components were selected for technical suitability, local commercial availability, and adherence to the specified Bill of Materials (BOM) budget ceiling of ₱${budget}:</p>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+<table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:10pt;margin-bottom:14pt;font-size:9pt;">
   <thead>
     <tr style="background-color:#f1f5f9;">
-      <th style="border:1px solid #cbd5e1;padding:6px;">STA Architecture Role</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Subsystem Classification</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Selected Component / Technology</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Engineering Justification</th>
+      <th style="width:14%;border:1px solid #94a3b8;padding:7px 4px;text-align:center;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;white-space:nowrap;">STA Role</th>
+      <th style="width:26%;border:1px solid #94a3b8;padding:7px 8px;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Subsystem Classification</th>
+      <th style="width:28%;border:1px solid #94a3b8;padding:7px 8px;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Selected Component / Technology</th>
+      <th style="width:32%;border:1px solid #94a3b8;padding:7px 8px;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Engineering Justification</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>SENSE</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Sensor Input &amp; Environmental Data Acquisition</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${sensor}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Primary input stimulus for autonomous detection and measurement of the target variable.</td>
+      <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#0369a1;display:inline-block;white-space:nowrap;">SENSE</strong></td>
+      <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Sensor Input &amp; Environmental Data Acquisition</td>
+      <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${sensor}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Primary input stimulus for autonomous detection and measurement of the target variable.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>THINK</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Embedded Microcontroller &amp; Processing Core</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${brain}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Executes the deterministic control algorithm and coordinates all subsystem I/O channels in real time.</td>
+      <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#15803d;display:inline-block;white-space:nowrap;">THINK</strong></td>
+      <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Embedded Microcontroller &amp; Processing Core</td>
+      <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${brain}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Executes the deterministic control algorithm and coordinates all subsystem I/O channels in real time.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>ACT</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Physical Actuation &amp; Output Drivers</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${actuator}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Delivers the mechanical, electrical, or visual response as commanded by the processing core.</td>
+      <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#b45309;display:inline-block;white-space:nowrap;">ACT</strong></td>
+      <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Physical Actuation &amp; Output Drivers</td>
+      <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${actuator}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Delivers the mechanical, electrical, or visual response as commanded by the processing core.</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>POWER</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Power Storage &amp; Voltage Regulation</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${power}</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Regulated, isolated power rails for logic and actuation subsystems. Distribution: ${pwrDist}</td>
+      <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#b91c1c;display:inline-block;white-space:nowrap;">POWER</strong></td>
+      <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Power Storage &amp; Voltage Regulation</td>
+      <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${power}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Regulated, isolated power rails for logic and actuation subsystems. Distribution: ${pwrDist}</td>
     </tr>
   </tbody>
 </table>
@@ -5617,29 +5642,29 @@ ${rrlNarrativeHtml}
 <p><strong>Testing Mode:</strong> ${testingMode} (${scaleSize})</p>
 <p><strong>Testing Procedure:</strong> ${testProc}</p>
 <p><strong>Scaling Logic &amp; Feasibility:</strong> ${scalingLogic}</p>
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:8px;margin-bottom:12px;font-size:0.9em;">
+<table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:8pt;margin-bottom:12pt;font-size:9pt;">
   <thead>
     <tr style="background-color:#f1f5f9;">
-      <th style="border:1px solid #cbd5e1;padding:6px;">Variable Classification</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Testing Role</th>
-      <th style="border:1px solid #cbd5e1;padding:6px;">Operational Parameter &amp; Tolerances</th>
+      <th style="width:25%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Variable Classification</th>
+      <th style="width:30%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Testing Role</th>
+      <th style="width:45%;border:1px solid #94a3b8;padding:6pt 8pt;text-align:left;font-weight:bold;color:#0f172a;vertical-align:middle;word-break:normal;overflow-wrap:break-word;">Operational Parameter &amp; Tolerances</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Independent Variable (IV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Manipulated Test Stimulus</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${indVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Independent Variable (IV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Manipulated Test Stimulus</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${indVar}</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Dependent Variable (DV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Observed System Response</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${depVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Dependent Variable (DV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Observed System Response</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${depVar}</td>
     </tr>
     <tr>
-      <td style="border:1px solid #cbd5e1;padding:6px;"><strong>Controlled Variables (CV)</strong></td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">Regulated Environmental Baseline</td>
-      <td style="border:1px solid #cbd5e1;padding:6px;">${ctrlVar}</td>
+      <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Controlled Variables (CV)</strong></td>
+      <td style="width:30%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Regulated Environmental Baseline</td>
+      <td style="width:45%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${ctrlVar}</td>
     </tr>
   </tbody>
 </table>
