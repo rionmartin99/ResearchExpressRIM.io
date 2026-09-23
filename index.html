@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 23, 2026, 08:20 AM] v4.6.2 - Fix: Resolved Settings modal unresponsive buttons and close button glitch by actively clearing inline pointer-events, elevating modal z-index to z-[70], and adding resilient event bindings; fixed PDF reverse engineering QPS and Hardware (Sense-Think-Act) detection by unifying schema keys, supporting multi-field aliases, and enhancing prompt guidelines for standard academic papers.
 [September 23, 2026, 03:50 AM] v4.6.1 - New Feature: Added real-time APA 7th reference author validation hint alerting users if "et al." is entered in author inputs and reminding them to list all co-authors for complete References attribution while in-text "et al." is auto-formatted.
 [September 23, 2026, 03:45 AM] v4.6.0 - New Feature: Implemented APA 7th author formatting — in-text narrative citations automatically synthesize "et al." for 3+ co-authors and surnames for 1-2 authors, while the References section preserves full co-author names without "et al.".
 [September 22, 2026, 11:20 PM] v4.5.1 - Fix: Resolved preview ReferenceError by initializing trials and target metrics before statistical treatment evaluation, added missing suggest-box-qps container to enable QPS AI suggestions, and added defensive null checks with dismiss actions across all suggestion boxes.
 [September 22, 2026, 10:55 PM] v4.5.0 - New Feature: Adopted IM Concept Proposal Preview document for instant proposal generation in Step 6 and direct database/Google Drive PDF upload, eliminating external AI generation delay and ensuring 100% format fidelity with the preview.
-[September 22, 2026, 10:35 PM] v4.4.1 - Fix: Restored Save Draft and Preview buttons by defining missing btnDownloadWord DOM element reference that caused a ReferenceError halting script initialization, added safe fallback click bindings, and added delay to revokeObjectURL for reliable file downloads.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -2406,13 +2406,13 @@ CHANGELOG:
 
   <!-- API Key & Database Settings Modal -->
   <div id="settings-modal"
-    class="fixed inset-0 modal-overlay z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 hidden">
+    class="fixed inset-0 modal-overlay z-[70] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 hidden">
     <div
-      class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full mx-2 sm:mx-4 shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto"
+      class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full mx-2 sm:mx-4 shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto relative z-10 pointer-events-auto"
       id="settings-dialog">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-heading text-xl font-bold text-slate-800">Settings</h3>
-        <button id="btn-close-settings" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"><i
+        <button type="button" id="btn-close-settings" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer p-1 rounded-lg transition-colors" title="Close Settings"><i
             class="ph ph-x"></i></button>
       </div>
 
@@ -2448,7 +2448,7 @@ CHANGELOG:
       </div>
       <p class="text-xs text-slate-500 mb-2">Each student must enter their <strong class="text-slate-700">own personal
           API key</strong> to enable AI feedback, suggestions, and proposal generation. Your key is saved only in your
-        browser — it is never shared.</p>
+          browser — it is never shared.</p>
       <div
         class="bg-gradient-to-br from-amber-50 via-orange-50/50 to-amber-100/40 border border-amber-200/90 rounded-2xl p-3.5 mb-3.5 shadow-sm">
         <div class="flex items-start gap-2.5 mb-2.5">
@@ -2472,7 +2472,7 @@ CHANGELOG:
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-amber-200/70">
           <!-- Guide 1: Google AI Studio Direct Link Button -->
           <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer"
-            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline">
+            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline cursor-pointer">
             <i
               class="ph-bold ph-arrow-square-out text-sm group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
             <span>Open Google AI Studio</span>
@@ -2480,7 +2480,7 @@ CHANGELOG:
 
           <!-- Guide 2: Video Guide Link Button -->
           <a href="https://www.youtube.com/watch?v=YHFMrZD-_3g" target="_blank" rel="noopener noreferrer"
-            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline">
+            class="group flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform active:scale-95 text-center no-underline cursor-pointer">
             <i class="ph-fill ph-play-circle text-base text-white animate-pulse"></i>
             <span>Watch Video Guide</span>
           </a>
@@ -2501,7 +2501,7 @@ CHANGELOG:
       <input type="hidden" id="gas-webapp-url"
         value="https://script.google.com/macros/s/AKfycbzpFqGQn3eY-xVYAkywvec57gfmEXzdWNoAP1e_Xix9FB_7Ii-g5iZmGBWXbsYIZl83/exec">
 
-      <button id="btn-save-settings"
+      <button type="button" id="btn-save-settings"
         class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-4 rounded-xl transition-colors shadow-md cursor-pointer">
         Save Settings
       </button>
@@ -2775,7 +2775,9 @@ CHANGELOG:
 
       function openGradeModal() {
         if (!gradeModal || !gradeDialog) return;
-        gradeModal.classList.remove('hidden');
+        gradeModal.style.pointerEvents = 'auto';
+        gradeDialog.style.pointerEvents = 'auto';
+        gradeModal.classList.remove('hidden', 'pointer-events-none');
         requestAnimationFrame(() => {
           gradeModal.classList.remove('opacity-0', 'pointer-events-none');
           gradeDialog.classList.remove('scale-95');
@@ -3330,7 +3332,10 @@ TONE & VOCABULARY DIRECTIVE:
         if (settingGradeLevel && currentGradeLevel) {
           settingGradeLevel.value = currentGradeLevel;
         }
-        modal.classList.remove('hidden');
+        modal.style.pointerEvents = 'auto';
+        dialog.style.pointerEvents = 'auto';
+        modal.classList.remove('hidden', 'pointer-events-none');
+        updateApiKeyStatusBadge(sessionApiKey);
         requestAnimationFrame(() => {
           modal.classList.remove('opacity-0', 'pointer-events-none');
           dialog.classList.remove('scale-95');
@@ -3345,9 +3350,15 @@ TONE & VOCABULARY DIRECTIVE:
         });
       }
 
-      btnOpenSettings.addEventListener('click', () => openSettingsModal(false));
+      if (btnOpenSettings) {
+        btnOpenSettings.addEventListener('click', (e) => {
+          e.preventDefault();
+          openSettingsModal(false);
+        });
+      }
 
       function closeModal() {
+        if (!modal || !dialog) return;
         modal.classList.add('opacity-0', 'pointer-events-none');
         modal.style.pointerEvents = 'none';
         dialog.classList.remove('scale-100');
@@ -3357,10 +3368,19 @@ TONE & VOCABULARY DIRECTIVE:
         }, 150);
       }
 
-      btnCloseSettings.addEventListener('click', closeModal);
+      if (btnCloseSettings) {
+        btnCloseSettings.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+      }
       if (modal) {
         modal.addEventListener('click', (e) => {
-          if (e.target === modal) closeModal();
+          if (e.target === modal) {
+            e.preventDefault();
+            closeModal();
+          }
         });
       }
 
@@ -3368,7 +3388,9 @@ TONE & VOCABULARY DIRECTIVE:
       const btnToggleApiKeyVis = document.getElementById('btn-toggle-api-key-visibility');
       const apiKeyEyeIcon = document.getElementById('api-key-eye-icon');
       if (btnToggleApiKeyVis && apiKeyInput) {
-        btnToggleApiKeyVis.addEventListener('click', () => {
+        btnToggleApiKeyVis.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           if (apiKeyInput.type === 'password') {
             apiKeyInput.type = 'text';
             if (apiKeyEyeIcon) apiKeyEyeIcon.className = 'ph ph-eye-slash text-lg';
@@ -3391,31 +3413,31 @@ TONE & VOCABULARY DIRECTIVE:
           badge.innerHTML = '<i class="ph ph-x-circle"></i> No Key Set';
         }
       }
-      // Sync badge on modal open
-      const _origOpenSettingsModal = openSettingsModal;
-      openSettingsModal = function (focusApiKey) {
-        _origOpenSettingsModal(focusApiKey);
-        updateApiKeyStatusBadge(sessionApiKey);
-      };
       // Initialize badge
       updateApiKeyStatusBadge(sessionApiKey);
 
-      btnSaveSettings.addEventListener('click', () => {
-        sessionApiKey = apiKeyInput.value.trim();
-        safeSetItem(apiKeyStorageKey, sessionApiKey);
-        updateApiKeyStatusBadge(sessionApiKey);
-        if (gasUrlInput) {
-          sessionGasUrl = gasUrlInput.value.trim();
-          safeSetItem(gasUrlStorageKey, sessionGasUrl);
-        }
-        if (settingGradeLevel) {
-          updateGradeLevelUI(settingGradeLevel.value);
-        }
-        closeModal();
-        if (sessionApiKey) {
-          showValidationToast('API Key saved! AI features are now unlocked.', 'success');
-        }
-      });
+      if (btnSaveSettings) {
+        btnSaveSettings.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          sessionApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+          safeSetItem(apiKeyStorageKey, sessionApiKey);
+          updateApiKeyStatusBadge(sessionApiKey);
+          if (gasUrlInput) {
+            sessionGasUrl = gasUrlInput.value.trim();
+            safeSetItem(gasUrlStorageKey, sessionGasUrl);
+          }
+          if (settingGradeLevel) {
+            updateGradeLevelUI(settingGradeLevel.value);
+          }
+          closeModal();
+          if (sessionApiKey) {
+            showValidationToast('Settings & API Key saved! AI features unlocked.', 'success');
+          } else {
+            showValidationToast('Settings saved successfully.', 'info');
+          }
+        });
+      }
 
       // --- Reset / Start New Logic ---
       const btnStartNew = document.getElementById('btn-start-new');
@@ -3426,6 +3448,7 @@ TONE & VOCABULARY DIRECTIVE:
       const btnConfirmReset = document.getElementById('btn-confirm-reset');
 
       function closeResetModal() {
+        if (!resetModal || !resetDialog) return;
         resetModal.classList.add('opacity-0', 'pointer-events-none');
         resetModal.style.pointerEvents = 'none';
         resetDialog.classList.remove('scale-100');
@@ -3436,8 +3459,12 @@ TONE & VOCABULARY DIRECTIVE:
       }
 
       if (btnStartNew) {
-        btnStartNew.addEventListener('click', () => {
-          resetModal.classList.remove('hidden');
+        btnStartNew.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (!resetModal || !resetDialog) return;
+          resetModal.style.pointerEvents = 'auto';
+          resetDialog.style.pointerEvents = 'auto';
+          resetModal.classList.remove('hidden', 'pointer-events-none');
           requestAnimationFrame(() => {
             resetModal.classList.remove('opacity-0', 'pointer-events-none');
             resetDialog.classList.remove('scale-95');
@@ -3446,20 +3473,46 @@ TONE & VOCABULARY DIRECTIVE:
         });
       }
 
-      if (btnCloseResetModal) btnCloseResetModal.addEventListener('click', closeResetModal);
-      if (btnCancelReset) btnCancelReset.addEventListener('click', closeResetModal);
+      if (btnCloseResetModal) {
+        btnCloseResetModal.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeResetModal();
+        });
+      }
+      if (btnCancelReset) {
+        btnCancelReset.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeResetModal();
+        });
+      }
       if (resetModal) {
         resetModal.addEventListener('click', (e) => {
-          if (e.target === resetModal) closeResetModal();
+          if (e.target === resetModal) {
+            e.preventDefault();
+            closeResetModal();
+          }
         });
       }
 
       if (btnConfirmReset) {
-        btnConfirmReset.addEventListener('click', () => {
+        btnConfirmReset.addEventListener('click', (e) => {
+          e.preventDefault();
           localStorage.removeItem(storageKey);
           window.location.reload();
         });
       }
+
+      // Global Escape key listener for all modals
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          if (modal && !modal.classList.contains('hidden')) closeModal();
+          if (typeof closePdfModal === 'function' && pdfModal && !pdfModal.classList.contains('hidden')) closePdfModal();
+          if (typeof closeGradeModal === 'function' && gradeModal && !gradeModal.classList.contains('hidden')) closeGradeModal();
+          if (resetModal && !resetModal.classList.contains('hidden')) closeResetModal();
+        }
+      });
 
       // --- IMRAD PDF Import & Deconstruction Logic ---
       const pdfModal = document.getElementById('pdf-import-modal');
@@ -3496,6 +3549,7 @@ TONE & VOCABULARY DIRECTIVE:
           requestAnimationFrame(() => {
             pdfModal.classList.remove('opacity-0', 'pointer-events-none');
             if (pdfDialog) {
+              pdfDialog.style.pointerEvents = 'auto';
               pdfDialog.classList.remove('scale-95');
               pdfDialog.classList.add('scale-100');
             }
@@ -3743,6 +3797,7 @@ Return your response ONLY as a JSON object matching this exact structure:
   "researchers": ["String: Researcher Name 1", "String: Researcher Name 2"],
   "broad-area": "String: Broad field (e.g., Medical & Healthcare, Household/School Safety, Educational Tech, Resilient Shelter, Disaster Mitigation, Agricultural Robotics)",
   "specific-problem": "String: The localized, specific root problem being addressed",
+  "qps": "String: Complete unified Quantified Problem Statement sentence: 'The current state of [phenomenon] is measured at [current metric], resulting in [specific problem]. This research aims to achieve [target state] by [action], as measured by [target metric].'",
   "qps-phenomenon": "String: The observed deficit or phenomenon (e.g., erratic soil moisture levels)",
   "qps-current-metric": "String: Baseline quantified metric (e.g., 35% crop mortality or 4 hours manual labor/day)",
   "qps-specific-problem": "String: The exact real-world problem (e.g., premature tomato seedling wilting in urban gardens)",
@@ -3770,10 +3825,14 @@ Return your response ONLY as a JSON object matching this exact structure:
   "var-independent": "String: Manipulated variable (e.g., gradient angle, payload weight)",
   "var-dependent": "String: Measured performance metric (e.g., traversal velocity in m/s)",
   "var-control": "String: Environmental constants held rigid",
-  "mat-sensor": "String: Primary sensors used",
-  "mat-brain": "String: Central microcontroller or computing board",
-  "mat-actuator": "String: Actuators, motors, drivers, or mechanisms",
-  "mat-power": "String: Battery pack, voltage regulator, or power supply",
+  "mat-sensor": "String: Primary sensors and input modules used (e.g., Capacitive Soil Moisture Sensor, Ultrasonic Sensor, Camera)",
+  "sense-component": "String: Same as mat-sensor",
+  "mat-brain": "String: Central microcontroller, processor, or decision unit (e.g., Arduino Uno, ESP32, Raspberry Pi Pico)",
+  "think-component": "String: Same as mat-brain",
+  "mat-actuator": "String: Actuators, motors, drivers, relays, displays, or buzzers (e.g., Submersible 5V Pump, SG90 Servo, L298N Driver)",
+  "act-component": "String: Same as mat-actuator",
+  "mat-power": "String: Power source, battery pack, or voltage regulator (e.g., 5V 2A Power Bank, 9V Li-ion, Solar Panel)",
+  "power-source": "String: Same as mat-power",
   "control-architecture": "String: Algorithmic control architecture, deterministic state machine, and fail-safe transitions",
   "ramp-safety": "String: Key electrical or mechanical hazard and safety mitigation",
   "testing-mode": "table-top or prototype-1to1 (Select 'table-top' for miniaturized models, or 'prototype-1to1' for actual-size devices tested in bounded test areas)",
@@ -3790,18 +3849,30 @@ Return your response ONLY as a JSON object matching this exact structure:
   "statistical-treatment": "two-sample-t-test or one-way-anova or confusion-matrix or descriptive-error-bounds",
   "statistical-hypothesis": "String: Formal Null (H0) and Alternative (Ha) hypotheses",
   "extraction_summary": {
-    "found_fields": ["List of readable section names found, e.g., 'Project Title', 'Literature Gaps', 'Hardware Architecture', 'Statistical Treatment'"],
+    "found_fields": ["List of readable section names found, e.g., 'Project Title', 'Literature Gaps', 'Quantified Problem Statement (QPS)', 'Hardware Architecture (Sense-Think-Act)', 'Statistical Treatment'"],
     "missing_fields": ["List of sections not explicitly documented in the PDF, e.g., 'Mechanical Constraints', 'Budget Limit'"]
   }
 }
 
-CRITICAL RULES:
-1. Extract directly from the facts in the PDF. Do NOT fabricate information not present in the document.
-2. If a specific field is not mentioned in the PDF, set that field to an empty string (\\"\\") and list it under \\"missing_fields\\".
-3. Ensure \\"testing-mode\\" is strictly either \\"table-top\\" or \\"prototype-1to1\\".
-4. Ensure \\"testing-method\\" is strictly one of the 6 valid option values above.
-5. Ensure \\"statistical-treatment\\" is strictly one of the 4 valid option values above.
-6. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
+CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
+1. QUANTIFIED PROBLEM STATEMENT (QPS) EXTRACTION:
+   - Scientific papers often formulate their problem under 'Abstract', 'Introduction', 'Background of the Study', 'Statement of the Problem', or 'Research Objectives', rather than using the literal heading 'QPS'.
+   - You MUST synthesize the Quantified Problem Statement by extracting the observed deficit/phenomenon, quantified baseline metrics, localized root problem, target operational state, engineering action/mechanism, and measurable benchmark.
+   - ALWAYS populate BOTH the unified 'qps' string AND the 6 individual 'qps-*' fields.
+   - NEVER mark QPS as missing if the document describes an engineering problem and target goals!
+2. HARDWARE (SENSE - THINK - ACT) EXTRACTION:
+   - Scientific papers typically describe hardware under 'Methodology', 'Materials', 'Hardware Design', 'System Architecture', 'Circuit Diagram', or 'Apparatus'.
+   - Deconstruct all identified electronic and mechanical components into the Sense-Think-Act framework:
+     * SENSE (mat-sensor & sense-component): Any sensor, camera, switch, probe, or input transducer.
+     * THINK (mat-brain & think-component): Any microcontroller board (Arduino, ESP32, Raspberry Pi, STM32, PIC, etc.) or decision logic unit.
+     * ACT (mat-actuator & act-component): Any motor, servo, pump, relay, solenoid, display (LCD/OLED), buzzer, or actuator.
+     * POWER (mat-power & power-source): Any battery pack, power supply, solar cell, or voltage regulator.
+   - NEVER mark Hardware (Sense-Think-Act) as missing if the document specifies or mentions sensors, controllers, motors, or electronic components!
+3. If a specific field is truly not mentioned anywhere in the PDF, set that field to an empty string ("") and list it under "missing_fields".
+4. Ensure "testing-mode" is strictly either "table-top" or "prototype-1to1".
+5. Ensure "testing-method" is strictly one of the 6 valid option values above.
+6. Ensure "statistical-treatment" is strictly one of the 4 valid option values above.
+7. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
 
             const { data } = await callGeminiWithFallback(apiKey, {
               contents: [
@@ -3849,28 +3920,59 @@ CRITICAL RULES:
         const found = summary.found_fields || [];
         const missing = summary.missing_fields || [];
 
+        // Check QPS thoroughly across unified sentence and granular slots
+        const qpsFound = Boolean(
+          (extracted['qps'] && String(extracted['qps']).trim()) ||
+          (extracted['qps-specific-problem'] && String(extracted['qps-specific-problem']).trim()) ||
+          (extracted['qps-phenomenon'] && String(extracted['qps-phenomenon']).trim()) ||
+          (extracted['qps-action'] && String(extracted['qps-action']).trim()) ||
+          (extracted['qps-target-metric'] && String(extracted['qps-target-metric']).trim())
+        );
+
+        // Check Hardware thoroughly across mat-* and *-component keys
+        const hwFound = Boolean(
+          (extracted['mat-sensor'] && String(extracted['mat-sensor']).trim()) ||
+          (extracted['mat-brain'] && String(extracted['mat-brain']).trim()) ||
+          (extracted['mat-actuator'] && String(extracted['mat-actuator']).trim()) ||
+          (extracted['mat-power'] && String(extracted['mat-power']).trim()) ||
+          (extracted['sense-component'] && String(extracted['sense-component']).trim()) ||
+          (extracted['think-component'] && String(extracted['think-component']).trim()) ||
+          (extracted['act-component'] && String(extracted['act-component']).trim()) ||
+          (extracted['power-source'] && String(extracted['power-source']).trim()) ||
+          (extracted['sensors'] && String(extracted['sensors']).trim()) ||
+          (extracted['microcontroller'] && String(extracted['microcontroller']).trim()) ||
+          (extracted['actuators'] && String(extracted['actuators']).trim())
+        );
+
+        // Check Statistical Plan across singular and plural
+        const statPlanFound = Boolean(
+          (extracted['statistical-treatment'] && String(extracted['statistical-treatment']).trim()) ||
+          (extracted['statistical-hypothesis'] && String(extracted['statistical-hypothesis']).trim()) ||
+          (extracted['statistical-hypotheses'] && String(extracted['statistical-hypotheses']).trim())
+        );
+
         // Breakdown items
         const sections = [
           { label: 'Project Title', value: extracted['project-title'] },
           { label: 'Researchers', value: extracted.researchers && extracted.researchers.length > 0 ? extracted.researchers.join(', ') : '' },
-          { label: 'Broad Area & Specific Problem', value: extracted['broad-area'] && extracted['specific-problem'] ? `${extracted['broad-area']} - ${extracted['specific-problem']}` : '' },
-          { label: 'Quantified Problem Statement (QPS)', value: extracted['qps'] },
-          { label: 'Why Store-Bought Gadgets Fail (Prior Art)', value: extracted['prior-art-failures'] },
+          { label: 'Broad Area & Specific Problem', value: extracted['broad-area'] && extracted['specific-problem'] ? `${extracted['broad-area']} - ${extracted['specific-problem']}` : (extracted['broad-area'] || extracted['specific-problem'] || '') },
+          { label: 'Quantified Problem Statement (QPS)', value: qpsFound ? (extracted['qps'] || extracted['qps-specific-problem'] || 'Identified') : '' },
+          { label: 'Why Store-Bought Gadgets Fail (Prior Art)', value: extracted['prior-art-failures'] || extracted['commercial-failures'] || '' },
           { label: 'Literature Gaps & Citations', value: extracted.gaps && extracted.gaps.length > 0 ? `${extracted.gaps.length} gap(s) identified` : '' },
-          { label: 'Automatic Tasks (Functional Requirements)', value: extracted['functional-requirements'] },
-          { label: 'Quantitative Constraints (Mechanical/Software/Budget)', value: extracted['mechanical-constraints'] || extracted['software-constraints'] || extracted['budget-limit'] ? 'Identified' : '' },
-          { label: 'Variables (Independent, Dependent, Controlled)', value: extracted['var-independent'] && extracted['var-dependent'] ? 'Identified' : '' },
-          { label: 'Hardware (Sense-Think-Act)', value: extracted['sense-component'] || extracted['think-component'] || extracted['act-component'] ? 'Identified' : '' },
-          { label: 'Machine Decision & Control Logic', value: extracted['control-architecture'] },
-          { label: 'Subsystem Verification (Bench Metrology)', value: extracted['subsystem-verification'] },
-          { label: 'System Validation (Operational Trials)', value: extracted['system-validation'] },
-          { label: 'Testing Protocol & Scaling', value: extracted['testing-method'] || extracted['testing-procedure'] ? 'Identified' : '' },
-          { label: 'Inferential Statistical Plan', value: extracted['statistical-treatment'] || extracted['statistical-hypotheses'] ? 'Identified' : '' }
+          { label: 'Automatic Tasks (Functional Requirements)', value: extracted['functional-requirements'] || extracted['requirements-matrix'] || '' },
+          { label: 'Quantitative Constraints (Mechanical/Software/Budget)', value: (extracted['mechanical-constraints'] || extracted['software-constraints'] || extracted['budget-limit']) ? 'Identified' : '' },
+          { label: 'Variables (Independent, Dependent, Controlled)', value: (extracted['var-independent'] || extracted['var-dependent'] || extracted['var-control']) ? 'Identified' : '' },
+          { label: 'Hardware (Sense-Think-Act)', value: hwFound ? 'Identified' : '' },
+          { label: 'Machine Decision & Control Logic', value: extracted['control-architecture'] || extracted['state-machine'] || '' },
+          { label: 'Subsystem Verification (Bench Metrology)', value: extracted['subsystem-verification'] || extracted['bench-testing'] || '' },
+          { label: 'System Validation (Operational Trials)', value: extracted['system-validation'] || extracted['operational-validation'] || '' },
+          { label: 'Testing Protocol & Scaling', value: (extracted['testing-method'] || extracted['testing-procedure']) ? 'Identified' : '' },
+          { label: 'Inferential Statistical Plan', value: statPlanFound ? 'Identified' : '' }
         ];
 
         let foundCount = 0;
         sections.forEach(sec => {
-          const isPresent = Boolean(sec.value && sec.value.trim());
+          const isPresent = Boolean(sec.value && String(sec.value).trim());
           if (isPresent) foundCount++;
           const row = document.createElement('div');
           row.className = `p-2.5 rounded-xl border flex items-center justify-between ${isPresent ? 'bg-white border-emerald-100 text-slate-700' : 'bg-amber-50/50 border-amber-200/60 text-slate-500'}`;
@@ -3946,30 +4048,30 @@ CRITICAL RULES:
 
           // 3. Populate Direct Form Fields with Full Field Alias Mappings
           const fieldMappings = {
-            'broad-area': ['broad-area'],
-            'specific-problem': ['specific-problem'],
-            'qps-phenomenon': ['qps-phenomenon'],
-            'qps-current-metric': ['qps-current-metric'],
-            'qps-specific-problem': ['qps-specific-problem', 'specific-problem'],
-            'qps-target-state': ['qps-target-state'],
-            'qps-action': ['qps-action'],
-            'qps-target-metric': ['qps-target-metric', 'target-metric'],
+            'broad-area': ['broad-area', 'broad_area', 'field'],
+            'specific-problem': ['specific-problem', 'specific_problem', 'problem'],
+            'qps-phenomenon': ['qps-phenomenon', 'qps_phenomenon', 'phenomenon', 'observed-deficit'],
+            'qps-current-metric': ['qps-current-metric', 'qps_current_metric', 'current-metric', 'baseline-metric'],
+            'qps-specific-problem': ['qps-specific-problem', 'qps_specific_problem', 'specific-problem'],
+            'qps-target-state': ['qps-target-state', 'qps_target_state', 'target-state', 'desired-state'],
+            'qps-action': ['qps-action', 'qps_action', 'action', 'engineering-action'],
+            'qps-target-metric': ['qps-target-metric', 'qps_target_metric', 'target-metric'],
             'prior-art-failures': ['prior-art-failures', 'commercial-failures', 'prior-art'],
-            'functional-requirements': ['functional-requirements', 'requirements-matrix'],
-            'mechanical-constraints': ['mechanical-constraints'],
-            'software-constraints': ['software-constraints'],
-            'budget-limit': ['budget-limit'],
-            'project-scope': ['project-scope'],
-            'delimitations': ['delimitations'],
-            'var-independent': ['var-independent'],
-            'var-dependent': ['var-dependent'],
-            'var-control': ['var-control', 'var-controlled'],
-            'mat-sensor': ['mat-sensor', 'sense-component'],
-            'mat-brain': ['mat-brain', 'think-component'],
-            'mat-actuator': ['mat-actuator', 'act-component'],
-            'mat-power': ['mat-power', 'power-source'],
-            'control-architecture': ['control-architecture', 'state-machine', 'control-flow'],
-            'ramp-safety': ['ramp-safety', 'ramp-hazard'],
+            'functional-requirements': ['functional-requirements', 'requirements-matrix', 'functional_requirements'],
+            'mechanical-constraints': ['mechanical-constraints', 'mechanical_constraints'],
+            'software-constraints': ['software-constraints', 'software_constraints'],
+            'budget-limit': ['budget-limit', 'budget_limit', 'budget'],
+            'project-scope': ['project-scope', 'project_scope', 'scope'],
+            'delimitations': ['delimitations', 'limitations', 'boundaries'],
+            'var-independent': ['var-independent', 'independent-variable', 'manipulated-variable'],
+            'var-dependent': ['var-dependent', 'dependent-variable', 'measured-variable'],
+            'var-control': ['var-control', 'var-controlled', 'controlled-variables', 'constants'],
+            'mat-sensor': ['mat-sensor', 'sense-component', 'sensors', 'sensor', 'inputs', 'sensory-modules'],
+            'mat-brain': ['mat-brain', 'think-component', 'microcontroller', 'microcontrollers', 'brain', 'processor', 'computing-board'],
+            'mat-actuator': ['mat-actuator', 'act-component', 'actuators', 'actuator', 'motors', 'motor', 'drivers', 'outputs'],
+            'mat-power': ['mat-power', 'power-source', 'power-supply', 'power', 'battery'],
+            'control-architecture': ['control-architecture', 'state-machine', 'control-flow', 'algorithm'],
+            'ramp-safety': ['ramp-safety', 'ramp-hazard', 'safety'],
             'testing-mode': ['testing-mode'],
             'full-scale-scope': ['full-scale-scope'],
             'scaled-test-target': ['scaled-test-target', 'scaled-testing-target'],
@@ -3978,16 +4080,23 @@ CRITICAL RULES:
             'subsystem-verification': ['subsystem-verification', 'bench-testing', 'component-verification'],
             'system-validation': ['system-validation', 'operational-validation', 'stress-testing'],
             'testing-method': ['testing-method'],
-            'testing-procedure': ['testing-procedure'],
-            'trials-planned': ['trials-planned'],
-            'target-metric': ['target-metric'],
-            'statistical-treatment': ['statistical-treatment'],
-            'statistical-hypothesis': ['statistical-hypothesis', 'statistical-hypotheses'],
-            'project-title': ['project-title']
+            'testing-procedure': ['testing-procedure', 'procedure'],
+            'trials-planned': ['trials-planned', 'trials'],
+            'target-metric': ['target-metric', 'benchmark'],
+            'statistical-treatment': ['statistical-treatment', 'treatment'],
+            'statistical-hypothesis': ['statistical-hypothesis', 'statistical-hypotheses', 'hypothesis'],
+            'project-title': ['project-title', 'title']
           };
 
-          // If PDF provided legacy 'qps' full sentence instead of 6 slots, fallback-fill empty slots
+          // If PDF provided unified 'qps' full sentence, persist it to legacy qps storage
           const rawQps = extractedPdfJson['qps'] || '';
+          if (rawQps) {
+            const qpsHiddenEl = document.getElementById('qps');
+            if (qpsHiddenEl) {
+              qpsHiddenEl.value = rawQps;
+              saveFieldToStorage('qps', rawQps);
+            }
+          }
 
           Object.keys(fieldMappings).forEach(domId => {
             const aliases = fieldMappings[domId];
@@ -4021,6 +4130,7 @@ CRITICAL RULES:
           });
 
           // 4. Update Interactive Previews
+          if (typeof updateQpsSentenceAndPreview === 'function') updateQpsSentenceAndPreview();
           updateQpsGoalPreview();
           updateEngineeringGoalPreview();
           if (testingModeSelect) updateTestingModeDisplay(testingModeSelect.value);
@@ -4322,6 +4432,62 @@ CRITICAL RULES:
       if (qpsTargetMetricInput) qpsTargetMetricInput.addEventListener('input', updateQpsGoalPreview);
       updateQpsGoalPreview();
 
+      // --- QPS Full Sentence Live Preview & Legacy Storage Sync Logic ---
+      function updateQpsSentenceAndPreview() {
+        try {
+          const phen = String(document.getElementById('qps-phenomenon')?.value || savedData['qps-phenomenon'] || '').trim();
+          const curr = String(document.getElementById('qps-current-metric')?.value || savedData['qps-current-metric'] || '').trim();
+          const prob = String(document.getElementById('qps-specific-problem')?.value || savedData['qps-specific-problem'] || '').trim();
+          const target = String(document.getElementById('qps-target-state')?.value || savedData['qps-target-state'] || '').trim();
+          const action = String(document.getElementById('qps-action')?.value || savedData['qps-action'] || '').trim();
+          const metric = String(document.getElementById('qps-target-metric')?.value || savedData['qps-target-metric'] || '').trim();
+
+          const previewEl = document.getElementById('qps-live-preview');
+          const hiddenQps = document.getElementById('qps');
+
+          const hasAny = phen || curr || prob || target || action || metric;
+
+          if (hasAny) {
+            const sentence = `The current state of ${phen || '...'} is measured at ${curr || '...'}, resulting in ${prob || '...'}. This research aims to achieve ${target || '...'} by ${action || '...'}, as measured by ${metric || '...'}.`;
+            if (previewEl) {
+              previewEl.innerHTML = `"The current state of <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(phen) || '...'}</strong> is measured at <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(curr) || '...'}</strong>, resulting in <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(prob) || '...'}</strong>. This research aims to achieve <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(target) || '...'}</strong> by <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(action) || '...'}</strong>, as measured by <strong class="text-amber-900 bg-amber-100/70 px-1.5 py-0.5 rounded">${escapeHtml(metric) || '...'}</strong>."`;
+            }
+            if (hiddenQps) {
+              hiddenQps.value = sentence;
+              saveFieldToStorage('qps', sentence);
+            }
+          } else if (savedData['qps']) {
+            if (previewEl) {
+              previewEl.innerHTML = `<span class="text-slate-700 font-medium">${escapeHtml(savedData['qps'])}</span>`;
+            }
+            if (hiddenQps) {
+              hiddenQps.value = savedData['qps'];
+            }
+          } else {
+            if (previewEl) {
+              previewEl.textContent = `"The current state of ... is measured at ..., resulting in ... This research aims to achieve ... by ..., as measured by ..."`;
+            }
+          }
+        } catch (err) {
+          console.warn("Error updating QPS sentence and preview:", err);
+        }
+      }
+
+      ['qps-phenomenon', 'qps-current-metric', 'qps-specific-problem', 'qps-target-state', 'qps-action', 'qps-target-metric'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => {
+            updateQpsSentenceAndPreview();
+            updateQpsGoalPreview();
+          });
+          el.addEventListener('change', () => {
+            updateQpsSentenceAndPreview();
+            updateQpsGoalPreview();
+          });
+        }
+      });
+      updateQpsSentenceAndPreview();
+
       // --- Quantitative Engineering Goal Preview Logic ---
       function updateEngineeringGoalPreview() {
         try {
@@ -4527,6 +4693,7 @@ CRITICAL RULES:
       // --- Wizard Navigation Logic ---
       function updateWizard() {
         try {
+          updateQpsSentenceAndPreview();
           updateQpsGoalPreview();
           updateEngineeringGoalPreview();
           cards.forEach((card, index) => {
