@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[September 23, 2026, 08:45 AM] v4.6.3 - Fix: Resolved truncated researcher list bug by updating PDF reverse engineering prompt to extract all team researchers without artificial 2-item limit, dynamically populating DOM rows for 3+ researchers during draft load, and syncing real-time state upon row removal.
 [September 23, 2026, 08:20 AM] v4.6.2 - Fix: Resolved Settings modal unresponsive buttons and close button glitch by actively clearing inline pointer-events, elevating modal z-index to z-[70], and adding resilient event bindings; fixed PDF reverse engineering QPS and Hardware (Sense-Think-Act) detection by unifying schema keys, supporting multi-field aliases, and enhancing prompt guidelines for standard academic papers.
 [September 23, 2026, 03:50 AM] v4.6.1 - New Feature: Added real-time APA 7th reference author validation hint alerting users if "et al." is entered in author inputs and reminding them to list all co-authors for complete References attribution while in-text "et al." is auto-formatted.
 [September 23, 2026, 03:45 AM] v4.6.0 - New Feature: Implemented APA 7th author formatting — in-text narrative citations automatically synthesize "et al." for 3+ co-authors and surnames for 1-2 authors, while the References section preserves full co-author names without "et al.".
 [September 22, 2026, 11:20 PM] v4.5.1 - Fix: Resolved preview ReferenceError by initializing trials and target metrics before statistical treatment evaluation, added missing suggest-box-qps container to enable QPS AI suggestions, and added defensive null checks with dismiss actions across all suggestion boxes.
-[September 22, 2026, 10:55 PM] v4.5.0 - New Feature: Adopted IM Concept Proposal Preview document for instant proposal generation in Step 6 and direct database/Google Drive PDF upload, eliminating external AI generation delay and ensuring 100% format fidelity with the preview.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -3261,12 +3261,25 @@ TONE & VOCABULARY DIRECTIVE:
       function reindexResearchers() {
         const rows = researchersContainer.querySelectorAll('.researcher-row');
         researcherCount = rows.length;
+
+        // Clean out any stale researcher keys in savedData beyond current count
+        Object.keys(savedData).forEach(k => {
+          if (k.startsWith('researcher-')) {
+            const num = parseInt(k.replace('researcher-', ''));
+            if (!isNaN(num) && num > researcherCount) {
+              delete savedData[k];
+              try { localStorage.removeItem(k); } catch (e) {}
+            }
+          }
+        });
+
         rows.forEach((row, idx) => {
           const newIndex = idx + 1;
           const inp = row.querySelector('input');
           if (inp) {
             inp.id = `researcher-${newIndex}`;
             inp.required = (newIndex === 1);
+            saveFieldToStorage(inp.id, inp.value);
           }
           let delBtn = row.querySelector('.btn-delete-researcher');
           if (newIndex > 1 && !delBtn) {
@@ -3794,7 +3807,7 @@ Analyze the PDF thoroughly (including title, authors, abstract, introduction, li
 Return your response ONLY as a JSON object matching this exact structure:
 {
   "project-title": "String: Full descriptive research title (formulated via EDP Triad if possible)",
-  "researchers": ["String: Researcher Name 1", "String: Researcher Name 2"],
+  "researchers": ["Array of Strings: ALL student researchers, inventors, and co-authors found in the document, e.g., ['Name 1', 'Name 2', 'Name 3', 'Name 4']"],
   "broad-area": "String: Broad field (e.g., Medical & Healthcare, Household/School Safety, Educational Tech, Resilient Shelter, Disaster Mitigation, Agricultural Robotics)",
   "specific-problem": "String: The localized, specific root problem being addressed",
   "qps": "String: Complete unified Quantified Problem Statement sentence: 'The current state of [phenomenon] is measured at [current metric], resulting in [specific problem]. This research aims to achieve [target state] by [action], as measured by [target metric].'",
@@ -3855,12 +3868,16 @@ Return your response ONLY as a JSON object matching this exact structure:
 }
 
 CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
-1. QUANTIFIED PROBLEM STATEMENT (QPS) EXTRACTION:
+1. STUDENT RESEARCHERS / INVENTOR TEAM EXTRACTION:
+   - Extract ALL student researchers, inventors, and co-authors listed on the manuscript without any truncation.
+   - If there are 3, 4, 5, or more authors on the team, include every single one in the "researchers" array.
+   - NEVER limit or truncate the researchers list to only 1 or 2 names.
+2. QUANTIFIED PROBLEM STATEMENT (QPS) EXTRACTION:
    - Scientific papers often formulate their problem under 'Abstract', 'Introduction', 'Background of the Study', 'Statement of the Problem', or 'Research Objectives', rather than using the literal heading 'QPS'.
    - You MUST synthesize the Quantified Problem Statement by extracting the observed deficit/phenomenon, quantified baseline metrics, localized root problem, target operational state, engineering action/mechanism, and measurable benchmark.
    - ALWAYS populate BOTH the unified 'qps' string AND the 6 individual 'qps-*' fields.
    - NEVER mark QPS as missing if the document describes an engineering problem and target goals!
-2. HARDWARE (SENSE - THINK - ACT) EXTRACTION:
+3. HARDWARE (SENSE - THINK - ACT) EXTRACTION:
    - Scientific papers typically describe hardware under 'Methodology', 'Materials', 'Hardware Design', 'System Architecture', 'Circuit Diagram', or 'Apparatus'.
    - Deconstruct all identified electronic and mechanical components into the Sense-Think-Act framework:
      * SENSE (mat-sensor & sense-component): Any sensor, camera, switch, probe, or input transducer.
@@ -3868,11 +3885,11 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
      * ACT (mat-actuator & act-component): Any motor, servo, pump, relay, solenoid, display (LCD/OLED), buzzer, or actuator.
      * POWER (mat-power & power-source): Any battery pack, power supply, solar cell, or voltage regulator.
    - NEVER mark Hardware (Sense-Think-Act) as missing if the document specifies or mentions sensors, controllers, motors, or electronic components!
-3. If a specific field is truly not mentioned anywhere in the PDF, set that field to an empty string ("") and list it under "missing_fields".
-4. Ensure "testing-mode" is strictly either "table-top" or "prototype-1to1".
-5. Ensure "testing-method" is strictly one of the 6 valid option values above.
-6. Ensure "statistical-treatment" is strictly one of the 4 valid option values above.
-7. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
+4. If a specific field is truly not mentioned anywhere in the PDF, set that field to an empty string ("") and list it under "missing_fields".
+5. Ensure "testing-mode" is strictly either "table-top" or "prototype-1to1".
+6. Ensure "testing-method" is strictly one of the 6 valid option values above.
+7. Ensure "statistical-treatment" is strictly one of the 4 valid option values above.
+8. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
 
             const { data } = await callGeminiWithFallback(apiKey, {
               contents: [
@@ -8279,6 +8296,9 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
         });
 
         // Ensure dynamic researchers are captured from DOM
+        Object.keys(data).forEach(k => {
+          if (k.startsWith('researcher-')) delete data[k];
+        });
         const rInps = document.querySelectorAll('#researchers-container input');
         rInps.forEach((inp, idx) => {
           const val = (inp.value || '').trim();
@@ -8519,11 +8539,32 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
               }
             }
 
-            // Restore researcher fields (dynamic rows may need population)
+            // Restore researcher fields — dynamically instantiate all researcher rows present in draft
+            let maxResearcher = 0;
             for (const key in data) {
-              if (key.startsWith('researcher-') && data[key]) {
-                const el = document.getElementById(key);
-                if (el) { el.value = data[key]; el.dispatchEvent(new Event('input', { bubbles: true })); }
+              const m = key.match(/^researcher-(\d+)$/);
+              if (m && data[key] && String(data[key]).trim()) {
+                maxResearcher = Math.max(maxResearcher, parseInt(m[1]));
+              }
+            }
+
+            if (researchersContainer && maxResearcher > 0) {
+              const existingRows = researchersContainer.querySelectorAll('.researcher-row');
+              for (let ri = existingRows.length + 1; ri <= maxResearcher; ri++) {
+                researcherCount = ri;
+                createResearcherBlock(ri, data[`researcher-${ri}`] || '');
+              }
+            }
+
+            for (let ri = 1; ri <= maxResearcher; ri++) {
+              const rKey = `researcher-${ri}`;
+              const el = document.getElementById(rKey);
+              if (el && data[rKey]) {
+                el.value = data[rKey];
+                saveFieldToStorage(rKey, data[rKey]);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                restoredCount++;
               }
             }
 
