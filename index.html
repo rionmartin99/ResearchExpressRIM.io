@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
-[September 23, 2026, 09:00 AM] v4.6.4 - Fix: Fixed official research category to "Robotics and Intelligent Machines" and formatted Bill of Materials (BOM) and proposal tables with fixed layout, proportional column widths, and clean text wrapping.
-[September 23, 2026, 08:45 AM] v4.6.3 - Fix: Resolved truncated researcher list bug by updating PDF reverse engineering prompt to extract all team researchers without artificial 2-item limit, dynamically populating DOM rows for 3+ researchers during draft load, and syncing real-time state upon row removal.
-[September 23, 2026, 08:20 AM] v4.6.2 - Fix: Resolved Settings modal unresponsive buttons and close button glitch by actively clearing inline pointer-events, elevating modal z-index to z-[70], and adding resilient event bindings; fixed PDF reverse engineering QPS and Hardware (Sense-Think-Act) detection by unifying schema keys, supporting multi-field aliases, and enhancing prompt guidelines for standard academic papers.
-[September 23, 2026, 03:50 AM] v4.6.1 - New Feature: Added real-time APA 7th reference author validation hint alerting users if "et al." is entered in author inputs and reminding them to list all co-authors for complete References attribution while in-text "et al." is auto-formatted.
-[September 23, 2026, 03:45 AM] v4.6.0 - New Feature: Implemented APA 7th author formatting — in-text narrative citations automatically synthesize "et al." for 3+ co-authors and surnames for 1-2 authors, while the References section preserves full co-author names without "et al.".
+[October 06, 2026, 03:00 PM] v4.8.4 - Fix: Synchronized 4-Persona Deliberation cache with active project identity, mapped correct hardware IDs (mat-sensor, mat-brain, mat-actuator), and eliminated stale cross-project cached feedback.
+[October 06, 2026, 01:55 PM] v4.8.3 - Fix: Implemented universal rich-content and LaTeX-to-Unicode sanitizer with Markdown table renderer, eliminating raw symbols, unrendered pipes, and unparsed headers across all AI outputs and deliberation cards.
+[October 06, 2026, 01:40 PM] v4.8.2 - Fix: Removed weight percentages and ERSA Reviewer branding from Node 6 advisory panel, added prominent instructions to click each persona for focused feedback, and tailored 4-persona feedback to improve the concept proposal.
+[October 06, 2026, 01:25 PM] v4.8.1 - New Feature: Added Paired Student's t-Test (or Wilcoxon Signed-Rank Test) option for pre-test vs post-test matched designs with simple English decision rule, formula, and hypothesis guide.
+[October 06, 2026, 01:15 PM] v4.8.0 - New Feature: Integrated 4-Persona Weighted Advisory Consensus in Node 6 (The Mentor 90%, The Techie 5%, The Practitioner 3%, The Challenger 2%) providing qualitative multi-perspective feedback, and renamed Node 6 to "Concept Proposal and Feedback".
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -468,10 +468,10 @@ CHANGELOG:
             class="w-8 h-8 rounded-full bg-purple-100 border-2 border-purple-300 text-purple-500 flex items-center justify-center font-bold text-sm shadow-sm transition-all duration-300">
             6</div>
           <span
-            class="step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-bold text-purple-400 transition-colors duration-300 pointer-events-none select-none">
+            class="step-label absolute top-9 sm:top-10 left-1/2 -translate-x-1/2 w-20 sm:w-24 md:w-28 text-center leading-tight text-[9px] sm:text-[10px] md:text-[11px] font-bold text-purple-400 transition-colors duration-300 pointer-events-none select-none">
             <span class="block">
-              <span class="sm:hidden">Proposal</span>
-              <span class="hidden sm:inline">Concept Proposal</span>
+              <span class="sm:hidden">Proposal &amp; Feedback</span>
+              <span class="hidden sm:inline">Concept Proposal &amp; Feedback</span>
             </span>
             <span class="hidden sm:block text-[8px] sm:text-[9px] font-normal opacity-80">(Inventor)</span>
           </span>
@@ -1461,8 +1461,8 @@ CHANGELOG:
               scale, or sensor (like grams saved, seconds faster, or degrees cooler).</li>
             <li><b>Scale Wisely (Table-Top Model):</b> You do NOT have to build a giant machine or a full-sized farm!
               Science fair judges love seeing a 1:10 benchtop model or small flower-pot test.</li>
-            <li><b>The 20-to-30 Rule (Repeated Trials):</b> Testing your robot only once is just luck! Doing 20 to 30
-              tests proves to judges that your invention works every single time.</li>
+            <li><b>The 30-Trial Rule (Repeated Trials):</b> Testing your robot only once is just luck! Doing 30 consecutive operational
+              trials proves to judges that your invention satisfies the Central Limit Theorem (N &ge; 30) and works every single time.</li>
             <li><b>Math Proof (Hypothesis):</b> A simple statistical test (like a t-test) compares your robot against
               the old manual way to prove your robot is genuinely better.</li>
           </ul>
@@ -1570,7 +1570,7 @@ CHANGELOG:
                 placeholder="e.g., Achieve 30% reduction in water stress across 5 potted seedlings over 14 days"
                 required>
               <div class="example-text"><i class="ph ph-info"></i><span><strong>Example:</strong> Achieve 30% less
-                  moisture loss in 5 test pots for 20 automated cycles.</span></div>
+                  moisture loss in 5 test pots for 30 automated cycles.</span></div>
             </div>
           </div>
 
@@ -1638,7 +1638,7 @@ CHANGELOG:
               required></textarea>
             <div class="example-text"><i class="ph ph-info"></i><span><strong>Example:</strong> The soil moisture
                 trigger level (30%) and pump timing are identical to a real farm. If our circuit accurately waters 1
-                potted plant across 20 trials, the exact same system will control larger farm valves.</span></div>
+                potted plant across 30 trials, the exact same system will control larger farm valves.</span></div>
           </div>
 
           <!-- Scientific Testing Method & Protocols -->
@@ -1710,7 +1710,7 @@ CHANGELOG:
                 available classroom equipment.</p>
               <select id="testing-method"
                 class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium cursor-pointer" required>
-                <option value="repeatability-reliability" selected>Repeatability &amp; Reliability Testing (20–30
+                <option value="repeatability-reliability" selected>Repeatability &amp; Reliability Testing (30
                   Consecutive Operational Trials)</option>
                 <option value="accuracy-calibration">Accuracy &amp; Sensor Calibration Testing (Ground Truth Measurement
                   &amp; % Error)</option>
@@ -1737,8 +1737,8 @@ CHANGELOG:
                   </span>
                 </div>
                 <p id="method-desc" class="text-sm text-slate-700 leading-relaxed font-medium mb-3">
-                  You trigger your prototype under identical conditions 20 to 30 consecutive times to prove it works
-                  consistently without random failures.
+                  You trigger your prototype under identical conditions 30 consecutive times to prove it works
+                  consistently without random failures (satisfying the Central Limit Theorem N &ge; 30).
                 </p>
 
                 <!-- Metric Formula Callout -->
@@ -1896,7 +1896,7 @@ CHANGELOG:
                   </button>
                 </div>
                 <p class="text-xs text-emerald-800/80 mb-3 italic">
-                  AI matched the optimal statistical test to your variables with a sample size (20–50 trials) that
+                  AI matched the optimal statistical test to your variables with a sample size (30–50 trials) that
                   satisfies the Central Limit Theorem.
                 </p>
                 <div
@@ -1925,7 +1925,7 @@ CHANGELOG:
                   </label>
                 </div>
                 <p class="text-xs text-slate-500 mb-2">How many times will you run your test per group? Science fair
-                  judges and math rules require a minimum of <strong>20 to 50 repeated trials</strong> so your sample is
+                  judges and math rules require a minimum of <strong>30 repeated trials</strong> (or 30 to 50 trials) so your sample is
                   large enough to prove real statistical power.</p>
                 <input type="text" id="trials-planned"
                   class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium text-sm"
@@ -1948,6 +1948,8 @@ CHANGELOG:
                   class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium cursor-pointer" required>
                   <option value="two-sample-t-test" selected>Two-Sample t-Test (Comparing Prototype vs Baseline /
                     Traditional Control Group)</option>
+                  <option value="paired-t-test">Paired Student's t-Test (or Wilcoxon Signed-Rank Test) (Before vs After on
+                    Same Subjects / Matched Pairs)</option>
                   <option value="one-way-anova">One-Way ANOVA (Comparing 3 or More Different Settings, Speeds, or
                     Conditions)</option>
                   <option value="confusion-matrix">Confusion Matrix &amp; Classification Metrics (Measuring Accuracy,
@@ -2172,10 +2174,74 @@ CHANGELOG:
           <span
             class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-3 py-1 rounded-full mb-2">Level
             6</span>
-          <h2 class="font-heading text-2xl font-bold text-slate-800">Consolidated Concept Proposal <span
-              class="text-lg md:text-xl font-medium text-slate-600">(🏆 Your Science Fair Blueprint)</span></h2>
-          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">Turn all your work into an official, competition-ready
-            IM (Introduction &amp; Methodology) Concept Proposal!</p>
+          <h2 class="font-heading text-2xl font-bold text-slate-800">Concept Proposal and Feedback <span
+              class="text-lg md:text-xl font-medium text-slate-600">(🏆 4-Persona Review &amp; Blueprint)</span></h2>
+          <p class="text-slate-500 mt-1 max-w-xl mx-auto text-sm">Review your 4-Persona Committee Feedback and turn your work into an official, competition-ready IM Concept Proposal!</p>
+        </div>
+
+        <!-- 4-Persona Proposal Advisory Consensus Panel -->
+        <div id="persona-consensus-panel" class="mb-8 bg-white/80 rounded-2xl md:rounded-3xl border border-purple-200/90 shadow-sm overflow-hidden transition-all duration-300">
+          <!-- Panel Header -->
+          <div class="bg-gradient-to-r from-purple-50 via-indigo-50/50 to-purple-50 border-b border-purple-100 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                <i class="ph ph-users-four"></i>
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-heading font-bold text-slate-800 text-base md:text-lg">4-Persona Consensus Advisory</h3>
+                  <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">Proposal Stage</span>
+                </div>
+                <p class="text-xs text-slate-500">Autonomous qualitative feedback to improve and strengthen your research proposal · (No points assessed)</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 self-start md:self-auto">
+              <button type="button" id="btn-deliberate-ai"
+                class="text-xs font-bold px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:shadow-md transform hover:-translate-y-0.5">
+                <i class="ph ph-sparkle text-sm"></i>
+                <span id="btn-deliberate-ai-text">Deliberate with AI</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Persona Interaction & Proposal Guidance Bar -->
+          <div class="bg-gradient-to-r from-purple-50 via-indigo-50/70 to-purple-50 px-4 py-2.5 border-b border-purple-100 text-xs text-purple-900 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="flex h-5 w-5 items-center justify-center rounded-full bg-purple-200/90 text-purple-800 shrink-0 shadow-2xs">
+                <i class="ph ph-cursor-click text-xs"></i>
+              </span>
+              <span class="text-slate-700"><strong class="text-purple-900 font-semibold">How to use this panel:</strong> Click each persona tab below to read their focused feedback and actionable tips to improve your proposal.</span>
+            </div>
+            <div class="flex items-center gap-1 text-[11px] font-semibold text-purple-700 bg-white/80 px-2.5 py-0.5 rounded-full border border-purple-200/80 shadow-2xs">
+              <i class="ph ph-hand-pointing text-purple-600"></i> Click any persona tab below
+            </div>
+          </div>
+
+          <!-- Persona Selector Tabs -->
+          <div class="px-4 sm:px-6 pt-4 pb-2 border-b border-slate-100 overflow-x-auto">
+            <div class="flex items-center gap-1.5 sm:gap-2 min-w-max pb-1" id="persona-tabs-bar">
+              <button type="button" class="persona-tab-btn active px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-purple-600 text-white shadow-xs" data-persona="consensus">
+                <i class="ph ph-scales"></i> Committee Consensus
+              </button>
+              <button type="button" class="persona-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs" data-persona="mentor">
+                <i class="ph ph-chalkboard-teacher"></i> The Mentor
+              </button>
+              <button type="button" class="persona-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs" data-persona="techie">
+                <i class="ph ph-gear-six"></i> The Techie
+              </button>
+              <button type="button" class="persona-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs" data-persona="practitioner">
+                <i class="ph ph-user-check"></i> The Practitioner
+              </button>
+              <button type="button" class="persona-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs" data-persona="challenger">
+                <i class="ph ph-shield-warning"></i> The Challenger
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Persona Content Display Area -->
+          <div id="persona-feedback-content" class="p-4 sm:p-6 transition-all duration-300 min-h-[180px]">
+            <!-- Injected by JavaScript dynamically -->
+          </div>
         </div>
 
         <div class="bg-white/60 p-5 rounded-2xl border border-white shadow-sm mb-6">
@@ -2910,6 +2976,52 @@ TONE & VOCABULARY DIRECTIVE:
         }
       }
 
+      // ERSA Reviewer Deliberation Panel & ISEF ROBO/RIM Rubric Alignment Directive
+      // Guarantees all background AI suggestions, refinements, metrics, and drafts harmonize with ERSA Reviewer
+      const ERSA_REVIEWER_ALIGNMENT_DIRECTIVE = `[ERSA REVIEWER COMMITTEE & ISEF ROBO/RIM ALIGNMENT STANDARDS]:
+All generated suggestions, refinements, hardware selections, testing plans, and drafts MUST strictly satisfy the 7 Core ISEF Readiness Criteria and 4 SRC Hard-Gate Standards evaluated by the autonomous ERSA Reviewer Committee Panel to guarantee a "STRONG GO" or "GO — WITH REVISIONS" consensus verdict:
+
+1. CRITERION 1: PROBLEM SIGNIFICANCE & RELEVANCE (0–10 pts)
+   - Define an authentic, localized problem with explicit target beneficiaries (e.g. smallholder crop farmers, stroke recovery patients, municipal water workers). Avoid vague, abstract topics.
+
+2. CRITERION 2: ENGINEERING GOAL & QUANTITATIVE DESIGN REQUIREMENTS (0–15 pts)
+   - MUST state concrete, measurable numerical engineering benchmarks with specific units, tolerances, and bounds (e.g., detection precision >= 92% at >= 12 FPS, reaction latency < 250 ms, grip flexion force >= 15 N, positioning error within ±2 mm, continuous autonomous runtime >= 40 minutes on battery). NEVER use vague qualitative claims like "fast", "smooth", or "efficient".
+
+3. CRITERION 3: TECHNICAL FEASIBILITY & HARDWARE ARCHITECTURE (0–20 pts)
+   - Detail the Sense-Think-Act triad with specific, authentic component models (e.g., ESP32, STM32, Raspberry Pi 5; Sony IMX219, VL53L0X ToF, MAX30102, INA219; NEMA 17 steppers, MG996R servos, TB6612FNG / A4988 motor drivers).
+   - Detail power distribution: separate logic and motor power rails, dedicated buck/boost converters (e.g. TPS61023, MT3608), decoupling capacitors (e.g. 470µF electrolytic), and realistic student prototype BOM pricing (₱1,500 – ₱3,500).
+
+4. CRITERION 4: INNOVATION & ORIGINALITY — MANDATORY ANTI-KIT-TRAP SAFEGUARD (0–15 pts)
+   - CRITICAL HARD-GATE G3 PREVENTION: STRICTLY NEVER generate or suggest generic tutorial kit clones (such as basic Arduino Uno + HC-SR04 obstacle-avoiding cars, simple line-followers, or standard tutorial builds).
+   - Always synthesize student-engineered value: custom closed-loop logic, firmware state machines, edge intelligence (e.g. quantized YOLOv8n ONNX), adaptive PID filtering, or custom mechanical linkages.
+
+5. CRITERION 5: ENGINEERING DESIGN PROCESS RIGOR & STATISTICAL METROLOGY (0–20 pts)
+   - Mandate iterative build-test-redesign protocols.
+   - Require minimum N >= 30 repeated trials per condition to satisfy the Central Limit Theorem and statistical power.
+   - Prescribe benchtop subsystem verification (sensor metrology error < 3%) prior to full-system stress validation.
+   - State explicit Null (H₀) and Alternative (Hₐ) hypotheses centered on the standard alpha threshold (p < 0.05). Use Paired t-Tests when testing the same subjects pre- and post-intervention, and Two-Sample t-Tests when comparing against an independent manual baseline.
+
+6. CRITERION 6: SAFETY, ETHICS & ISEF COMPLIANCE — HARD-GATE PREVENTION (0–10 pts)
+   - CRITICAL HARD-GATE G1 PREVENTION: Always include electrical and battery safeguards: fire-retardant enclosures for LiPo batteries, INA219 current monitoring with low-voltage cutoff, hardware emergency stop (kill) switches, and physical pinch/blade containment shields.
+   - CRITICAL HARD-GATE G2 PREVENTION: Whenever assistive robotics, rehabilitation, wearables, or testing involving human subjects/classmates is involved, ALWAYS mandate: "Prior Institutional Review Board (IRB) approval & ISEF Form 4 / Form 4A with signed informed consent protocol." Never suggest human trials without this explicit safeguard.
+
+7. CRITERION 7: DOCUMENTATION READINESS (0–10 pts)
+   - Require a bound engineering logbook with daily timestamped entries, itemized Bill of Materials (BOM) with part numbers and costs, Gantt chart timeline, and APA 7th academic citations.
+
+8. CRITICAL PRESENTATION, NOTATION & ZERO-BROKEN-CODE RULES:
+   - ABSOLUTELY NO LATEX SYNTAX ($$ or $, \frac, \text, \times, \pm, \quad, \le, \ge):
+     Never output raw LaTeX delimiters or commands. Students and review committees view text directly inside web browser UI cards.
+     Always write all equations, metrics, and resolutions in clean, readable plain text with standard Unicode characters:
+     • Example: Sensitivity (Recall) = TP / (TP + FN)
+     • Example: Precision = TP / (TP + FP)
+     • Example: F1-Score = 2 × (Precision × Recall) / (Precision + Recall)
+     • Example: QVGA (320 × 240) vs. VGA (640 × 480)
+     • Example: α = 0.05, N ≥ 30, ±2 mm
+   - NO RAW BROKEN PIPE-DELIMITED MARKDOWN TABLES:
+     Never output raw pipe tables (| Metric | Target |) that cannot render in simple text boxes. Use structured, clearly labeled bullet points or standard HTML <table> tags.
+   - NO UNPARSED RAW MARKDOWN HASHES (#):
+     Use bold section headers (e.g., "<strong>Domain Engineer Critique:</strong>") instead of raw markdown # hashes.`;
+
       // Helper to save a single field
       function saveFieldToStorage(id, value) {
         if (id && id !== 'gemini-api-key') {
@@ -2917,6 +3029,12 @@ TONE & VOCABULARY DIRECTIVE:
           safeSetItem(storageKey, JSON.stringify(savedData));
           saveStatus.style.opacity = '1';
           setTimeout(() => { saveStatus.style.opacity = '0'; }, 1500);
+
+          // Invalidate cached persona deliberation when core project identity or hardware inputs change
+          if (id === 'project-title' || id === 'specific-problem' || id === 'broad-area' || id === 'mat-sensor' || id === 'mat-brain' || id === 'mat-actuator') {
+            activePersonaFeedbackData = null;
+            try { localStorage.removeItem('ersa_persona_feedback_v2'); } catch (e) {}
+          }
         }
       }
 
@@ -2929,6 +3047,165 @@ TONE & VOCABULARY DIRECTIVE:
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#039;');
+      }
+
+      // Universal rich-content, LaTeX-to-Unicode, and Markdown table sanitizer
+      function formatRichContent(text) {
+        if (!text) return '';
+        let str = String(text);
+
+        // 1. Sanitize LaTeX syntax into clean readable math / Unicode
+        for (let i = 0; i < 5; i++) {
+          str = str.replace(/\\text\{([^{}]+)\}/g, '$1');
+          str = str.replace(/\\mathrm\{([^{}]+)\}/g, '$1');
+          str = str.replace(/\\mathbf\{([^{}]+)\}/g, '$1');
+        }
+        for (let i = 0; i < 5; i++) {
+          str = str.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1) / ($2)');
+        }
+        str = str.replace(/\\times/g, '×')
+                 .replace(/\\cdot/g, '·')
+                 .replace(/\\quad/g, '   ')
+                 .replace(/\\qquad/g, '     ')
+                 .replace(/\\pm/g, '±')
+                 .replace(/\\leq|\\le/g, '≤')
+                 .replace(/\\geq|\\ge/g, '≥')
+                 .replace(/\\neq/g, '≠')
+                 .replace(/\\approx/g, '≈')
+                 .replace(/\\alpha/g, 'α')
+                 .replace(/\\beta/g, 'β')
+                 .replace(/\\mu/g, 'µ')
+                 .replace(/\\sigma/g, 'σ')
+                 .replace(/\\Delta/g, 'Δ')
+                 .replace(/\\theta/g, 'θ')
+                 .replace(/\\left|\\right/g, '')
+                 .replace(/F_1/g, 'F1')
+                 .replace(/H_0/g, 'H₀')
+                 .replace(/H_1|H_a/g, 'H₁')
+                 .replace(/\\_/g, '_');
+
+        // Convert display math $$...$$
+        str = str.replace(/\$\$([\s\S]*?)\$\$/g, (m, formula) => {
+          let clean = formula.replace(/[{}]/g, '').replace(/\\[a-zA-Z]+/g, '').trim();
+          return `\n\n<div class="formula-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #8b5cf6;border-radius:8px;padding:8px 12px;margin:8px 0;font-family:ui-monospace,monospace;font-size:12px;color:#0f172a;line-height:1.6;overflow-x:auto;"><strong>Formula:</strong> ${clean}</div>\n\n`;
+        });
+
+        // Convert inline math $...$
+        str = str.replace(/\$([^$\n]+)\$/g, (m, formula) => {
+          let clean = formula.replace(/[{}]/g, '').replace(/\\[a-zA-Z]+/g, '').trim();
+          return `<code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11.5px;color:#0f172a;">${clean}</code>`;
+        });
+
+        str = str.replace(/\\[a-zA-Z]+/g, '');
+
+        // 2. Render Markdown tables with pipes into styled HTML tables
+        const lines = str.split('\n');
+        let result = [];
+        let tableLines = [];
+        let inTable = false;
+
+        function flushTable() {
+          if (tableLines.length < 2) {
+            result.push(...tableLines);
+            tableLines = [];
+            inTable = false;
+            return;
+          }
+          const isDelimiter = /^\|?\s*:?-+:?\s*(\|?\s*:?-+:?\s*)+\|?$/.test(tableLines[1].trim());
+          if (!isDelimiter) {
+            result.push(...tableLines);
+            tableLines = [];
+            inTable = false;
+            return;
+          }
+          const headerCols = tableLines[0].trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+          const bodyRows = tableLines.slice(2).map(r => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim()));
+
+          let tblHtml = '<div style="overflow-x:auto;margin:10px 0;"><table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff">';
+          tblHtml += '<thead><tr style="background:#f8fafc;color:#0f172a;border-bottom:2px solid #cbd5e1">';
+          headerCols.forEach(col => {
+            tblHtml += `<th style="padding:7px 10px;font-weight:700;border:1px solid #cbd5e1;white-space:nowrap">${col}</th>`;
+          });
+          tblHtml += '</tr></thead><tbody>';
+          bodyRows.forEach((r, idx) => {
+            const bg = idx % 2 === 1 ? 'background:#f8fafc;' : '';
+            tblHtml += `<tr style="border-bottom:1px solid #e2e8f0;${bg}">`;
+            r.forEach(cell => {
+              tblHtml += `<td style="padding:6px 10px;border:1px solid #e2e8f0">${cell || ''}</td>`;
+            });
+            tblHtml += '</tr>';
+          });
+          tblHtml += '</tbody></table></div>';
+          result.push(tblHtml);
+          tableLines = [];
+          inTable = false;
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const isPipe = line.trim().startsWith('|') || (line.includes('|') && line.trim().endsWith('|'));
+          if (isPipe) {
+            inTable = true;
+            tableLines.push(line);
+          } else {
+            if (inTable) flushTable();
+            result.push(line);
+          }
+        }
+        if (inTable) flushTable();
+        str = result.join('\n');
+
+        // 3. Headers
+        str = str.replace(/^#\s+(.*$)/gim, '<div style="font-weight:700;color:#1e293b;margin:12px 0 6px;font-size:14px;border-bottom:1px solid #e2e8f0;padding-bottom:3px">$1</div>');
+        str = str.replace(/^##\s+(.*$)/gim, '<div style="font-weight:700;color:#1e293b;margin:10px 0 4px;font-size:13px">$1</div>');
+        str = str.replace(/^###\s+(.*$)/gim, '<div style="font-weight:700;color:#1e293b;margin:8px 0 3px;font-size:12.5px">$1</div>');
+        str = str.replace(/^####\s+(.*$)/gim, '<div style="font-weight:600;color:#334155;margin:6px 0 2px;font-size:12px">$1</div>');
+
+        // 4. Bold, Italics, Code
+        str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        str = str.replace(/`([^`]+)`/g, '<code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11.5px;color:#0f172a;">$1</code>');
+
+        // 5. Lists & Paragraphs
+        const outLines = str.split('\n');
+        let inList = false;
+        let out = [];
+
+        for (let line of outLines) {
+          const trimmed = line.trim();
+          if (!trimmed) {
+            if (inList) {
+              out.push('</ul>');
+              inList = false;
+            }
+            continue;
+          }
+
+          if (trimmed.startsWith('<div') || trimmed.startsWith('</div') || trimmed.startsWith('<table') || trimmed.startsWith('</table') || trimmed.startsWith('<tr') || trimmed.startsWith('<td') || trimmed.startsWith('<th')) {
+            if (inList) {
+              out.push('</ul>');
+              inList = false;
+            }
+            out.push(trimmed);
+            continue;
+          }
+
+          if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ')) {
+            if (!inList) {
+              out.push('<ul style="margin:4px 0 6px;padding-left:18px;list-style-type:disc">');
+              inList = true;
+            }
+            out.push(`<li>${trimmed.substring(2)}</li>`);
+          } else {
+            if (inList) {
+              out.push('</ul>');
+              inList = false;
+            }
+            out.push(`<p style="margin:0 0 6px">${trimmed}</p>`);
+          }
+        }
+        if (inList) out.push('</ul>');
+        return out.join('');
       }
 
       // --- Dynamic Gaps Logic ---
@@ -3823,6 +4100,8 @@ TONE & VOCABULARY DIRECTIVE:
 
             const deconstructPrompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 You are an expert scientific paper analyzer and robotics research adviser for the National Science and Technology Fair (NSTF) and ISEF competitions.
 You are provided with an uploaded research paper or concept proposal in PDF format.
 
@@ -3884,7 +4163,7 @@ Return your response ONLY as a JSON object matching this exact structure:
   "testing-procedure": "String: Step-by-step testing procedure across calibration, trials, and data logging",
   "target-metric": "String: Success benchmark or target metric (e.g., >= 1.0 m/s or >= 90% accuracy)",
   "trials-planned": "String: Number of repeated trials (e.g., 30 or 50)",
-  "statistical-treatment": "two-sample-t-test or one-way-anova or confusion-matrix or descriptive-error-bounds",
+  "statistical-treatment": "two-sample-t-test or paired-t-test or one-way-anova or confusion-matrix or descriptive-error-bounds",
   "statistical-hypothesis": "String: Formal Null (H0) and Alternative (Ha) hypotheses",
   "extraction_summary": {
     "found_fields": ["List of readable section names found, e.g., 'Project Title', 'Literature Gaps', 'Quantified Problem Statement (QPS)', 'Hardware Architecture (Sense-Think-Act)', 'Statistical Treatment'"],
@@ -3913,7 +4192,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
 4. If a specific field is truly not mentioned anywhere in the PDF, set that field to an empty string ("") and list it under "missing_fields".
 5. Ensure "testing-mode" is strictly either "table-top" or "prototype-1to1".
 6. Ensure "testing-method" is strictly one of the 6 valid option values above.
-7. Ensure "statistical-treatment" is strictly one of the 4 valid option values above.
+7. Ensure "statistical-treatment" is strictly one of the 5 valid option values above.
 8. Provide at least 1 gap (or up to 3-5 if present in literature review).`;
 
             const { data } = await callGeminiWithFallback(apiKey, {
@@ -4284,8 +4563,8 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           badgeClass: 'bg-emerald-100 text-emerald-800',
           cardBorder: 'border-emerald-200',
           formulaText: 'Success Rate (%) = (Successful Operational Trials / Total Trials) × 100%',
-          desc: 'You trigger your prototype under identical conditions 20 to 30 consecutive times to prove it functions reliably without random hardware or code glitches.',
-          protocol: '1. Establish fixed baseline test conditions (moisture, distance, or lighting). 2. Execute 20 to 30 automated trial runs consecutively. 3. Record successes, false triggers, and failure modes to compute the overall operational reliability percentage.',
+          desc: 'You trigger your prototype under identical conditions 30 consecutive times to prove it functions reliably without random hardware or code glitches (satisfying the Central Limit Theorem N ≥ 30).',
+          protocol: '1. Establish fixed baseline test conditions (moisture, distance, or lighting). 2. Execute 30 automated operational trial runs consecutively. 3. Record successes, false triggers, and failure modes to compute the overall operational reliability percentage.',
           example: 'An automated pest-sorting camera inspects 30 sample leaves in sequence, recording whether each leaf was accurately classified to compute a 93.3% success rate across 30 trials.'
         },
         'accuracy-calibration': {
@@ -4303,8 +4582,8 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           cardBorder: 'border-amber-200',
           formulaText: 'Latency (ms) = Time of Actuator Response - Time of Sensor Trigger Event',
           desc: 'You measure how quickly your system detects an input and executes a physical response in milliseconds (ms) or seconds (s). Critical for hazard prevention and automated robotics.',
-          protocol: '1. Connect a microcontroller timer, logic analyzer, or high-speed video/stopwatch. 2. Simulate the stimulus condition across 20 trials. 3. Log timestamps at trigger and actuation to compute mean latency and standard deviation.',
-          example: 'Measuring the elapsed time from when an obstacle is placed 15cm from an automated robot cart until the brake motor engages (e.g., average latency of 85 ms across 25 trials).'
+          protocol: '1. Connect a microcontroller timer, logic analyzer, or high-speed video/stopwatch. 2. Simulate the stimulus condition across 30 consecutive trials. 3. Log timestamps at trigger and actuation to compute mean latency and standard deviation.',
+          example: 'Measuring the elapsed time from when an obstacle is placed 15cm from an automated robot cart until the brake motor engages (e.g., average latency of 85 ms across 30 trials).'
         },
         'controlled-ab': {
           badge: 'Comparative Real-World Impact',
@@ -4329,9 +4608,9 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           badgeClass: 'bg-purple-100 text-purple-800',
           cardBorder: 'border-purple-200',
           formulaText: 'Multi-Metric Matrix: Sensor Accuracy (% Error) + System Reliability (Success Rate %)',
-          desc: 'You combine two complementary testing methods (e.g., sensor calibration followed by 25 operational reliability trials) to deliver complete, competition-ready scientific proof.',
-          protocol: '1. Conduct Phase 1 calibration testing of sensors against ground truth. 2. Conduct Phase 2 operational trials (25 runs) to measure reliability and success rate. 3. Synthesize both metrics into a comprehensive validation matrix.',
-          example: 'First calibrating a capacitive soil sensor with dry vs saturated soil standards (±2% error), then running 25 automated irrigation cycles to prove 96% pumping reliability.'
+          desc: 'You combine two complementary testing methods (e.g., sensor calibration followed by 30 operational reliability trials) to deliver complete, competition-ready scientific proof.',
+          protocol: '1. Conduct Phase 1 calibration testing of sensors against ground truth. 2. Conduct Phase 2 operational trials (30 runs) to measure reliability and success rate. 3. Synthesize both metrics into a comprehensive validation matrix.',
+          example: 'First calibrating a capacitive soil sensor with dry vs saturated soil standards (±2% error), then running 30 automated irrigation cycles to prove 96% pumping reliability.'
         }
       };
 
@@ -4386,6 +4665,16 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           hypoGuide: '• <strong>H₀ (Null Hypothesis):</strong> "There is no significant difference between the prototype and the baseline (p ≥ 0.05)."<br>• <strong>Hₐ (Alternative Hypothesis):</strong> "The prototype produces a statistically significant improvement over the baseline (p < 0.05)."',
           example: 'Testing 30 potted plants watered by smart Arduino sensors against 30 plants watered manually. A two-sample t-test yielding t = 4.82 (p < 0.001) proves the water-saving difference is scientifically real.'
         },
+        'paired-t-test': {
+          badge: 'Pre-Test vs Post-Test / Matched Pairs (Before vs After)',
+          badgeClass: 'bg-teal-100 text-teal-800',
+          cardBorder: 'border-teal-200',
+          desc: 'Calculates whether there is a statistically significant change before and after using your prototype on the exact same subjects or test plots, removing person-to-person or plot-to-plot natural differences.',
+          formula: 't = d̄ / (s_d / √n) | Wilcoxon W = min(W+, W-) | Reject H₀ if p < 0.05 (95% Confidence)',
+          rule: '<strong>Simple Rule:</strong> If the p-value is less than 0.05, the improvement before vs after using your prototype is scientifically real and not just natural variation!',
+          hypoGuide: '• <strong>H₀ (Null Hypothesis):</strong> "There is no significant difference before and after using the prototype (mean paired difference d̄ = 0, p ≥ 0.05)."<br>• <strong>Hₐ (Alternative Hypothesis):</strong> "The prototype produces a statistically significant improvement from pre-test to post-test (mean paired difference d̄ > 0, p < 0.05)."',
+          example: 'Measuring moisture levels in the same 30 agricultural pots before and 24 hours after automated irrigation. A paired t-test yielding t = 6.14 (p < 0.0001) proves the prototype consistently restores moisture across all individual pots.'
+        },
         'one-way-anova': {
           badge: 'Best for 3+ Design Variations / Speeds',
           badgeClass: 'bg-blue-100 text-blue-800',
@@ -4394,7 +4683,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           formula: 'F = MS_between / MS_within | Reject H₀ if F > F_critical (p < 0.05)',
           rule: '<strong>Simple Rule:</strong> Proves whether at least one prototype design configuration significantly outperforms the others without needing multiple confusing t-tests.',
           hypoGuide: '• <strong>H₀ (Null Hypothesis):</strong> "All 3 prototype configurations have identical mean performance (μ₁ = μ₂ = μ₃, p ≥ 0.05)."<br>• <strong>Hₐ (Alternative Hypothesis):</strong> "At least one prototype configuration performs significantly better than the others (p < 0.05)."',
-          example: 'Testing 3 different soil sensor brands across 25 trials each. ANOVA test F(2, 72) = 14.6 (p < 0.0001) proves capacitive sensors are statistically superior to resistive probes.'
+          example: 'Testing 3 different soil sensor brands across 30 trials each. ANOVA test F(2, 87) = 14.6 (p < 0.0001) proves capacitive sensors are statistically superior to resistive probes.'
         },
         'confusion-matrix': {
           badge: 'Essential for AI / Sensor Classification',
@@ -4757,7 +5046,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
             'Variables & BOM (Builder)',
             'Testing & Stats (Tester)',
             'Project Title (Author)',
-            'Concept Proposal (Inventor)'
+            'Concept Proposal and Feedback (Inventor)'
           ];
           if (mobileStepNum && mobileStepName) {
             mobileStepNum.textContent = currentStep + 1;
@@ -5190,6 +5479,9 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
         if (rawStatSlug === 'confusion-matrix' || rawStatSlug.toLowerCase().includes('confusion') || rawStatSlug.toLowerCase().includes('classification')) {
           statMethodTitle = 'Confusion Matrix Analysis & Multi-Metric Classification Evaluation';
           statJustification = `The Confusion Matrix evaluation was selected because the system's core engineering challenge involves categorical decision-making (e.g., event detection, status classification, or hazard recognition) based on real-time sensor stimuli (${depVar}). Rather than relying solely on gross aggregate accuracy, this statistical treatment disaggregates trial outcomes into True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN). This enables precise derivation of Sensitivity (Recall), Specificity, Positive Predictive Value (Precision), Negative Predictive Value (NPV), and F1-Score. In autonomous and safety-critical engineering systems, quantifying False Negatives (Type II errors / missed detections) and False Positives (Type I errors / false triggers) is essential for validating real-world operational safety and dependability.`;
+        } else if (rawStatSlug === 'paired-t-test' || rawStatSlug.toLowerCase().includes('paired') || rawStatSlug.toLowerCase().includes('wilcoxon')) {
+          statMethodTitle = "Paired Student's t-Test / Wilcoxon Signed-Rank Test (α = 0.05)";
+          statJustification = `The Paired Student's t-Test (and Wilcoxon Signed-Rank Test as a non-parametric alternative for non-normally distributed deviations) was selected to evaluate pre-test versus post-test performance differences, or matched trial pairs evaluated on the identical experimental units (${depVar}). Because measurements are paired within the exact same subjects across repeated trials (${trials}), this within-subject repeated-measures design effectively controls for confounding unit-to-unit baseline variability and substantially amplifies statistical test power. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that the observed performance improvement is directly attributable to prototype actuation.`;
         } else if (rawStatSlug === 'two-sample-t-test' || rawStatSlug.toLowerCase().includes('t-test') || rawStatSlug.toLowerCase().includes('two-sample')) {
           statMethodTitle = "Independent Two-Sample Student's t-Test (α = 0.05)";
           statJustification = `The Independent Two-Sample t-Test was selected to evaluate whether the engineering prototype demonstrates a statistically significant improvement over the conventional baseline or control group on the primary continuous response metric (${depVar}). Because the experimental framework evaluates two independent groups across repeated trials (${trials}), the two-sample t-test provides a rigorous inferential hypothesis test. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that measured performance differences are attributable to prototype design rather than stochastic sampling variance.`;
@@ -5891,8 +6183,8 @@ Instructions for you:
 
             const aiMessage = data.candidates[0].content.parts[0].text;
 
-            // Format simple markdown (bold)
-            const formattedMessage = aiMessage.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            // Format markdown, LaTeX, and clean tables
+            const formattedMessage = formatRichContent(aiMessage);
 
             feedbackText.innerHTML = formattedMessage;
             feedbackBox.classList.add('active');
@@ -6039,6 +6331,8 @@ Instructions for you:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 The user has provided the following answers for Level ${index + 1} of an engineering research project:
 
 Project Context:
@@ -6064,7 +6358,7 @@ CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
    - If the student left it empty (""): Draft a tailored, complete autonomous task specification based on their Problem Statement and Variables.
 6. HARDWARE & CONTROL ARCHITECTURE REFINEMENT (Level 3):
    - 'control-architecture' (How Does Your Machine Make Decisions?): State clear, simple decision rules: how often it reads sensors, how many readings it confirms before acting, the action taken, and an auto-shutoff safety timer to prevent damage.
-   - 'ramp-safety': State practical lab and device safety mitigations in plain English (sealed housings, auto-timeouts, PPE, plus electrical circuit safeguards like decoupled power rails or level shifters when applicable).
+   - 'ramp-safety': State practical lab and device safety mitigations in plain English (sealed housings, auto-timeouts, PPE, plus electrical circuit safeguards like decoupled power rails or level shifters when applicable). Proactively include LiPo battery fire-retardant enclosures with low-voltage cutoff alarms, hardware emergency stop (kill) switches, and physical pinch/blade containment shields. IF testing involves human subjects or classmates, MANDATE prior Institutional Review Board (IRB) approval & ISEF Form 4 / Form 4A with informed consent to ensure Hard-Gate G2 compliance!
 7. METROLOGICAL TESTING & STRESS TRIALS REFINEMENT (Level 4):
    - 'subsystem-verification' (Testing Individual Parts on the Desk): Formulate a concrete benchtop test: testing the sensor across N >= 30 trials against a calibrated reference scale/meter to calculate accuracy percentage (< 3% error) and response latency (< 150 ms) before robot assembly.
    - 'system-validation' (Testing the Whole Machine in Real Life): Formulate full closed-loop machine stress testing across N >= 30 cycles under challenging conditions (daylight vs dark, low battery sag at 3.4V, sensor obstruction recovery).
@@ -6073,7 +6367,10 @@ CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
    - If 'budget-limit' is empty, 0, or unrealistically low (< ₱800) for an electronic prototype requiring microcontrollers, sensors, and power, refine it to a defensible, realistic figure (e.g., 1850) that respects the "Cost ⟷ Performance ⟷ Reliability (Pick 2)" engineering rule.
    - Align mechanical, software, and financial limits so they do not contradict each other.
 9. Preserved Details: For fields already provided by the student, preserve their underlying facts, numbers, or local context (e.g., Kidapawan City), except where correction of an impossible budget or contradictory constraint is necessary.
-10. Return your response ONLY as a raw JSON object where keys are the exact same IDs provided above, and values are the refined or drafted strings.`;
+10. HARMONIZATION WITH ERSA REVIEWER COMMITTEE DELIBERATION:
+    - Guarantee full compliance with the 7 ISEF Criteria and prevent all 4 Hard-Gate triggers so the proposal achieves a Strong Go / Go with Revisions consensus.
+    - Prevent the Kit Trap (Gate 3): Never output standard tutorial kit clones without custom code, state machines, or novel engineering mechanisms.
+11. Return your response ONLY as a raw JSON object where keys are the exact same IDs provided above, and values are the refined or drafted strings.`;
 
           try {
             const { data } = await callGeminiWithFallback(apiKey, {
@@ -6342,6 +6639,8 @@ CRITICAL REFINEMENT & DRAFTING INSTRUCTIONS (SIMPLE, INTUITIVE ENGLISH):
             const constraintsPrompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
 ${getGradeLevelDirective(currentGradeLevel)}
+
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
 
 The student has formulated their Quantified Problem Statement (QPS) and must now establish an Engineering Goal with quantitative design and performance constraints:
 1. What Must Your Machine Do Automatically? (Functional Requirements): The active jobs the machine does autonomously without human intervention (e.g., monitor sensor every 15–30 seconds, automatically activate pump/actuator when threshold breached, alert user, and sustain 24-hr runtime on battery).
@@ -6695,6 +6994,8 @@ Return ONLY a JSON object with this exact structure:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 The student needs guidance planning the Testing & Results methodology for their scaled prototype in Level 4.
 Your goal is to suggest a realistic, well-structured testing plan that gives them complete confidence, matches Grade ${currentGradeLevel} capabilities, and provides sound evidence while leaving final decisions in their hands.
 
@@ -6722,7 +7023,7 @@ You must return ONLY a JSON object with this exact structure:
   "suggestedTargetMetric": "Precise unit and target metric (e.g., 'Soil moisture stabilization percentage within ±5% of threshold')",
   "suggestedTrials": "30 repeated trials per experimental condition (satisfies Central Limit Theorem)",
   "formula": "Scientific calculation formula to record",
-  "recommendedStatisticalTreatment": "two-sample-t-test", // one of: "two-sample-t-test", "one-way-anova", "confusion-matrix", "descriptive-error-bounds"
+  "recommendedStatisticalTreatment": "two-sample-t-test", // one of: "two-sample-t-test", "paired-t-test", "one-way-anova", "confusion-matrix", "descriptive-error-bounds"
   "suggestedHypothesis": "H₀ (Null Hypothesis): There is no statistically significant difference in [metric] between [prototype] and [baseline] (p >= 0.05).\\nHₐ (Alternative Hypothesis): The [prototype] achieves a statistically significant improvement in [metric] compared to [baseline] (p < 0.05).",
   "procedurePhases": {
     "phase1": "Phase 1: Setup & Pre-test Calibration - [Clear setup instructions for benchtop model and sensor zeroing]",
@@ -6734,7 +7035,7 @@ You must return ONLY a JSON object with this exact structure:
 
 CRITICAL RULES:
 1. Choose one of the 6 valid keys for 'recommendedMethod'.
-2. Recommend between 20 to 50 repeated trials to satisfy statistical power.
+2. Recommend 30 consecutive operational trials (or 30 to 50 repeated trials, strictly never 20 or below) to satisfy statistical power and the Central Limit Theorem (N >= 30).
 3. Keep vocabulary in the procedure calibrated to Grade ${currentGradeLevel} as defined in the directive above.
 4. Return ONLY valid JSON.`;
 
@@ -7316,7 +7617,7 @@ Quantified Problem Statement: ${qps}
 
 Output exactly TWO lines in this strict format:
 Metric: [Your suggested metric, calibrated to Grade ${currentGradeLevel} STEM level, e.g., 'Response time in milliseconds under 250 ms' or 'Detection accuracy percentage above 90%']
-Trials: [Your suggested number or range, e.g., 20 to 30]
+Trials: [Your suggested number or range, strictly 30 consecutive operational trials or above, e.g., 30 consecutive operational trials]
 
 CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
 
@@ -7399,6 +7700,8 @@ CRITICAL RULE: Output nothing else. No formatting, no markdown.`;
           const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
 ${getGradeLevelDirective(currentGradeLevel)}
+
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
 
 You are an encouraging STEM research adviser for Grade ${currentGradeLevel} students.
 A student has drafted the following testing recipe for their prototype:
@@ -7505,6 +7808,8 @@ Instructions:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 You are an encouraging STEM science fair coach helping Grade ${currentGradeLevel} students state scientific predictions with confidence.
 The student has drafted the following prediction:
 """
@@ -7599,6 +7904,8 @@ Instructions:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 You are a friendly, encouraging STEM mentor helping a student inventor in Grade ${currentGradeLevel} choose the right math test and repeat-trial plan to prove their invention really works.
 Calibrate your explanation and terminology strictly to the Grade ${currentGradeLevel} directive above.
 
@@ -7611,12 +7918,13 @@ Student Context:
 - Testing Method: ${testingMethod}
 
 Instructions:
-1. Select the best math test key from these 4 options:
-   - "two-sample-t-test" (comparing prototype vs standard/manual baseline)
+1. Select the best math test key from these 5 options:
+   - "two-sample-t-test" (comparing prototype vs independent standard/manual baseline)
+   - "paired-t-test" (comparing same subjects before vs after prototype intervention / matched pairs)
    - "one-way-anova" (comparing 3 or more design versions or test conditions)
    - "confusion-matrix" (measuring accuracy for detecting, sorting, or classifying items)
    - "descriptive-error-bounds" (testing sensor accuracy, calibration, and margin of error)
-2. Recommend 20 to 30 repeated trials per condition so the test is fair, repeatable, and proves it wasn't just beginner's luck.
+2. Recommend 30 consecutive operational trials per condition (never 20 or below) to satisfy the Central Limit Theorem (N >= 30) so the test is fair, repeatable, and proves it wasn't just beginner's luck.
 3. Formulate clear Null (H₀) and Alternative (Hₐ) hypotheses appropriate for Grade ${currentGradeLevel} using the standard science fair threshold (p < 0.05).
 4. Explain in 1-2 friendly, encouraging sentences (tailored to Grade ${currentGradeLevel}) why this math test proves their invention succeeded.
 5. Return ONLY a JSON object with this exact structure:
@@ -7740,6 +8048,8 @@ Instructions:
           const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
 ${getGradeLevelDirective(currentGradeLevel)}
+
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
 
 You are an encouraging STEM teacher and science fair mentor helping Grade ${currentGradeLevel} students name their robotics or smart invention.
 The student is creating their Project Title. Based on all their previous inputs:
@@ -7874,6 +8184,8 @@ Rules for ROBO/RIM Category Titles:
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 You are an encouraging STEM teacher and science fair mentor helping a Grade ${currentGradeLevel} student polish their project title.
 The student proposed this title: "${currentTitle}"
 
@@ -7997,6 +8309,476 @@ CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, 
         });
       }
 
+      // =========================================================================
+      // =========================================================================
+      // --- Phase 6: 4-Persona Proposal Advisory Consensus Panel ---
+      // =========================================================================
+      let activePersonaTab = 'consensus';
+      let activePersonaFeedbackData = null;
+
+      function generateLocalPersonaFeedback(formData) {
+        const title = (formData['project-title'] || '').trim() || 'Automated Robotics & Intelligent Machine Prototype';
+        const problem = (formData['specific-problem'] || formData['qps-specific-problem'] || '').trim() || 'the identified hazard, safety concern, or community operational challenge';
+        const qps = (formData['target-metric'] || formData['qps-target-metric'] || '').trim() || 'response speed, reliability, and precision benchmarks';
+        const users = (formData['qps-phenomenon'] || formData['broad-area'] || '').trim() || 'target end-users, operators, and community stakeholders';
+        const sense = (formData['mat-sensor'] || formData['hardware-sense'] || '').trim() || 'sensor telemetry modules';
+        const think = (formData['mat-brain'] || formData['hardware-think'] || '').trim() || 'programmable microcontroller (ESP32/STM32/Arduino)';
+        const act = (formData['mat-actuator'] || formData['hardware-act'] || '').trim() || 'automated electromechanical actuators and safety shutoffs';
+        const indVar = (formData['var-independent'] || '').trim() || 'automated algorithmic trigger configurations';
+        const depVar = (formData['var-dependent'] || '').trim() || 'detection precision, actuation response latency, and system reliability';
+        const trials = (formData['trials-planned'] || '').trim() || '30 consecutive operational trials';
+        const budget = (formData['budget-limit'] || '').trim() || '₱2,500';
+
+        return {
+          consensus: {
+            statusBadge: 'Advisory Consensus: Solid Engineering Proposal',
+            headline: `Actionable Engineering Advisory for "${title}"`,
+            overview: `The 4-Persona Deliberation Committee has reviewed your concept proposal inputs. Because your research is in the proposal stage, this feedback highlights actionable steps to strengthen your manuscript before physical fabrication and testing. Your design focuses on addressing ${problem} for ${users}, integrating sensing (${sense}), processing (${think}), and actuation (${act}). To maximize review approval and science fair competitiveness, the committee recommends refining your experimental methodology, ensuring electrical safety across power rails, and establishing fail-safe operating bounds.`,
+            topPriorities: [
+              `<strong>Proposal Methodology:</strong> In Chapter 3, specify the exact sensor calibration benchmark and logbook protocol before carrying out your planned ${trials}.`,
+              `<strong>Schematic & Power Planning:</strong> Detail separate power rails for ${think} logic and ${act} actuators with common ground in your hardware blueprint to prevent resets.`,
+              `<strong>Community Usability Protocol:</strong> Include an intuitive user interaction plan (e.g., status LEDs or buzzer) so ${users} can operate the device without technical training.`
+            ]
+          },
+          mentor: {
+            title: 'The Mentor',
+            role: 'Research Teacher & Scientific Review Board Lead',
+            badge: 'Methodology & Research Rigor',
+            stance: 'Proposal Methodology Review',
+            strengths: [
+              `Structured IMRAD proposal formulation with a clearly quantified dependent variable: <em>${depVar}</em>.`,
+              `Sound experimental protocol adhering to high school research standards with planned repeated testing (${trials}) satisfying inferential statistical power.`,
+              `Grounded null and alternative hypotheses prepared for inferential statistical testing (<em>p &lt; 0.05</em>).`
+            ],
+            critique: `To strengthen your proposal, provide operational definitions for both your independent variable (<em>${indVar}</em>) and dependent variable (<em>${depVar}</em>). In your Chapter 3 / Methodology section, explicitly describe how ambient conditions (temperature, surface texture, or lighting) will be held strictly constant across all 30 consecutive operational trials. Judges will look for a documented logbook format and clear data collection sheets before giving approval.`,
+            proTip: `In your proposal manuscript, include a blank sample research logbook data-recording table showing columns for trial number, ambient conditions, raw readings, latency, and observed failure modes.`
+          },
+          techie: {
+            title: 'The Techie',
+            role: 'Embedded Systems & Hardware Specialist',
+            badge: 'Hardware & Circuitry Architecture',
+            stance: 'Hardware Architecture Feasibility',
+            strengths: [
+              `Logical Sense-Think-Act triad pairing <em>${sense}</em> with <em>${think}</em> and <em>${act}</em>.`,
+              `Realistic student prototype budget allocation (<em>${budget}</em>) utilizing community-accessible components.`,
+              `Clear delineation between input signal acquisition and physical output actuation.`
+            ],
+            critique: `Before you purchase parts or start soldering, your proposal needs a more detailed power distribution plan. Driving <em>${act}</em> from the same power rail as your <em>${think}</em> board will cause voltage drops and MCU brownouts. Update your proposal's system block diagram to specify isolated power lines (or buck converters), flyback protection diodes for inductive motors/solenoids, and a hardwired emergency stop button.`,
+            proTip: `Add a dedicated wiring schematic and power budget table to your proposal specifying current draw (mA) for each component at peak load to justify your battery choice.`
+          },
+          practitioner: {
+            title: 'The Practitioner',
+            role: 'Field Operator & Community Beneficiary',
+            badge: 'Field Usability & Beneficiary Fit',
+            stance: 'Real-World Usability Review',
+            strengths: [
+              `Directly addresses an authentic localized problem for <em>${users}</em> rather than creating a generic laboratory novelty.`,
+              `Affordable bill of materials (<em>${budget}</em>) keeps the proposed device realistically accessible to smallholders and grassroots users.`,
+              `Target metric (<em>${qps}</em>) represents a meaningful operational improvement that community stakeholders can easily observe and value.`
+            ],
+            critique: `Your proposal should reflect the actual operating environment where <em>${users}</em> will deploy this machine. If used in dusty, humid, or outdoor conditions, exposed breadboard wiring and unprotected sensors (like <em>${sense}</em>) will quickly fail. Improve your proposal by describing a durable enclosure design, cable strain relief, and a simple 1-touch operational switch that requires zero programming knowledge to operate.`,
+            proTip: `In Chapter 1 (Significance of the Study), describe a brief preliminary stakeholder interview or community consultation explaining why the intended users need this solution and how your design accommodates their daily routine.`
+          },
+          challenger: {
+            title: 'The Challenger',
+            role: 'Scientific Skeptic & Failure-Mode Analyst',
+            badge: 'Failure-Mode & Risk Analysis',
+            stance: 'Proposal Vulnerability & Risk Check',
+            strengths: [
+              `Quantified performance benchmark (<em>${qps}</em>) prevents vague claims and opens the proposal to objective verification.`,
+              `Rigorous 30-trial plan prevents results from being dismissed as mere coincidence.`
+            ],
+            critique: `When defending this proposal, reviewers will challenge: <em>"Why build an automated robotic system when a simple manual tool costs 80% less and doesn't need batteries?"</em> To fortify your proposal, establish a rigorous baseline comparison in your experimental plan to prove your automated device produces fewer errors, lower latency, or higher safety than manual methods. Also document edge cases: what happens when battery voltage drops or sensor inputs get noisy?`,
+            proTip: `Add a 'Pre-Experimental Failure Modes & Risk Mitigation' matrix to your proposal addressing sensor drift, battery depletion, and mechanical wear, showing reviewers that you have anticipated real-world risks.`
+          }
+        };
+      }
+
+      function renderPersonaFeedback(tabKey) {
+        activePersonaTab = tabKey;
+        const data = activePersonaFeedbackData;
+        const contentEl = document.getElementById('persona-feedback-content');
+        if (!contentEl || !data) return;
+
+        // Update tab buttons
+        document.querySelectorAll('.persona-tab-btn').forEach(btn => {
+          const p = btn.getAttribute('data-persona');
+          if (p === tabKey) {
+            btn.className = 'persona-tab-btn active px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ' + 
+              (p === 'mentor' ? 'bg-purple-600 text-white' :
+               p === 'techie' ? 'bg-blue-600 text-white' :
+               p === 'practitioner' ? 'bg-emerald-600 text-white' :
+               p === 'challenger' ? 'bg-amber-600 text-white' : 'bg-purple-700 text-white');
+          } else {
+            btn.className = 'persona-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs';
+          }
+        });
+
+        if (tabKey === 'consensus') {
+          const c = data.consensus || {};
+          contentEl.innerHTML = `
+            <div class="space-y-4 animate-fadeIn">
+              <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-4 md:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-purple-200 text-purple-900 border border-purple-300">
+                    <i class="ph ph-scales"></i> ${c.statusBadge || 'Committee Consensus'}
+                  </span>
+                  <span class="text-xs text-purple-700 font-semibold flex items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-full border border-purple-200/80">
+                    <i class="ph ph-cursor-click text-sm"></i> Click any persona card below to read focused advice
+                  </span>
+                </div>
+                <h4 class="font-heading text-slate-900 font-bold text-base md:text-lg mb-2">${c.headline || 'Consolidated Committee Deliberation Overview'}</h4>
+                <div class="text-slate-700 text-xs sm:text-sm leading-relaxed">${formatRichContent(c.overview || '')}</div>
+              </div>
+
+              <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-2xs">
+                <h5 class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5 mb-3">
+                  <i class="ph ph-check-square-offset text-purple-600 text-base"></i> Top Proposal Action Priorities
+                </h5>
+                <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                  ${(c.topPriorities || []).map(item => `
+                    <li class="flex items-start gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                      <i class="ph ph-arrow-circle-right text-purple-600 text-base shrink-0 mt-0.5"></i>
+                      <span>${formatRichContent(item)}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+
+              <!-- Quick Mini Persona Grid with Prompts -->
+              <div>
+                <div class="flex items-center justify-between mb-2 px-1">
+                  <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="ph ph-cards text-purple-600"></i> Explore Individual Persona Advisory
+                  </span>
+                  <span class="text-[11px] text-purple-600 font-semibold flex items-center gap-1">
+                    <i class="ph ph-cursor-click"></i> Click a card to read full advice &rarr;
+                  </span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div class="bg-purple-50/60 hover:bg-purple-50 hover:shadow-sm border border-purple-200 p-3.5 rounded-2xl transition-all cursor-pointer group" onclick="switchPersonaTab('mentor')">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-lg">🎓</span>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">Methodology</span>
+                    </div>
+                    <h6 class="font-bold text-xs text-slate-800 group-hover:text-purple-700 transition-colors">The Mentor</h6>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5">Methodology, hypotheses, variable control & 30-trial logbook.</p>
+                    <div class="mt-2 text-[10px] font-semibold text-purple-600 flex items-center gap-1 group-hover:underline">
+                      <span>Read feedback</span> <i class="ph ph-arrow-right"></i>
+                    </div>
+                  </div>
+
+                  <div class="bg-blue-50/60 hover:bg-blue-50 hover:shadow-sm border border-blue-200 p-3.5 rounded-2xl transition-all cursor-pointer group" onclick="switchPersonaTab('techie')">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-lg">⚙️</span>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">Hardware</span>
+                    </div>
+                    <h6 class="font-bold text-xs text-slate-800 group-hover:text-blue-700 transition-colors">The Techie</h6>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5">Sense-Think-Act triad, power isolation & wiring schematic.</p>
+                    <div class="mt-2 text-[10px] font-semibold text-blue-600 flex items-center gap-1 group-hover:underline">
+                      <span>Read feedback</span> <i class="ph ph-arrow-right"></i>
+                    </div>
+                  </div>
+
+                  <div class="bg-emerald-50/60 hover:bg-emerald-50 hover:shadow-sm border border-emerald-200 p-3.5 rounded-2xl transition-all cursor-pointer group" onclick="switchPersonaTab('practitioner')">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-lg">🧑‍🌾</span>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Field Usability</span>
+                    </div>
+                    <h6 class="font-bold text-xs text-slate-800 group-hover:text-emerald-700 transition-colors">The Practitioner</h6>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5">Community ergonomics, weatherproofing & practical BOM.</p>
+                    <div class="mt-2 text-[10px] font-semibold text-emerald-600 flex items-center gap-1 group-hover:underline">
+                      <span>Read feedback</span> <i class="ph ph-arrow-right"></i>
+                    </div>
+                  </div>
+
+                  <div class="bg-amber-50/60 hover:bg-amber-50 hover:shadow-sm border border-amber-200 p-3.5 rounded-2xl transition-all cursor-pointer group" onclick="switchPersonaTab('challenger')">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-lg">🔬</span>
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">Risk & Defense</span>
+                    </div>
+                    <h6 class="font-bold text-xs text-slate-800 group-hover:text-amber-700 transition-colors">The Challenger</h6>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5">Failure modes, edge-case analysis & baseline competition.</p>
+                    <div class="mt-2 text-[10px] font-semibold text-amber-600 flex items-center gap-1 group-hover:underline">
+                      <span>Read feedback</span> <i class="ph ph-arrow-right"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          const pData = data[tabKey] || {};
+          const isMentor = tabKey === 'mentor';
+          const isTechie = tabKey === 'techie';
+          const isPractitioner = tabKey === 'practitioner';
+          const isChallenger = tabKey === 'challenger';
+
+          const themeBorder = isMentor ? 'border-purple-200' : isTechie ? 'border-blue-200' : isPractitioner ? 'border-emerald-200' : 'border-amber-200';
+          const themeBg = isMentor ? 'bg-purple-50/70' : isTechie ? 'bg-blue-50/70' : isPractitioner ? 'bg-emerald-50/70' : 'bg-amber-50/70';
+          const themeAccent = isMentor ? 'text-purple-700' : isTechie ? 'text-blue-700' : isPractitioner ? 'text-emerald-700' : 'text-amber-700';
+          const themeIcon = isMentor ? 'ph-chalkboard-teacher' : isTechie ? 'ph-gear-six' : isPractitioner ? 'ph-user-check' : 'ph-shield-warning';
+          const badgeText = pData.badge || pData.focus || (isMentor ? 'Methodology Review' : isTechie ? 'Hardware Architecture' : isPractitioner ? 'Field Usability' : 'Risk & Edge Cases');
+
+          contentEl.innerHTML = `
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Persona Header Banner -->
+              <div class="${themeBg} border ${themeBorder} rounded-2xl p-4 md:p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                  <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-2xl bg-white border ${themeBorder} ${themeAccent} flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
+                      <i class="ph ${themeIcon}"></i>
+                    </span>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <h4 class="font-heading text-slate-900 font-bold text-base md:text-lg">${pData.title || ''}</h4>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 border ${themeBorder} ${themeAccent}">${badgeText}</span>
+                      </div>
+                      <p class="text-xs text-slate-500 font-medium">${pData.role || ''}</p>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold px-3 py-1 rounded-full bg-white/90 border ${themeBorder} ${themeAccent} self-start sm:self-center">
+                    <i class="ph ph-seal-check"></i> ${pData.stance || 'Proposal Feedback'}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Two Column Layout: Strengths & Critique -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Strengths -->
+                <div class="bg-white rounded-2xl p-4 md:p-5 border border-emerald-100 shadow-2xs">
+                  <h5 class="font-bold text-xs uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 mb-2.5">
+                    <i class="ph ph-check-circle text-emerald-600 text-base"></i> Key Observed Strengths
+                  </h5>
+                  <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+                    ${(pData.strengths || []).map(s => `
+                      <li class="flex items-start gap-2 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100/60">
+                        <i class="ph ph-check text-emerald-600 text-sm shrink-0 mt-0.5 font-bold"></i>
+                        <span>${formatRichContent(s)}</span>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </div>
+
+                <!-- Constructive Advisory & Refinements for Proposal -->
+                <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-2xs">
+                  <h5 class="font-bold text-xs uppercase tracking-wider text-slate-800 flex items-center gap-1.5 mb-2.5">
+                    <i class="ph ph-warning-circle text-amber-600 text-base"></i> Constructive Advisory &amp; Refinements
+                  </h5>
+                  <div class="text-xs sm:text-sm text-slate-700 leading-relaxed bg-amber-50/40 p-3 rounded-xl border border-amber-100/70">
+                    ${formatRichContent(pData.critique || '')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommended Proposal Revision -->
+              <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-start gap-3">
+                <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg shrink-0">
+                  <i class="ph ph-lightbulb font-bold"></i>
+                </span>
+                <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                  <strong class="text-slate-900 block font-semibold mb-0.5">Recommended Proposal Revision:</strong>
+                  ${formatRichContent(pData.proTip || pData.actionableAdvice || pData.proposalRevision || '')}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      window.switchPersonaTab = function(tabKey) {
+        renderPersonaFeedback(tabKey);
+      };
+
+      async function deliberateWithAi() {
+        const apiKey = sessionApiKey;
+        if (!apiKey) {
+          showValidationToast('Please configure your Gemini API Key in Settings first', 'warning');
+          openSettingsModal(true);
+          return;
+        }
+
+        const btnDeliberate = document.getElementById('btn-deliberate-ai');
+        if (!btnDeliberate) return;
+
+        const originalHtml = btnDeliberate.innerHTML;
+        btnDeliberate.innerHTML = '<i class="ph ph-spinner animate-spin text-sm"></i> Deliberating...';
+        btnDeliberate.disabled = true;
+
+        const formData = collectFormData();
+        const contextJson = JSON.stringify(formData, null, 2);
+
+        const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
+
+${getGradeLevelDirective(currentGradeLevel)}
+
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
+You are the autonomous 4-Persona Review Board Deliberation Panel conducting a pre-evaluation of a high school student's engineering concept proposal in Robotics and Intelligent Machines (ROBO/RIM).
+IMPORTANT CONTEXT: This research is currently in the CONCEPT PROPOSAL stage (pre-experimentation and pre-fabrication). Therefore, all 4 personas must provide constructive qualitative feedback and actionable guidance aimed at IMPROVING AND REFINING their proposal manuscript before any fabrication, benchtop testing, or formal review takes place. Do NOT mention weights or percentages.
+
+The 4 personas are:
+1. The Mentor (Research Teacher & Scientific Review Board Lead) — focuses on research problem significance, IMRAD methodology, clear independent/dependent variables, inferential statistical power (N >= 30 consecutive trials, Central Limit Theorem), hypothesis formulation (p < 0.05), and research logbook authenticity.
+2. The Techie (Embedded Systems & Hardware Specialist) — focuses on the Sense-Think-Act triad, microcontroller selection, sensor precision, motor torque/power isolation, decoupling, and electrical wiring schematics.
+3. The Practitioner (Field End-User & Target Beneficiary) — focuses on real-world usability for the target community, field ergonomics, weatherproofing/enclosures, maintenance simplicity, and realistic budget fit.
+4. The Challenger (Scientific Skeptic & Failure-Mode Analyst) — probes hidden failure modes, edge cases (voltage sag, drift, environmental dirt), and challenges whether a simpler non-robotic baseline would suffice.
+
+STUDENT RESEARCH PROPOSAL INPUTS:
+${contextJson}
+
+INSTRUCTIONS:
+1. CRITICAL: DO NOT PROVIDE ANY NUMERIC SCORES OR POINTS (no 0-100, no scores). This is a purely qualitative advisory deliberation to give the student constructive, actionable feedback from each persona to improve their proposal.
+2. DO NOT MENTION WEIGHTS OR PERCENTAGES.
+3. Calibrate vocabulary and sentence complexity to Grade ${currentGradeLevel} STEM level.
+4. Keep feedback encouraging, respectful, yet scientifically rigorous and specific (naming the student's actual sensors, actuators, and target metrics).
+5. PRESENTATION & NOTATION RULES:
+   - ABSOLUTELY NO LATEX SYNTAX ($$, $, \\frac, \\text, \\times, etc.): Write all formulas, resolutions, and tolerances in clean, readable plain text with standard Unicode characters (e.g. Sensitivity = TP / (TP + FN), 320 × 240, N ≥ 30, ±2 mm).
+   - NO RAW PIPE TABLES: Do NOT use markdown pipe tables (|---|). Use clearly labeled bullet points for comparisons.
+   - NO RAW MARKDOWN HASHES (#): Do NOT prefix section titles with #.
+6. Return ONLY a valid JSON object matching this exact structure:
+
+{
+  "consensus": {
+    "statusBadge": "Advisory Consensus: [Short Status phrase, e.g. Solid Engineering Proposal]",
+    "headline": "A clear headline summarizing the 4-persona consensus to improve the proposal",
+    "overview": "Synthesised consensus paragraph harmonizing all 4 viewpoints on how to strengthen the proposal manuscript.",
+    "topPriorities": [
+      "Priority 1 actionable item for proposal improvement",
+      "Priority 2 actionable item for proposal improvement",
+      "Priority 3 actionable item for proposal improvement"
+    ]
+  },
+  "mentor": {
+    "title": "The Mentor",
+    "role": "Research Teacher & Scientific Review Board Lead",
+    "badge": "Methodology & Research Rigor",
+    "stance": "Proposal Methodology Review",
+    "strengths": ["Observed strength in proposal formulation 1", "Observed strength in proposal formulation 2"],
+    "critique": "Constructive advisory on how to refine variables, hypotheses, 30 repeated trials protocol, and logbook in Chapter 3.",
+    "proTip": "Direct, concrete revision to make to the proposal text or methodology before submission."
+  },
+  "techie": {
+    "title": "The Techie",
+    "role": "Embedded Systems & Hardware Specialist",
+    "badge": "Hardware & Circuitry Architecture",
+    "stance": "Hardware Architecture Feasibility",
+    "strengths": ["Observed strength in hardware selection 1", "Observed strength in hardware selection 2"],
+    "critique": "Constructive advisory on how to improve the Sense-Think-Act blueprint, power rail isolation, wiring safety, and block diagram.",
+    "proTip": "Concrete technical revision to add to the proposal schematic or component specs."
+  },
+  "practitioner": {
+    "title": "The Practitioner",
+    "role": "Field Operator & Community Beneficiary",
+    "badge": "Field Usability & Beneficiary Fit",
+    "stance": "Real-World Usability Review",
+    "strengths": ["Observed strength in community problem fit 1", "Observed strength in community problem fit 2"],
+    "critique": "Constructive advisory on improving field usability, enclosure protection, ergonomics, and accessibility for end-users.",
+    "proTip": "Practical proposal addition explaining user operations and field deployment steps."
+  },
+  "challenger": {
+    "title": "The Challenger",
+    "role": "Scientific Skeptic & Failure-Mode Analyst",
+    "badge": "Failure-Mode & Risk Analysis",
+    "stance": "Proposal Vulnerability & Risk Check",
+    "strengths": ["Observed strength in testability 1", "Observed strength in testability 2"],
+    "critique": "Constructive advisory probing failure modes, environmental noise, low battery, and baseline manual comparison.",
+    "proTip": "Concrete risk mitigation matrix or baseline comparison to add to the proposal before defense."
+  }
+}`;
+
+        try {
+          const { data } = await callGeminiWithFallback(apiKey, {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { response_mime_type: "application/json" }
+          });
+
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawText) throw new Error("No deliberation received from Gemini.");
+          const parsed = JSON.parse(rawText.replace(/^```json\n/, '').replace(/\n```$/, '').trim());
+
+          activePersonaFeedbackData = parsed;
+          const currentSig = (((formData['project-title'] || '').trim().toLowerCase()) + '|' + ((formData['specific-problem'] || '').trim().toLowerCase())).trim();
+          localStorage.setItem('ersa_persona_feedback_v2', JSON.stringify({ projectSig: currentSig, feedback: parsed }));
+          renderPersonaFeedback(activePersonaTab);
+          showValidationToast('4-Persona Committee Deliberation complete!', 'success');
+        } catch (err) {
+          console.warn("AI Deliberation error, using heuristic fallback:", err);
+          activePersonaFeedbackData = generateLocalPersonaFeedback(formData);
+          renderPersonaFeedback(activePersonaTab);
+          showValidationToast('Deliberation generated from proposal metrics: ' + err.message, 'warning');
+        } finally {
+          btnDeliberate.innerHTML = originalHtml;
+          btnDeliberate.disabled = false;
+        }
+      }
+
+      function ensurePersonaFeedbackRendered() {
+        const formData = collectFormData();
+        const currentTitle = (formData['project-title'] || '').trim().toLowerCase();
+        const currentProblem = (formData['specific-problem'] || '').trim().toLowerCase();
+        const currentSig = (currentTitle + '|' + currentProblem).trim();
+
+        if (!activePersonaFeedbackData) {
+          const savedStr = localStorage.getItem('ersa_persona_feedback_v2');
+          if (savedStr) {
+            try {
+              const saved = JSON.parse(savedStr);
+              if (saved && saved.projectSig) {
+                // If the saved deliberation matches the current project, restore it
+                if (saved.projectSig === currentSig || (!currentTitle && !currentProblem)) {
+                  activePersonaFeedbackData = saved.feedback;
+                } else {
+                  // Different project! Discard stale cross-project cache
+                  activePersonaFeedbackData = null;
+                  localStorage.removeItem('ersa_persona_feedback_v2');
+                }
+              } else if (saved && saved.consensus) {
+                // Legacy cache without projectSig: check if title or headline matches
+                const overview = (saved.consensus.overview || '').toLowerCase();
+                const headline = (saved.consensus.headline || '').toLowerCase();
+                if (currentTitle && !overview.includes(currentTitle) && !headline.includes(currentTitle)) {
+                  activePersonaFeedbackData = null;
+                  localStorage.removeItem('ersa_persona_feedback_v2');
+                } else {
+                  activePersonaFeedbackData = saved;
+                }
+              }
+            } catch (e) {
+              activePersonaFeedbackData = null;
+            }
+          }
+        }
+        if (!activePersonaFeedbackData) {
+          activePersonaFeedbackData = generateLocalPersonaFeedback(formData);
+        }
+        renderPersonaFeedback(activePersonaTab || 'consensus');
+      }
+
+      function initPersonaConsensusPanel() {
+        document.querySelectorAll('.persona-tab-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const persona = e.currentTarget.getAttribute('data-persona');
+            if (persona) renderPersonaFeedback(persona);
+          });
+        });
+
+        const btnDeliberate = document.getElementById('btn-deliberate-ai');
+        if (btnDeliberate) {
+          btnDeliberate.addEventListener('click', deliberateWithAi);
+        }
+
+        ensurePersonaFeedbackRendered();
+      }
+
+      // Initialize Persona Consensus Panel
+      initPersonaConsensusPanel();
+
+      document.addEventListener('ersa:stepChanged', (e) => {
+        if (e.detail && e.detail.step === 5) {
+          ensurePersonaFeedbackRendered();
+        }
+      });
+
       // --- Phase 6: Generate Final Proposal (Uses Instant IM Concept Proposal Preview Blueprint) ---
       const btnGenerateProposal = document.getElementById('btn-generate-proposal');
 
@@ -8038,6 +8820,8 @@ CRITICAL RULE: If the proposed title or context is inadequate, extremely brief, 
 
 ${getGradeLevelDirective(currentGradeLevel)}
 
+${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
+
 You are an encouraging, highly knowledgeable STEM Research Mentor writing a formal Engineering Concept Proposal with a student inventor in Grade ${currentGradeLevel} competing in Robotics & Intelligent Machines (ROBO/RIM).
 Based on the following JSON data representing the student's inputs for their engineering research design:
 ${contextData}
@@ -8059,7 +8843,7 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
             let aiMessage = data.candidates[0].content.parts[0].text;
             aiMessage = aiMessage.replace(/^```html\n/, '').replace(/\n```$/, '');
 
-            if (proposalOutput) proposalOutput.innerHTML = aiMessage;
+            if (proposalOutput) proposalOutput.innerHTML = formatRichContent(aiMessage);
             showValidationToast('Concept Proposal enhanced with Gemini AI!', 'success');
             syncWithCloudDatabase(collectFormData(), aiMessage, false);
           } catch (err) {
@@ -8550,6 +9334,10 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
           try {
             const parsed = JSON.parse(e.target.result);
             const data = parsed.data || parsed; // support both wrapped and raw format
+
+            // Invalidate stale cross-project persona deliberation cache so the loaded draft displays fresh feedback
+            activePersonaFeedbackData = null;
+            try { localStorage.removeItem('ersa_persona_feedback_v2'); } catch (e) {}
 
             let restoredCount = 0;
             // Restore all simple input/textarea/select fields
