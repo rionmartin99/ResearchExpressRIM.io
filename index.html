@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
-[October 07, 2026, 04:05 PM] v4.9.5 - Fix: Prevented stale deliberation cache and phantom "dd" warnings by expanding cache invalidation across all fields, calculating full content signature, auto-expanding collapsed gaps on inspection, and enforcing live input priority in Committee Clarification Chat.
-[October 07, 2026, 03:50 PM] v4.9.4 - Fix: Eliminated raw HTML tags from document Scaling Logic by preventing double-escaping, added dedicated Signal Conditioning & Interfacing input field in Step 3 linked to AI circuit advice, and implemented smart BOM hardware auto-synthesis fallback.
-[October 07, 2026, 03:30 PM] v4.9.3 - Fix: Eliminated input field cross-contamination by purging stale keys on gap deletion/reindexing, removing cross-node aliases in PDF extraction, guarding starter chips against overwrites, and isolating draft loading.
-[October 07, 2026, 02:50 PM] v4.9.2 - Fix: Synchronized form data collection to prune cleared inputs, hardened Gemini prompts against fabricating phantom hardware, and aligned backend synthesizeProposalHtml in Code.gs and codev2.gs to eliminate irrelevant auto-injected details.
-[October 07, 2026, 02:10 PM] v4.9.1 - Fix: Eliminated all hardcoded filler texts, phantom hardware defaults, fake RRL paragraphs, and dummy DOST citations from preview and downloaded Word documents when student inputs are unentered.
+[October 06, 2026, 03:00 PM] v4.8.4 - Fix: Synchronized 4-Persona Deliberation cache with active project identity, mapped correct hardware IDs (mat-sensor, mat-brain, mat-actuator), and eliminated stale cross-project cached feedback.
+[October 06, 2026, 01:55 PM] v4.8.3 - Fix: Implemented universal rich-content and LaTeX-to-Unicode sanitizer with Markdown table renderer, eliminating raw symbols, unrendered pipes, and unparsed headers across all AI outputs and deliberation cards.
+[October 06, 2026, 01:40 PM] v4.8.2 - Fix: Removed weight percentages and ERSA Reviewer branding from Node 6 advisory panel, added prominent instructions to click each persona for focused feedback, and tailored 4-persona feedback to improve the concept proposal.
+[October 06, 2026, 01:25 PM] v4.8.1 - New Feature: Added Paired Student's t-Test (or Wilcoxon Signed-Rank Test) option for pre-test vs post-test matched designs with simple English decision rule, formula, and hypothesis guide.
+[October 06, 2026, 01:15 PM] v4.8.0 - New Feature: Integrated 4-Persona Weighted Advisory Consensus in Node 6 (The Mentor 90%, The Techie 5%, The Practitioner 3%, The Challenger 2%) providing qualitative multi-perspective feedback, and renamed Node 6 to "Concept Proposal and Feedback".
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -230,86 +230,10 @@ CHANGELOG:
       overflow-wrap: break-word;
       box-sizing: border-box;
     }
-    /* Smartphone-style Notification Badge & Pulsating Dot */
-    .ersa-indicator-dot {
-      position: absolute;
-      width: 11px;
-      height: 11px;
-      background-color: #ef4444; /* red-500 */
-      border: 2px solid #ffffff;
-      border-radius: 9999px;
-      z-index: 45;
-      pointer-events: none;
-      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-      animation: ersa-pulse-badge 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .step-indicator > .ersa-node-dot {
-      top: -2px;
-      right: calc(50% - 18px);
-    }
-
-    .ersa-section-badge-wrapper {
-      position: absolute;
-      top: -11px;
-      right: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2.5px 8px;
-      border-radius: 9999px;
-      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
-      border: 1.5px solid #ffffff;
-      z-index: 35;
-      animation: ersa-pulse-badge 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-      transition: opacity 0.25s ease, transform 0.25s ease;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .ersa-section-badge-wrapper:hover {
-      transform: scale(1.05);
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    }
-
-    @keyframes ersa-pulse-badge {
-      0% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75);
-        transform: scale(0.96);
-      }
-      65% {
-        box-shadow: 0 0 0 7px rgba(239, 68, 68, 0);
-        transform: scale(1.08);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-        transform: scale(0.96);
-      }
-    }
-
-    .ersa-attention-target {
-      position: relative !important;
-      transition: box-shadow 0.4s ease, border-color 0.4s ease;
-    }
-
-    .ersa-attention-glow {
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4), 0 0 16px rgba(239, 68, 68, 0.2) !important;
-      border-color: #f87171 !important;
-      animation: ersa-glow-pulse 2s infinite ease-in-out;
-    }
-
-    @keyframes ersa-glow-pulse {
-      0%, 100% {
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4), 0 0 16px rgba(239, 68, 68, 0.2);
-      }
-      50% {
-        box-shadow: 0 0 0 4.5px rgba(239, 68, 68, 0.6), 0 0 22px rgba(239, 68, 68, 0.35);
-      }
+    #proposal-output th {
+      background-color: #f1f5f9;
+      font-weight: bold;
+      color: #0f172a;
     }
   </style>
 </head>
@@ -1429,18 +1353,6 @@ CHANGELOG:
               <input type="text" id="mat-power" class="input-glass flex-grow rounded-lg p-2.5 text-sm text-slate-800"
                 placeholder="e.g., 5V USB Power Bank, 9V Battery with Buck Converter, 6V Solar Panel" required>
             </div>
-
-            <div
-              class="bg-white/60 p-4 rounded-xl border border-white shadow-sm flex flex-col md:flex-row gap-3 md:items-center">
-              <div class="md:w-1/3">
-                <label class="font-bold text-slate-700 text-sm flex items-center gap-1.5"><i
-                    class="ph ph-lightning text-amber-500 text-base"></i> Signal Conditioning &amp; Interfacing
-                  <span class="text-xs font-normal text-slate-500">(⚡ Wiring &amp; Circuit Protection)</span></label>
-                <span class="text-[10px] text-slate-400">Pull-up resistors, logic level shifters, isolation relays, voltage dividers</span>
-              </div>
-              <input type="text" id="signal-conditioning" class="input-glass flex-grow rounded-lg p-2.5 text-sm text-slate-800"
-                placeholder="e.g., 10kΩ pull-up resistor for I2C data lines, 5V relay module with optocoupler isolation, 3.3V-to-5V bidirectional logic level converter">
-            </div>
           </div>
 
           <div id="suggest-box-materials"
@@ -1670,8 +1582,7 @@ CHANGELOG:
             </div>
             <select id="testing-mode"
               class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium cursor-pointer" required>
-              <option value="" disabled selected>-- Select Operational Testing Mode --</option>
-              <option value="table-top">Table-Top Model (Device Scaled Down to Simulate Full Application)
+              <option value="table-top" selected>Table-Top Model (Device Scaled Down to Simulate Full Application)
               </option>
               <option value="prototype-1to1">1:1 Prototype (Full-Sized Device Tested on a Scaled Operational Scope /
                 Area)</option>
@@ -1799,8 +1710,7 @@ CHANGELOG:
                 available classroom equipment.</p>
               <select id="testing-method"
                 class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium cursor-pointer" required>
-                <option value="" disabled selected>-- Select Testing Strategy --</option>
-                <option value="repeatability-reliability">Repeatability &amp; Reliability Testing (30
+                <option value="repeatability-reliability" selected>Repeatability &amp; Reliability Testing (30
                   Consecutive Operational Trials)</option>
                 <option value="accuracy-calibration">Accuracy &amp; Sensor Calibration Testing (Ground Truth Measurement
                   &amp; % Error)</option>
@@ -2036,8 +1946,7 @@ CHANGELOG:
                   variable caused a real difference.</p>
                 <select id="statistical-treatment"
                   class="input-glass w-full rounded-xl p-3 text-slate-800 font-medium cursor-pointer" required>
-                  <option value="" disabled selected>-- Select Statistical Treatment --</option>
-                  <option value="two-sample-t-test">Two-Sample t-Test (Comparing Prototype vs Baseline /
+                  <option value="two-sample-t-test" selected>Two-Sample t-Test (Comparing Prototype vs Baseline /
                     Traditional Control Group)</option>
                   <option value="paired-t-test">Paired Student's t-Test (or Wilcoxon Signed-Rank Test) (Before vs After on
                     Same Subjects / Matched Pairs)</option>
@@ -2125,7 +2034,7 @@ CHANGELOG:
                 </div>
                 <textarea id="statistical-hypothesis"
                   class="input-glass w-full rounded-2xl p-4 min-h-[120px] text-slate-800 text-sm"
-                  placeholder="H₀ (Null Hypothesis): There is no statistically significant difference in [measured metric] between [prototype] and [control/baseline] (p ≥ 0.05).&#10;Hₐ (Alternative Hypothesis): The [prototype] achieves a statistically significant improvement in [measured metric] compared to [control/baseline] (p &lt; 0.05)."
+                  placeholder="H₀ (Null Hypothesis): There is no statistically significant difference in [measured metric] between [prototype] and [control/baseline] (p >= 0.05).&#10;Hₐ (Alternative Hypothesis): The [prototype] achieves a statistically significant improvement in [measured metric] compared to [control/baseline] (p < 0.05)."
                   required></textarea>
                 <div class="example-text"><i class="ph ph-info"></i><span><strong>Example:</strong> H₀: There is no
                     significant difference in soil moisture between the automated drip system and manual watering (p ≥
@@ -2287,11 +2196,6 @@ CHANGELOG:
               </div>
             </div>
             <div class="flex items-center gap-2 self-start md:self-auto">
-              <button type="button" id="btn-open-clarification-chat"
-                class="text-xs font-bold px-3 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-200 transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer">
-                <i class="ph ph-chat-teardrop-dots text-sm"></i>
-                <span>Clarification Chat</span>
-              </button>
               <button type="button" id="btn-deliberate-ai"
                 class="text-xs font-bold px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:shadow-md transform hover:-translate-y-0.5">
                 <i class="ph ph-sparkle text-sm"></i>
@@ -2337,108 +2241,6 @@ CHANGELOG:
           <!-- Dynamic Persona Content Display Area -->
           <div id="persona-feedback-content" class="p-4 sm:p-6 transition-all duration-300 min-h-[180px]">
             <!-- Injected by JavaScript dynamically -->
-          </div>
-        </div>
-
-        <!-- Committee Clarification & Interactive Node Guidance Chat -->
-        <div id="committee-clarification-panel" class="mb-8 bg-white/90 rounded-2xl md:rounded-3xl border border-indigo-200/90 shadow-sm overflow-hidden transition-all duration-300">
-          <!-- Chat Header -->
-          <div class="bg-gradient-to-r from-indigo-50 via-purple-50/60 to-indigo-50 border-b border-indigo-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <span class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
-                <i class="ph ph-chat-centered-dots"></i>
-              </span>
-              <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="font-heading font-bold text-slate-800 text-base md:text-lg">Committee Clarification Chat</h3>
-                  <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">Interactive Node Guide</span>
-                </div>
-                <p class="text-xs text-slate-500">Ask the Review Committee for clarifications, explore revision ideas, or ask the AI to point out nodes needing fixes with pulsating notification dots.</p>
-              </div>
-            </div>
-            <!-- Active Flagged Sections Counter Pill -->
-            <div id="active-flagged-summary" class="hidden items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 shrink-0 shadow-2xs">
-              <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-              <span id="active-flagged-count-text">0 sections flagged</span>
-              <button type="button" id="btn-clear-all-flags" class="ml-1 text-[10px] text-rose-500 hover:text-rose-800 underline cursor-pointer">Clear dots</button>
-            </div>
-          </div>
-
-          <!-- Persona Directed Channel Selector Bar -->
-          <div class="px-4 sm:px-6 pt-3 pb-2.5 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5 overflow-x-auto min-w-max pb-1" id="chat-persona-channel-bar">
-              <span class="text-xs font-semibold text-slate-500 mr-1 flex items-center gap-1">
-                <i class="ph ph-user-focus text-indigo-600"></i> Address to:
-              </span>
-              <button type="button" class="chat-channel-btn active px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-indigo-600 text-white shadow-xs" data-channel="committee">
-                <i class="ph ph-users-four"></i> Full Committee
-              </button>
-              <button type="button" class="chat-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-2xs" data-channel="mentor">
-                🎓 The Mentor
-              </button>
-              <button type="button" class="chat-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-2xs" data-channel="techie">
-                ⚙️ The Techie
-              </button>
-              <button type="button" class="chat-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-2xs" data-channel="practitioner">
-                🧑‍🌾 The Practitioner
-              </button>
-              <button type="button" class="chat-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-2xs" data-channel="challenger">
-                🔬 The Challenger
-              </button>
-            </div>
-            <button type="button" id="btn-clear-clarification-chat" class="text-[11px] font-semibold text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors cursor-pointer">
-              <i class="ph ph-arrow-counter-clockwise"></i> Reset Chat
-            </button>
-          </div>
-
-          <!-- Interactive Quick-Prompt Suggestion Chips -->
-          <div class="px-4 sm:px-6 py-2.5 bg-indigo-50/40 border-b border-indigo-100/60 overflow-x-auto">
-            <div class="flex items-center gap-2 min-w-max">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-900 shrink-0 flex items-center gap-1">
-                <i class="ph ph-sparkle text-indigo-600"></i> Quick Actions:
-              </span>
-              <button type="button" class="chat-quick-prompt-btn px-3 py-1 rounded-full text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xs flex items-center gap-1.5 transition-all cursor-pointer hover:scale-105 active:scale-95" data-prompt="Please review my entire proposal and point out the specific nodes and sections that need fixing right now.">
-                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                <span>🔴 Point out what needs fixing</span>
-              </button>
-              <button type="button" class="chat-quick-prompt-btn px-3 py-1 rounded-full text-xs font-medium bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 shadow-2xs flex items-center gap-1 transition-all cursor-pointer" data-prompt="What should I improve in my methodology, variables, and testing protocol to satisfy the Mentor?">
-                🎓 Clarify Methodology
-              </button>
-              <button type="button" class="chat-quick-prompt-btn px-3 py-1 rounded-full text-xs font-medium bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 shadow-2xs flex items-center gap-1 transition-all cursor-pointer" data-prompt="How can I strengthen my hardware architecture, Sense-Think-Act triad, and electrical safety?">
-                ⚙️ Clarify Hardware
-              </button>
-              <button type="button" class="chat-quick-prompt-btn px-3 py-1 rounded-full text-xs font-medium bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 shadow-2xs flex items-center gap-1 transition-all cursor-pointer" data-prompt="What hidden failure modes or edge-case risks should I prepare to defend against?">
-                🔬 Probe Failure Risks
-              </button>
-              <button type="button" class="chat-quick-prompt-btn px-3 py-1 rounded-full text-xs font-medium bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 shadow-2xs flex items-center gap-1 transition-all cursor-pointer" data-prompt="Is my proposed project realistic for my budget and everyday community end-users?">
-                🧑‍🌾 Check Community Fit
-              </button>
-            </div>
-          </div>
-
-          <!-- Chat Messages Container -->
-          <div id="committee-chat-messages" class="p-4 sm:p-6 space-y-4 max-h-[440px] overflow-y-auto bg-slate-50/40">
-            <!-- Messages rendered dynamically -->
-          </div>
-
-          <!-- Chat Input Area -->
-          <div class="p-3 sm:p-4 bg-white border-t border-slate-200">
-            <form id="committee-chat-form" class="flex items-center gap-2">
-              <div class="relative flex-1">
-                <input type="text" id="committee-chat-input"
-                  class="w-full rounded-2xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 px-4 py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all outline-none"
-                  placeholder="Ask the committee a clarification question or type 'Where do I need to fix?'..." />
-              </div>
-              <button type="submit" id="btn-send-committee-chat"
-                class="px-4 sm:px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                <span>Send</span>
-                <i class="ph ph-paper-plane-right"></i>
-              </button>
-            </form>
-            <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400 px-1">
-              <span>💡 Tip: Click <strong>&quot;🔴 Point out what needs fixing&quot;</strong> to light up interactive red notification dots on nodes needing attention.</span>
-              <span class="hidden sm:inline">Press Enter to send</span>
-            </div>
           </div>
         </div>
 
@@ -3223,18 +3025,13 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
       // Helper to save a single field
       function saveFieldToStorage(id, value) {
         if (id && id !== 'gemini-api-key') {
-          if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
-            delete savedData[id];
-          } else {
-            savedData[id] = value;
-          }
+          savedData[id] = value;
           safeSetItem(storageKey, JSON.stringify(savedData));
           saveStatus.style.opacity = '1';
           setTimeout(() => { saveStatus.style.opacity = '0'; }, 1500);
 
-          // Invalidate cached persona deliberation when ANY proposal input changes
-          // Ensures committee deliberation and clarification desk never reference outdated text or stale placeholders
-          if (id !== 'gemini-api-key' && id !== 'load-draft-input') {
+          // Invalidate cached persona deliberation when core project identity or hardware inputs change
+          if (id === 'project-title' || id === 'specific-problem' || id === 'broad-area' || id === 'mat-sensor' || id === 'mat-brain' || id === 'mat-actuator') {
             activePersonaFeedbackData = null;
             try { localStorage.removeItem('ersa_persona_feedback_v2'); } catch (e) {}
           }
@@ -3512,54 +3309,24 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
       function reindexGaps() {
         const blocks = gapsContainer.querySelectorAll('.gap-block');
         gapCount = blocks.length;
-
-        // Clear all previous gap keys from savedData so stale or shifted keys never cross-pollinate
-        Object.keys(savedData).forEach(k => {
-          if (k.startsWith('research-gap-') || k.startsWith('gap-author-') || k.startsWith('gap-year-') ||
-              k.startsWith('gap-publisher-') || k.startsWith('gap-title-') || k.startsWith('gap-url-') ||
-              k.startsWith('gap-type-')) {
-            delete savedData[k];
-          }
-        });
-
         blocks.forEach((block, idx) => {
           const newIndex = idx + 1;
-          const label = block.querySelector('.gap-index-label');
-          if (label) label.textContent = newIndex;
+          block.querySelector('.gap-index-label').textContent = newIndex;
 
           const textAreas = block.querySelectorAll('textarea');
           if (textAreas.length > 0) {
             textAreas[0].id = `research-gap-${newIndex}`;
             textAreas[0].required = (newIndex === 1);
-            if (textAreas[0].value && textAreas[0].value.trim()) {
-              savedData[textAreas[0].id] = textAreas[0].value;
-            }
           }
 
           const inputs = block.querySelectorAll('input');
           inputs.forEach(inp => {
-            if (inp.id.startsWith('gap-author-')) {
-              inp.id = `gap-author-${newIndex}`;
-              if (inp.value && inp.value.trim()) savedData[inp.id] = inp.value;
-            } else if (inp.id.startsWith('gap-year-')) {
-              inp.id = `gap-year-${newIndex}`;
-              if (inp.value && inp.value.trim()) savedData[inp.id] = inp.value;
-            } else if (inp.id.startsWith('gap-publisher-')) {
-              inp.id = `gap-publisher-${newIndex}`;
-              if (inp.value && inp.value.trim()) savedData[inp.id] = inp.value;
-            } else if (inp.id.startsWith('gap-title-')) {
-              inp.id = `gap-title-${newIndex}`;
-              if (inp.value && inp.value.trim()) savedData[inp.id] = inp.value;
-            } else if (inp.id.startsWith('gap-url-')) {
-              inp.id = `gap-url-${newIndex}`;
-              if (inp.value && inp.value.trim()) savedData[inp.id] = inp.value;
-            }
+            if (inp.id.startsWith('gap-author-')) inp.id = `gap-author-${newIndex}`;
+            if (inp.id.startsWith('gap-year-')) inp.id = `gap-year-${newIndex}`;
+            if (inp.id.startsWith('gap-publisher-')) inp.id = `gap-publisher-${newIndex}`;
+            if (inp.id.startsWith('gap-title-')) inp.id = `gap-title-${newIndex}`;
+            if (inp.id.startsWith('gap-url-')) inp.id = `gap-url-${newIndex}`;
           });
-
-          const hint = block.querySelector('[id^="gap-author-etal-hint-"]');
-          if (hint) {
-            hint.id = `gap-author-etal-hint-${newIndex}`;
-          }
 
           let deleteBtn = block.querySelector('.btn-delete-gap');
           if (newIndex > 1 && !deleteBtn) {
@@ -3569,9 +3336,6 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
             deleteBtn.remove();
           }
         });
-
-        // Persist clean reindexed gap state to localStorage
-        safeSetItem(storageKey, JSON.stringify(savedData));
       }
 
       function collapseAllGaps() {
@@ -3588,11 +3352,11 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
       if (btnAddGap) {
         btnAddGap.addEventListener('click', () => {
           collapseAllGaps();
-          const currentBlocks = gapsContainer.querySelectorAll('.gap-block');
-          gapCount = currentBlocks.length + 1;
+          gapCount++;
           const newBlock = createGapBlock(gapCount);
           const icon = newBlock.querySelector('.toggle-icon');
           if (icon) icon.classList.add('rotate-180');
+          saveFieldToStorage(`research-gap-${gapCount}`, '');
         });
       }
 
@@ -3613,11 +3377,9 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
           else block.querySelector('.gap-content').classList.add('hidden');
         }
       } else {
-        let activeGapIdx = 0;
         for (let i = 1; i <= maxGap; i++) {
           if (savedData[`research-gap-${i}`] !== undefined) {
-            activeGapIdx++;
-            gapCount = activeGapIdx;
+            gapCount = i;
             const gapVal = savedData[`research-gap-${i}`] || '';
             const aVal = savedData[`gap-author-${i}`] || '';
             const yVal = savedData[`gap-year-${i}`] || '';
@@ -3626,9 +3388,9 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
             const uVal = savedData[`gap-url-${i}`] || '';
             const typeVal = savedData[`gap-type-${i}`] || 'Technological Gap';
 
-            const block = createGapBlock(activeGapIdx, gapVal, aVal, yVal, tVal, pVal, uVal, typeVal);
-            if (activeGapIdx === 1) block.querySelector('.toggle-icon')?.classList.add('rotate-180');
-            else block.querySelector('.gap-content')?.classList.add('hidden');
+            const block = createGapBlock(i, gapVal, aVal, yVal, tVal, pVal, uVal, typeVal);
+            if (i === maxGap && gapCount >= 3) block.querySelector('.toggle-icon').classList.add('rotate-180');
+            else block.querySelector('.gap-content').classList.add('hidden');
           }
         }
 
@@ -3639,7 +3401,6 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
           if (gapCount === 3) block.querySelector('.toggle-icon').classList.add('rotate-180');
           else block.querySelector('.gap-content').classList.add('hidden');
         }
-        reindexGaps();
       }
 
       // --- Inspiration Starter Chips Handler (Level 1 Explorer) ---
@@ -3669,10 +3430,6 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
         btn.addEventListener('click', () => {
           const areaInput = document.getElementById('broad-area');
           if (areaInput && btn.dataset.val) {
-            if (areaInput.value.trim().length > 0 && areaInput.value.trim() !== btn.dataset.val) {
-              const proceed = confirm(`Change your Broad Research Area to "${btn.dataset.val}"?`);
-              if (!proceed) return;
-            }
             areaInput.value = btn.dataset.val;
             areaInput.dispatchEvent(new Event('input', { bubbles: true }));
             saveFieldToStorage('broad-area', btn.dataset.val);
@@ -3693,21 +3450,11 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
         });
       });
 
-      // Starter Chips Click Handler (Guarded against accidental user work loss)
+      // Starter Chips Click Handler
       document.querySelectorAll('.btn-chip-starter').forEach(btn => {
         btn.addEventListener('click', () => {
           const areaInput = document.getElementById('broad-area');
           const problemInput = document.getElementById('specific-problem');
-          const gap1 = document.getElementById('research-gap-1');
-
-          const hasExisting = (areaInput && areaInput.value.trim().length > 0) ||
-                              (problemInput && problemInput.value.trim().length > 0) ||
-                              (gap1 && gap1.value.trim().length > 0);
-
-          if (hasExisting) {
-            const proceed = confirm('You already have text entered in your Broad Area, Problem, or Research Gap. Clicking this starter idea will replace your current entries with this sample topic. Do you want to proceed?');
-            if (!proceed) return;
-          }
 
           if (areaInput && btn.dataset.area) {
             areaInput.value = btn.dataset.area;
@@ -3721,6 +3468,7 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
           }
 
           // Populate the first gap block
+          const gap1 = document.getElementById('research-gap-1');
           if (gap1 && btn.dataset.gap) {
             gap1.value = btn.dataset.gap;
             gap1.dispatchEvent(new Event('input', { bubbles: true }));
@@ -4625,10 +4373,10 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
             'specific-problem': ['specific-problem', 'specific_problem', 'problem'],
             'qps-phenomenon': ['qps-phenomenon', 'qps_phenomenon', 'phenomenon', 'observed-deficit'],
             'qps-current-metric': ['qps-current-metric', 'qps_current_metric', 'current-metric', 'baseline-metric'],
-            'qps-specific-problem': ['qps-specific-problem', 'qps_specific_problem'],
+            'qps-specific-problem': ['qps-specific-problem', 'qps_specific_problem', 'specific-problem'],
             'qps-target-state': ['qps-target-state', 'qps_target_state', 'target-state', 'desired-state'],
             'qps-action': ['qps-action', 'qps_action', 'action', 'engineering-action'],
-            'qps-target-metric': ['qps-target-metric', 'qps_target_metric'],
+            'qps-target-metric': ['qps-target-metric', 'qps_target_metric', 'target-metric'],
             'prior-art-failures': ['prior-art-failures', 'commercial-failures', 'prior-art'],
             'functional-requirements': ['functional-requirements', 'requirements-matrix', 'functional_requirements'],
             'mechanical-constraints': ['mechanical-constraints', 'mechanical_constraints'],
@@ -4643,7 +4391,6 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
             'mat-brain': ['mat-brain', 'think-component', 'microcontroller', 'microcontrollers', 'brain', 'processor', 'computing-board'],
             'mat-actuator': ['mat-actuator', 'act-component', 'actuators', 'actuator', 'motors', 'motor', 'drivers', 'outputs'],
             'mat-power': ['mat-power', 'power-source', 'power-supply', 'power', 'battery'],
-            'signal-conditioning': ['signal-conditioning', 'signal_conditioning', 'electrical-interfacing', 'circuit-advice', 'wiring-interfacing'],
             'control-architecture': ['control-architecture', 'state-machine', 'control-flow', 'algorithm'],
             'ramp-safety': ['ramp-safety', 'ramp-hazard', 'safety'],
             'testing-mode': ['testing-mode'],
@@ -4680,6 +4427,16 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
                 valueToSet = String(extractedPdfJson[alias]).trim();
                 break;
               }
+            }
+
+            // Fallback for QPS slots if individual slot wasn't extracted
+            if (!valueToSet && domId.startsWith('qps-')) {
+              if (domId === 'qps-phenomenon') valueToSet = extractedPdfJson['broad-area'] || 'observed inefficiencies';
+              else if (domId === 'qps-current-metric') valueToSet = 'manual baseline measurement';
+              else if (domId === 'qps-specific-problem') valueToSet = extractedPdfJson['specific-problem'] || 'high error rates and delays';
+              else if (domId === 'qps-target-state') valueToSet = 'automated, reliable operation';
+              else if (domId === 'qps-action') valueToSet = 'microcontroller-driven robotics sensing';
+              else if (domId === 'qps-target-metric') valueToSet = extractedPdfJson['target-metric'] || '90% operational reliability';
             }
 
             if (valueToSet) {
@@ -4759,25 +4516,14 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
       };
 
       function updateTestingModeDisplay(val) {
+        const data = testingModeDetails[val] || testingModeDetails['table-top'];
         const infoCard = document.getElementById('testing-mode-info-card');
-        if (!val || !testingModeDetails[val]) {
-          if (modeBadge) {
-            modeBadge.textContent = 'Mode Not Selected';
-            modeBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600';
-          }
-          if (modeDesc) modeDesc.textContent = 'Choose whether your prototype will be built as a miniaturized benchtop model or a full-sized 1:1 prototype tested on a bounded scope.';
-          if (modeExample) modeExample.classList.add('hidden');
-          if (infoCard) infoCard.className = 'mt-3 bg-white/80 border border-slate-200 rounded-2xl p-4 shadow-sm transition-all duration-300';
-          return;
-        }
-        const data = testingModeDetails[val];
         if (modeBadge) {
           modeBadge.textContent = data.badge;
           modeBadge.className = `text-xs font-bold px-2.5 py-1 rounded-full ${data.badgeClass}`;
         }
         if (modeDesc) modeDesc.textContent = data.desc;
         if (modeExample) {
-          modeExample.classList.remove('hidden');
           modeExample.className = `example-text mt-3 p-3 rounded-xl border flex items-start gap-2 ${data.exampleBg}`;
           modeExample.innerHTML = `<i class="ph ph-lightbulb ${data.iconColor} text-base flex-shrink-0 mt-0.5"></i><span><strong>Real-World Example:</strong> ${data.example}</span>`;
         }
@@ -4869,19 +4615,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
       };
 
       function updateTestingMethodDisplay(val) {
-        if (!val || !testingMethodDetails[val]) {
-          if (methodBadge) {
-            methodBadge.textContent = 'Strategy Not Selected';
-            methodBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600';
-          }
-          if (methodDesc) methodDesc.textContent = 'Select the scientific testing strategy matching your prototype (e.g. reliability trials, calibration, latency, or comparative A/B).';
-          if (methodFormula) methodFormula.textContent = 'Select a testing strategy to view formula';
-          if (methodProtocol) methodProtocol.textContent = 'Select a testing strategy to view step-by-step protocol.';
-          if (methodExample) methodExample.classList.add('hidden');
-          if (infoCardMethod) infoCardMethod.className = 'mt-3 bg-white/80 border border-slate-200 rounded-2xl p-5 shadow-sm transition-all duration-300';
-          return;
-        }
-        const data = testingMethodDetails[val];
+        const data = testingMethodDetails[val] || testingMethodDetails['repeatability-reliability'];
         if (methodBadge) {
           methodBadge.textContent = data.badge;
           methodBadge.className = `text-xs font-bold px-2.5 py-1 rounded-full ${data.badgeClass}`;
@@ -4890,7 +4624,6 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
         if (methodFormula) methodFormula.textContent = data.formulaText;
         if (methodProtocol) methodProtocol.textContent = data.protocol;
         if (methodExample) {
-          methodExample.classList.remove('hidden');
           methodExample.innerHTML = `<i class="ph ph-lightbulb text-amber-500 text-base flex-shrink-0 mt-0.5"></i><span><strong>Real-World Example:</strong> ${data.example}</span>`;
         }
         if (infoCardMethod) {
@@ -4975,20 +4708,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
       };
 
       function updateStatisticalTreatmentDisplay(val) {
-        if (!val || !statisticalTreatmentDetails[val]) {
-          if (statBadge) {
-            statBadge.textContent = 'Treatment Not Selected';
-            statBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600';
-          }
-          if (statDesc) statDesc.textContent = 'Select an inferential statistical test to prove whether your prototype achieves a statistically significant difference compared to baseline.';
-          if (statFormula) statFormula.textContent = 'Select a statistical treatment to view formula';
-          if (statDecisionRule) statDecisionRule.innerHTML = '<strong>Decision Rule:</strong> Reject H₀ if p &lt; 0.05 at 95% confidence level.';
-          if (statHypoGuide) statHypoGuide.innerHTML = '• <strong>H₀ (Null Hypothesis):</strong> No significant difference.<br>• <strong>Hₐ (Alternative Hypothesis):</strong> Significant improvement.';
-          if (statExample) statExample.classList.add('hidden');
-          if (infoCardStat) infoCardStat.className = 'mt-3 bg-white/80 border border-slate-200 rounded-2xl p-5 shadow-sm transition-all duration-300';
-          return;
-        }
-        const data = statisticalTreatmentDetails[val];
+        const data = statisticalTreatmentDetails[val] || statisticalTreatmentDetails['two-sample-t-test'];
         if (statBadge) {
           statBadge.textContent = data.badge;
           statBadge.className = `text-xs font-bold px-2.5 py-1 rounded-full ${data.badgeClass}`;
@@ -4998,7 +4718,6 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
         if (statDecisionRule) statDecisionRule.innerHTML = data.rule;
         if (statHypoGuide) statHypoGuide.innerHTML = data.hypoGuide;
         if (statExample) {
-          statExample.classList.remove('hidden');
           statExample.innerHTML = `<i class="ph ph-lightbulb text-amber-500 text-base flex-shrink-0 mt-0.5"></i><span><strong>Real-World Example:</strong> ${data.example}</span>`;
         }
         if (infoCardStat) {
@@ -5640,20 +5359,19 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
       function generateLocalProposalHtml(data, isPreview = false) {
         if (!data) data = {};
 
-        function fieldVal(val, placeholderLabel) {
+        function fieldVal(val, fallback, placeholder) {
           if (val !== undefined && val !== null && String(val).trim().length > 0) {
             return escapeHtmlClient(String(val).trim());
           }
-          const label = (placeholderLabel || 'Not specified').trim();
           if (isPreview) {
-            return `<span class="preview-empty">[${label}]</span>`;
+            return `<span class="preview-empty">[${placeholder || fallback}]</span>`;
           }
-          return `[${label}: To be specified]`;
+          return escapeHtmlClient(fallback);
         }
 
         const title = (data['project-title'] && String(data['project-title']).trim())
           ? escapeHtmlClient(String(data['project-title']).trim())
-          : (isPreview ? '<span class="preview-empty">[Project Title — Enter in Step 5]</span>' : '[Project Title: To be specified in Step 5]');
+          : (isPreview ? '<span class="preview-empty">[Project Title — Enter in Step 5]</span>' : 'Engineering IM Concept Proposal');
 
         const researchers = [];
         for (const key in data) {
@@ -5663,179 +5381,150 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
         }
         const authors = researchers.length > 0
           ? researchers.join(', ')
-          : (isPreview ? '<span class="preview-empty">[Student Researchers / Authors — Enter in Step 5]</span>' : '[Student Researchers / Authors: To be specified in Step 5]');
+          : (isPreview ? '<span class="preview-empty">[Student Researchers / Authors — Enter in Step 5]</span>' : 'Student Research Team');
 
-        const broadArea = fieldVal(data['broad-area'], 'Research Category / Broad Area — Step 1');
-        const specificProb = fieldVal(data['specific-problem'], 'Specific Engineering Problem — Step 1');
+        const broadArea = fieldVal(data['broad-area'], 'Robotics and Intelligent Machines (ROBO/RIM)', 'Research Category / Broad Area — Step 1');
+        const specificProb = fieldVal(data['specific-problem'], 'Unaddressed real-world engineering challenge', 'Specific Engineering Problem — Step 1');
 
-        // Quantified Problem Statement (QPS) formulation
-        let qps = '';
-        if (data['qps'] && String(data['qps']).trim()) {
-          qps = escapeHtmlClient(String(data['qps']).trim());
-        } else {
-          const phenomenon = fieldVal(data['qps-phenomenon'], 'Target Phenomenon — Step 2');
-          const currentMetric = fieldVal(data['qps-current-metric'], 'Current Metric — Step 2');
-          const qpsProb = fieldVal(data['qps-specific-problem'] || data['specific-problem'], 'Specific Problem — Step 2');
-          const targetState = fieldVal(data['qps-target-state'], 'Target State — Step 2');
-          const qpsAction = fieldVal(data['qps-action'], 'Action / Mechanism — Step 2');
-          const targetMetricStr = fieldVal(data['qps-target-metric'] || data['target-metric'], 'Target Benchmark — Step 2');
+        const phenomenon = fieldVal(data['qps-phenomenon'], 'the target environment', 'Target Phenomenon — Step 2');
+        const currentMetric = fieldVal(data['qps-current-metric'], 'baseline parameters', 'Current Metric — Step 2');
+        const qpsProb = fieldVal(data['qps-specific-problem'] || data['specific-problem'], 'operational degradation or risk', 'Specific Problem — Step 2');
+        const targetState = fieldVal(data['qps-target-state'], 'reliable, automated operation', 'Target State — Step 2');
+        const qpsAction = fieldVal(data['qps-action'], 'implementing an embedded sensory-actuation prototype', 'Action / Mechanism — Step 2');
+        const targetMetricStr = fieldVal(data['qps-target-metric'] || data['target-metric'], 'empirical performance benchmarks', 'Target Benchmark — Step 2');
 
-          const hasAnyQpsField = Boolean(
-            (data['qps-phenomenon'] && String(data['qps-phenomenon']).trim()) ||
-            (data['qps-current-metric'] && String(data['qps-current-metric']).trim()) ||
-            (data['qps-specific-problem'] && String(data['qps-specific-problem']).trim()) ||
-            (data['qps-target-state'] && String(data['qps-target-state']).trim()) ||
-            (data['qps-action'] && String(data['qps-action']).trim()) ||
-            (data['qps-target-metric'] && String(data['qps-target-metric']).trim())
-          );
+        const qps = `The current state of ${phenomenon} is measured at ${currentMetric}, resulting in ${qpsProb}. This research aims to achieve ${targetState} by ${qpsAction}, as measured by ${targetMetricStr}.`;
 
-          if (hasAnyQpsField) {
-            qps = `The current state of ${phenomenon} is measured at ${currentMetric}, resulting in ${qpsProb}. This research aims to achieve ${targetState} by ${qpsAction}, as measured by ${targetMetricStr}.`;
-          } else {
-            qps = isPreview
-              ? '<span class="preview-empty">[Quantified Problem Statement (QPS): Formulate in Step 2]</span>'
-              : '[Quantified Problem Statement (QPS): Formulate in Step 2]';
-          }
+        const priorArt = fieldVal(data['prior-art-failures'] || data['prior-art-matrix'], 'Commercial solutions suffer from high costs, maintenance complexity, or failure to operate during field network disconnects.', 'Prior Art Failures — Step 1');
+        const funcReqs = fieldVal(data['functional-requirements'], 'Real-time sensory acquisition, deterministic state-machine processing, and rapid fail-safe actuation.', 'Functional Requirements — Step 2');
+        const mechConst = fieldVal(data['mechanical-constraints'], 'Compact modular enclosure, lightweight structure.', 'Mechanical Limits — Step 2');
+        const softConst = fieldVal(data['software-constraints'], 'Deterministic loop cycle less than 200 ms, low latency.', 'Software / Speed Limits — Step 2');
+        const budget = fieldVal(data['budget-limit'], 'Affordable local components', 'Budget Limit — Step 2');
+        const scope = fieldVal(data['project-scope'] || data['scope'], 'Design, assembly, benchtop calibration, and multi-cycle operational testing of the physical prototype.', 'Project Scope — Step 2');
+        const delimitations = fieldVal(data['delimitations'], 'Excludes industrial mass production and extreme environmental deployment.', 'Delimitations — Step 2');
+        const indVar = fieldVal(data['var-independent'], 'Operational parameters / input stimuli', 'Independent Variable — Step 3');
+        const depVar = fieldVal(data['var-dependent'], 'Response latency, accuracy, and system reliability', 'Dependent Variable — Step 3');
+        const ctrlVar = fieldVal(data['var-control'], 'Supply voltage, ambient temperature, calibration standard', 'Controlled Variables — Step 3');
+        const sensor = fieldVal(data['mat-sensor'], 'Sensory Input Transducer', 'Sense: Sensor — Step 3');
+        const brain = fieldVal(data['mat-brain'], 'Microcontroller Core (MCU)', 'Think: Microcontroller — Step 3');
+        const actuator = fieldVal(data['mat-actuator'], 'Output Actuator / Indicator', 'Act: Actuator — Step 3');
+        const power = fieldVal(data['mat-power'], 'Regulated Power Supply Unit', 'Power Supply — Step 3');
+        const ctrlArch = fieldVal(data['control-architecture'], 'Deterministic state machine (IDLE → SENSING → EVALUATING → ACTUATING)', 'Control Architecture — Step 3');
+        // Dynamic synthesis of Signal Conditioning & Electrical Interfacing if not explicit
+        let rawSigCond = (data['signal-conditioning'] && String(data['signal-conditioning']).trim()) ? String(data['signal-conditioning']).trim() : '';
+        if (!rawSigCond && (data['mat-sensor'] || data['mat-brain'] || data['mat-actuator'])) {
+          const s = String(data['mat-sensor'] || 'sensory transducers').trim();
+          const b = String(data['mat-brain'] || 'the microcontroller').trim();
+          const a = String(data['mat-actuator'] || 'actuator modules').trim();
+          rawSigCond = `To interface ${s} with ${b}, input lines implement dedicated signal conditioning, including 4.7 k&Omega; pull-up resistors for digital/I2C buses, RC low-pass filtering for noise suppression, and bidirectional logic-level shifting to ensure 3.3V/5V domain compatibility. Output drive lines communicating to ${a} are isolated via transistor/MOSFET driver stages and optocouplers to prevent inductive kickback and transient ground bounce from affecting core processing logic.`;
         }
+        const sigCond = fieldVal(rawSigCond, 'Pull-up bias resistors, RC filtering for sensor stabilization, and logic-level conversion.', 'Signal Conditioning — Step 3');
 
-        const rawPriorArt = (data['prior-art-failures'] || data['prior-art-matrix'] || '').toString().trim();
-        const priorArt = fieldVal(rawPriorArt, 'Prior Art Failures — Step 1');
-
-        const funcReqs = fieldVal(data['functional-requirements'], 'Functional Requirements — Step 2');
-        const mechConst = fieldVal(data['mechanical-constraints'], 'Mechanical Limits — Step 2');
-        const softConst = fieldVal(data['software-constraints'], 'Software / Speed Limits — Step 2');
-        
-        const rawBudget = (data['budget-limit'] || '').toString().trim();
-        const budgetDisplay = rawBudget ? `₱${escapeHtmlClient(rawBudget)}` : fieldVal('', 'Budget Limit — Step 2');
-
-        const scope = fieldVal(data['project-scope'] || data['scope'], 'Project Scope — Step 2');
-        const delimitations = fieldVal(data['delimitations'], 'Delimitations — Step 2');
-        const indVar = fieldVal(data['var-independent'], 'Independent Variable — Step 3');
-        const depVar = fieldVal(data['var-dependent'], 'Dependent Variable — Step 3');
-        const ctrlVar = fieldVal(data['var-control'], 'Controlled Variables — Step 3');
-        const sensor = fieldVal(data['mat-sensor'], 'Sense: Sensor — Step 3');
-        const brain = fieldVal(data['mat-brain'], 'Think: Microcontroller — Step 3');
-        const actuator = fieldVal(data['mat-actuator'], 'Act: Actuator — Step 3');
-        const power = fieldVal(data['mat-power'], 'Power Supply — Step 3');
-        const ctrlArch = fieldVal(data['control-architecture'], 'Control Architecture — Step 3');
-
-        // Signal Conditioning & Electrical Interfacing: user input, smart BOM synthesis, or clean placeholder
-        const rawSigCond = (data['signal-conditioning'] && String(data['signal-conditioning']).trim()) ? String(data['signal-conditioning']).trim() : '';
-        const rawSensor = (data['mat-sensor'] && String(data['mat-sensor']).trim()) ? String(data['mat-sensor']).trim() : '';
-        const rawBrain = (data['mat-brain'] && String(data['mat-brain']).trim()) ? String(data['mat-brain']).trim() : '';
-        const rawActuator = (data['mat-actuator'] && String(data['mat-actuator']).trim()) ? String(data['mat-actuator']).trim() : '';
-        const rawPower = (data['mat-power'] && String(data['mat-power']).trim()) ? String(data['mat-power']).trim() : '';
-
-        let sigCond = '';
-        if (rawSigCond) {
-          sigCond = escapeHtmlClient(rawSigCond);
-        } else if (rawSensor && rawBrain) {
-          sigCond = `Analog and digital sensory signals from ${escapeHtmlClient(rawSensor)} are interfaced to ${escapeHtmlClient(rawBrain)} via dedicated GPIO/ADC channels with common ground reference. Actuator switching for ${escapeHtmlClient(rawActuator || 'actuation peripherals')} is buffered via driver interfacing powered through ${escapeHtmlClient(rawPower || 'the main power rail')} to maintain electrical isolation and prevent voltage fluctuations.`;
-        } else {
-          sigCond = fieldVal('', 'Signal Conditioning & Interfacing — Step 3');
+        // Dynamic synthesis of Power Distribution Subsystem if not explicit
+        let rawPwrDist = (data['power-distribution'] && String(data['power-distribution']).trim()) ? String(data['power-distribution']).trim() : '';
+        if (!rawPwrDist && (data['mat-power'] || data['mat-brain'] || data['mat-actuator'])) {
+          const p = String(data['mat-power'] || 'power supply').trim();
+          const b = String(data['mat-brain'] || 'MCU').trim();
+          const a = String(data['mat-actuator'] || 'actuators').trim();
+          rawPwrDist = `Energized via ${p}, utilizing independent dual-rail distribution: a regulated 3.3V/5V logic rail with 100nF ceramic and 100&mu;F electrolytic decoupling capacitors supplying ${b}, and an isolated high-current supply bus directly powering ${a} to prevent brownouts during peak loads.`;
         }
+        const pwrDist = fieldVal(rawPwrDist, 'Isolated microcontroller logic rail and dedicated high-current actuator rail.', 'Power Distribution — Step 3');
 
-        // Power Distribution Subsystem: strictly user input or clean placeholder
-        const rawPwrDist = (data['power-distribution'] && String(data['power-distribution']).trim()) ? String(data['power-distribution']).trim() : '';
-        const pwrDist = fieldVal(rawPwrDist, 'Power Distribution Subsystem — Step 3');
-
-        const rawSafety = (data['ramp-safety'] && String(data['ramp-safety']).trim()) ? String(data['ramp-safety']).trim() : '';
-        const safety = fieldVal(rawSafety, 'RAMP Safety Mitigations — Step 3');
-
-        const subsysVer = fieldVal(data['subsystem-verification'], 'Subsystem Verification — Step 4');
-        const sysVal = fieldVal(data['system-validation'], 'System Validation — Step 4');
+        const safety = fieldVal(data['ramp-safety'], 'Flyback diodes, overcurrent fuses, and software watchdog timeout.', 'RAMP Safety Mitigations — Step 3');
+        const subsysVer = fieldVal(data['subsystem-verification'], 'Benchtop sensor calibration and error quantification against lab standard.', 'Subsystem Verification — Step 4');
+        const sysVal = fieldVal(data['system-validation'], 'End-to-end multi-cycle operational testing across continuous trials.', 'System Validation — Step 4');
 
         // Human-readable Testing Mode mapping
         const testModeSlug = (data['testing-mode'] || '').toString().trim();
-        let testingMode = '';
+        let modeLabel = 'Table-Top Benchtop Model (Scaled-down test rig)';
         if (testModeSlug === 'prototype-1to1') {
-          testingMode = '1:1 Scale Prototype (Full-size operational model)';
+          modeLabel = '1:1 Scale Prototype (Full-size operational model)';
         } else if (testModeSlug === 'table-top') {
-          testingMode = 'Table-Top Benchtop Model (Scaled-down test rig)';
+          modeLabel = 'Table-Top Benchtop Model (Scaled-down test rig)';
         } else if (testModeSlug) {
-          testingMode = escapeHtmlClient(testModeSlug);
-        } else {
-          testingMode = fieldVal('', 'Testing Mode — Step 4');
+          modeLabel = testModeSlug;
         }
+        const testingMode = fieldVal(modeLabel, 'Table-Top Benchtop Model (Scaled-down test rig)', 'Testing Mode — Step 4');
 
-        const scaleSize = fieldVal(data['test-scale-size'], 'Testing Scale / Size — Step 4');
-        const testProc = fieldVal(data['testing-procedure'], 'Testing Procedure — Step 4');
+        const scaleSize = fieldVal(data['test-scale-size'], 'Benchtop prototype scale', 'Testing Scale / Size — Step 4');
+        const testProc = fieldVal(data['testing-procedure'], 'Systematic repeatable trial sequences with automated data logging.', 'Testing Procedure — Step 4');
 
-        // Scaling Logic & Feasibility
+        // Comprehensive Scaling Logic & Feasibility synthesis
         const rawScaling = (data['scaling-logic'] || data['sustainability-justification'] || '').toString().trim();
         const fullScope = (data['full-scale-scope'] || '').toString().trim();
         const scaledTarget = (data['scaled-test-target'] || '').toString().trim();
         const scalingParts = [];
         if (fullScope || scaledTarget) {
-          scalingParts.push(`The scaled experimental target (${scaledTarget ? `<em>${escapeHtmlClient(scaledTarget)}</em>` : 'benchtop prototype'}) directly emulates the operational physics and input parameters of the intended deployment (${fullScope ? `<em>${escapeHtmlClient(fullScope)}</em>` : 'full-scale implementation'}).`);
+          scalingParts.push(`The scaled experimental target (${scaledTarget ? `<em>${escapeHtmlClient(scaledTarget)}</em>` : 'benchtop prototype'}) directly emulates the operational physics and input parameters of the intended community deployment (${fullScope ? `<em>${escapeHtmlClient(fullScope)}</em>` : 'full-scale implementation'}).`);
         }
         if (rawScaling) {
           scalingParts.push(`<strong>Scaling Validity &amp; Sustainability Rationale:</strong> ${escapeHtmlClient(rawScaling)}`);
         }
-        let scalingLogic = '';
-        if (scalingParts.length > 0) {
-          scalingLogic = scalingParts.join(' ');
-        } else if (rawScaling) {
-          scalingLogic = escapeHtmlClient(rawScaling);
-        } else {
-          scalingLogic = fieldVal('', 'Scaling Logic — Step 4');
-        }
+        const synthesizedScaling = scalingParts.length > 0 ? scalingParts.join(' ') : rawScaling;
+        const scalingLogic = fieldVal(synthesizedScaling, 'Proportional scale model validated prior to full deployment; results extrapolated with documented scaling factors.', 'Scaling Logic — Step 4');
 
-        const rawTrials = (data['trials-planned'] || '').toString().trim();
-        const trials = fieldVal(rawTrials, 'Trials Planned — Step 4');
-
-        const rawTargetMetric = (data['target-metric'] || '').toString().trim();
-        const targetMetric = fieldVal(rawTargetMetric, 'Target Metric — Step 4');
-
-        const statHyp = fieldVal(data['statistical-hypothesis'], 'Statistical Hypotheses (H₀ and Hₐ) — Step 4');
-        const sustain = fieldVal(data['sustainability-justification'], 'Sustainability Justification — Step 4');
+        // Pre-initialize variables used in statistical treatment justification and narrative synthesis
+        const trials = fieldVal(data['trials-planned'], '30 repeated trials', 'Trials Planned — Step 4');
+        const targetMetric = fieldVal(data['target-metric'], 'Success rate >= 95%, latency < 200 ms', 'Target Metric — Step 4');
+        const statHyp = fieldVal(data['statistical-hypothesis'], 'H₀: Prototype performance shows no significant difference vs baseline standard. Hₐ: Prototype achieves statistically significant improvement.', 'Statistical Hypotheses — Step 4');
+        const sustain = fieldVal(data['sustainability-justification'], 'Low-cost, energy-efficient, locally repairable hardware architecture.', 'Sustainability Justification — Step 4');
         const submissionDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: '2-digit' });
+        const currentYear = new Date().getFullYear().toString();
 
         // Academic Statistical Treatment mapping and justification
         const rawStatSlug = (data['statistical-treatment'] || '').toString().trim();
-        let statTreat = '';
-        let statJustifVal = '';
+        let statMethodTitle = '';
+        let statJustification = '';
 
         if (rawStatSlug === 'confusion-matrix' || rawStatSlug.toLowerCase().includes('confusion') || rawStatSlug.toLowerCase().includes('classification')) {
-          statTreat = 'Confusion Matrix Analysis & Multi-Metric Classification Evaluation';
-          statJustifVal = `The Confusion Matrix evaluation was selected because the system's core engineering challenge involves categorical decision-making (e.g., event detection, status classification, or hazard recognition) based on real-time sensor stimuli (${depVar}). Rather than relying solely on gross aggregate accuracy, this statistical treatment disaggregates trial outcomes into True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN). This enables precise derivation of Sensitivity (Recall), Specificity, Positive Predictive Value (Precision), Negative Predictive Value (NPV), and F1-Score. In autonomous and safety-critical engineering systems, quantifying False Negatives (Type II errors / missed detections) and False Positives (Type I errors / false triggers) is essential for validating real-world operational safety and dependability.`;
+          statMethodTitle = 'Confusion Matrix Analysis & Multi-Metric Classification Evaluation';
+          statJustification = `The Confusion Matrix evaluation was selected because the system's core engineering challenge involves categorical decision-making (e.g., event detection, status classification, or hazard recognition) based on real-time sensor stimuli (${depVar}). Rather than relying solely on gross aggregate accuracy, this statistical treatment disaggregates trial outcomes into True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN). This enables precise derivation of Sensitivity (Recall), Specificity, Positive Predictive Value (Precision), Negative Predictive Value (NPV), and F1-Score. In autonomous and safety-critical engineering systems, quantifying False Negatives (Type II errors / missed detections) and False Positives (Type I errors / false triggers) is essential for validating real-world operational safety and dependability.`;
         } else if (rawStatSlug === 'paired-t-test' || rawStatSlug.toLowerCase().includes('paired') || rawStatSlug.toLowerCase().includes('wilcoxon')) {
-          statTreat = "Paired Student's t-Test / Wilcoxon Signed-Rank Test (α = 0.05)";
-          statJustifVal = `The Paired Student's t-Test (and Wilcoxon Signed-Rank Test as a non-parametric alternative for non-normally distributed deviations) was selected to evaluate pre-test versus post-test performance differences, or matched trial pairs evaluated on the identical experimental units (${depVar}). Because measurements are paired within the exact same subjects across repeated trials (${trials}), this within-subject repeated-measures design effectively controls for confounding unit-to-unit baseline variability and substantially amplifies statistical test power. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that the observed performance improvement is directly attributable to prototype actuation.`;
+          statMethodTitle = "Paired Student's t-Test / Wilcoxon Signed-Rank Test (α = 0.05)";
+          statJustification = `The Paired Student's t-Test (and Wilcoxon Signed-Rank Test as a non-parametric alternative for non-normally distributed deviations) was selected to evaluate pre-test versus post-test performance differences, or matched trial pairs evaluated on the identical experimental units (${depVar}). Because measurements are paired within the exact same subjects across repeated trials (${trials}), this within-subject repeated-measures design effectively controls for confounding unit-to-unit baseline variability and substantially amplifies statistical test power. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that the observed performance improvement is directly attributable to prototype actuation.`;
         } else if (rawStatSlug === 'two-sample-t-test' || rawStatSlug.toLowerCase().includes('t-test') || rawStatSlug.toLowerCase().includes('two-sample')) {
-          statTreat = "Independent Two-Sample Student's t-Test (α = 0.05)";
-          statJustifVal = `The Independent Two-Sample t-Test was selected to evaluate whether the engineering prototype demonstrates a statistically significant improvement over the conventional baseline or control group on the primary continuous response metric (${depVar}). Because the experimental framework evaluates two independent groups across repeated trials (${trials}), the two-sample t-test provides a rigorous inferential hypothesis test. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that measured performance differences are attributable to prototype design rather than stochastic sampling variance.`;
+          statMethodTitle = "Independent Two-Sample Student's t-Test (α = 0.05)";
+          statJustification = `The Independent Two-Sample t-Test was selected to evaluate whether the engineering prototype demonstrates a statistically significant improvement over the conventional baseline or control group on the primary continuous response metric (${depVar}). Because the experimental framework evaluates two independent groups across repeated trials (${trials}), the two-sample t-test provides a rigorous inferential hypothesis test. A two-tailed significance threshold of α = 0.05 is established; obtaining p < 0.05 rejects the null hypothesis (H₀) and confirms that measured performance differences are attributable to prototype design rather than stochastic sampling variance.`;
         } else if (rawStatSlug === 'one-way-anova' || rawStatSlug.toLowerCase().includes('anova')) {
-          statTreat = 'One-Way Analysis of Variance (ANOVA, α = 0.05) with Post-Hoc Tukey HSD';
-          statJustifVal = `One-Way ANOVA was selected because the experimental protocol investigates prototype response across three or more discrete operational treatments, environmental conditions, or speed levels (${indVar}). Conducting multiple pairwise t-tests would compound the experiment-wise Type I error rate. ANOVA tests the omnibus null hypothesis that mean response across all treatment levels is equal. Upon detecting a significant omnibus effect (F > F_crit, p < 0.05), post-hoc Tukey Honestly Significant Difference (HSD) pairwise tests are performed to identify which specific configuration achieves statistically superior performance.`;
+          statMethodTitle = 'One-Way Analysis of Variance (ANOVA, α = 0.05) with Post-Hoc Tukey HSD';
+          statJustification = `One-Way ANOVA was selected because the experimental protocol investigates prototype response across three or more discrete operational treatments, environmental conditions, or speed levels (${indVar}). Conducting multiple pairwise t-tests would compound the experiment-wise Type I error rate. ANOVA tests the omnibus null hypothesis that mean response across all treatment levels is equal. Upon detecting a significant omnibus effect (F > F_crit, p < 0.05), post-hoc Tukey Honestly Significant Difference (HSD) pairwise tests are performed to identify which specific configuration achieves statistically superior performance.`;
         } else if (rawStatSlug === 'descriptive-error-bounds' || rawStatSlug.toLowerCase().includes('descriptive') || rawStatSlug.toLowerCase().includes('bounds') || rawStatSlug.toLowerCase().includes('confidence')) {
-          statTreat = 'Descriptive Statistics with Sample Mean, Standard Deviation, and 95% Confidence Bounds (x̄ ± 1.96·SE)';
-          statJustifVal = `Descriptive statistics with 95% confidence intervals were selected to quantify prototype measurement dispersion, stability, and repeatability across repeated trial cycles (${trials}). By determining the sample mean (x̄), sample standard deviation (s), and standard error of the mean (SE = s / √N), this method establishes empirical error bounds for the target performance metric (${depVar}). The 95% confidence interval verifies that device operation remains strictly within acceptable engineering tolerances and safety margins across repeated duty cycles.`;
+          statMethodTitle = 'Descriptive Statistics with Sample Mean, Standard Deviation, and 95% Confidence Bounds (x̄ ± 1.96·SE)';
+          statJustification = `Descriptive statistics with 95% confidence intervals were selected to quantify prototype measurement dispersion, stability, and repeatability across repeated trial cycles (${trials}). By determining the sample mean (x̄), sample standard deviation (s), and standard error of the mean (SE = s / √N), this method establishes empirical error bounds for the target performance metric (${depVar}). The 95% confidence interval verifies that device operation remains strictly within acceptable engineering tolerances and safety margins across repeated duty cycles.`;
         } else if (rawStatSlug) {
-          statTreat = escapeHtmlClient(rawStatSlug);
-          statJustifVal = `This statistical method was chosen to rigorously evaluate the empirical effects of ${indVar} on prototype performance (${depVar}) across ${trials}, verifying that measured outcomes meet specified engineering tolerances at significance level α = 0.05.`;
+          statMethodTitle = rawStatSlug;
+          statJustification = `This statistical method was chosen to rigorously evaluate the empirical effects of ${indVar} on prototype performance (${depVar}) across ${trials}, providing defensive verification that measured outcomes meet specified engineering tolerances at significance level α = 0.05.`;
         } else {
-          statTreat = fieldVal('', 'Statistical Treatment — Step 4');
-          statJustifVal = fieldVal('', 'Statistical Method Justification — Step 4');
+          statMethodTitle = 'Inferential Two-Sample t-Test (α = 0.05)';
+          statJustification = 'The statistical method was chosen to provide rigorous inferential verification that prototype performance meets target specifications.';
         }
 
-        // APA 7th in-text narrative citation formatter
+        const statTreat = fieldVal(statMethodTitle, 'Inferential Two-Sample t-Test (alpha = 0.05)', 'Statistical Treatment — Step 4');
+        const statJustifVal = fieldVal(statJustification, 'The statistical method was chosen to provide rigorous inferential verification that prototype performance meets target specifications.', 'Statistical Method Justification — Step 4');
+
+        // APA 7th in-text narrative citation formatter:
+        // 1 author: Surname (e.g., Santos)
+        // 2 authors: Surname1 and Surname2 (e.g., Santos and Gomez)
+        // 3+ authors: Surname1 et al. (e.g., Santos et al.)
         function formatInTextCitation(authorStr) {
           if (!authorStr) return 'Author';
           let s = String(authorStr).trim();
 
+          // Already contains et al.
           if (/\bet\s+al\.?/i.test(s)) {
             const first = s.split(/[,&]|\bet\s+al\b/i)[0].trim();
             const firstSurname = first.includes(',') ? first.split(',')[0].trim() : (first.split(/\s+/)[0] || first);
             return `${escapeHtmlClient(firstSurname)} et al.`;
           }
 
+          // Institutional / organizational author
           const orgPattern = /\b(department|organization|association|institute|commission|board|ministry|center|centre|agency|who|dost|deped|ched|company|council)\b/i;
           if (orgPattern.test(s)) {
             const orgClean = s.includes(',') && !/\b[A-Z]\./.test(s) ? s.split(',')[0].trim() : s;
             return escapeHtmlClient(orgClean);
           }
 
+          // Normalize '&' and ' and ' to semicolon delimiter
           const cleanS = s.replace(/\s+&\s+|\s+and\s+/gi, ';');
 
           let authors = [];
@@ -5931,9 +5620,10 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           if (isPreview) {
             rrlNarrativeHtml = `<p class="preview-empty">[No literature citations added yet — add research gaps and author/year citations in Level 1 to auto-generate your narrative literature review paragraphs.]</p>`;
           } else {
-            rrlNarrativeHtml = `<p><em>[Review of Related Literature: Add research gap citations and author/year sources in Level 1 to auto-generate your narrative literature review synthesis.]</em></p>`;
+            rrlNarrativeHtml = `<p>Preliminary background review within the domain of <em>${broadArea}</em> indicates that conventional commercial and manual methodologies encounter notable operational bottlenecks regarding accessibility, response latency, and field reliability. Specifically, current approaches fail to address <em>${specificProb}</em> effectively. The engineering development of this prototype provides a localized, deterministic countermeasure designed to overcome these documented constraints.</p>`;
           }
         } else {
+          // Group consecutive gaps sharing the same author + year
           const groups = [];
           rawGapsList.forEach(g => {
             const key = g.author.toLowerCase() + '_' + g.year.toLowerCase();
@@ -5980,7 +5670,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
             paras.push(`<p>${pText}</p>`);
           });
 
-          paras.push(`<p>Taken together, the reviewed literature confirms that conventional implementations in <em>${broadArea}</em> face critical trade-offs between environmental coverage, user compliance, and real-time response capability. Commercial and traditional systems exhibit documented failure modes: <em>${priorArt}</em>. The proposed prototype directly addresses these deficiencies by integrating localized sensory acquisition, real-time deterministic processing, and automated fail-safe actuation ${rawBudget ? `within an accessible Bill of Materials (BOM) ceiling of ${budgetDisplay}` : 'within an accessible Bill of Materials (BOM) framework'}.</p>`);
+          paras.push(`<p>Taken together, the reviewed literature confirms that conventional implementations in <em>${broadArea}</em> face critical trade-offs between environmental coverage, user compliance, and real-time response capability. Commercial and traditional systems exhibit documented failure modes: <em>${priorArt}</em>. The proposed prototype directly addresses these deficiencies by integrating localized sensory acquisition, real-time deterministic processing, and automated fail-safe actuation within an accessible Bill of Materials (BOM) ceiling of ₱${budget}.</p>`);
 
           rrlNarrativeHtml = paras.join('\n');
         }
@@ -5998,6 +5688,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
             const p = String(data['gap-publisher-' + i] || '').trim();
             const rawUrl = String(data['gap-url-' + i] || '').trim();
 
+            // Normalization for robust deduplication across entries
             const normUrl = rawUrl.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/+$/, '');
             const normTitle = t.toLowerCase().replace(/[^a-z0-9]/g, '');
             const normAuthor = a.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -6021,6 +5712,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           }
         }
 
+        // Sort references alphabetically by primary author (APA 7th standard)
         uniqueRefs.sort((r1, r2) => {
           const comp = r1.a.localeCompare(r2.a, undefined, { sensitivity: 'base' });
           if (comp !== 0) return comp;
@@ -6045,77 +5737,8 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
           if (isPreview) {
             refsHtml = `<p class="preview-empty" style="padding-left:2rem;text-indent:-2rem;margin-bottom:0.5rem;">[References will be auto-generated in APA 7th format once Research Gaps are cited in Level 1]</p>`;
           } else {
-            refsHtml = `<p style="padding-left:2rem;text-indent:-2rem;margin-bottom:0.5rem;color:#64748b;font-style:italic;">[References: Literature sources cited in Level 1 will appear here in APA 7th format.]</p>`;
+            refsHtml = `<p style="padding-left:2rem;text-indent:-2rem;margin-bottom:0.5rem;">Department of Science and Technology. (${currentYear}). <em>National Science and Technology Fair (NSTF) Guidelines: Robotics and Intelligent Machines Category</em>. Republic of the Philippines.</p>`;
           }
-        }
-
-        // Component Justifications in BOM table
-        const senseJustif = (data['mat-sensor'] && String(data['mat-sensor']).trim())
-          ? 'Primary input transducer for autonomous detection and measurement of the target variable.'
-          : fieldVal('', 'Sensor Justification — Step 3');
-        const brainJustif = (data['mat-brain'] && String(data['mat-brain']).trim())
-          ? 'Executes the control algorithm and coordinates subsystem I/O channels in real time.'
-          : fieldVal('', 'Microcontroller Justification — Step 3');
-        const actJustif = (data['mat-actuator'] && String(data['mat-actuator']).trim())
-          ? 'Delivers physical actuation response commanded by the processing core.'
-          : fieldVal('', 'Actuator Justification — Step 3');
-        const powerJustif = (data['mat-power'] && String(data['mat-power']).trim())
-          ? `Power source supplying operating voltage and current across system subsystems.${rawPwrDist ? ' Distribution: ' + pwrDist : ''}`
-          : fieldVal('', 'Power Supply Justification — Step 3');
-
-        // Section II.C FMEA Countermeasures
-        let fmeaCountermeasures = '';
-        if (rawSafety || rawSigCond) {
-          fmeaCountermeasures = `The prototype implements proactive safety countermeasures${rawSigCond ? ` including ${sigCond}` : ''}${rawSafety ? ` and ${safety}` : ''} to prevent electrical damage. Software watchdog timers and fail-safe state transitions ensure the system enters a safe idle state on sensor fault or communication timeout.`;
-        } else {
-          fmeaCountermeasures = fieldVal('', 'FMEA Countermeasures & Fail-Safe Behaviors — Step 3');
-        }
-
-        // Section II.E Sample Size & Power
-        let sampleSizeHtml = '';
-        if (rawTrials) {
-          sampleSizeHtml = `<p><strong>Sample Size &amp; Statistical Power:</strong> This study plans ${trials} of independent, repeated experimental cycles to evaluate prototype performance at significance level α = 0.05.</p>`;
-        } else {
-          sampleSizeHtml = `<p><strong>Sample Size &amp; Statistical Power:</strong> ${fieldVal('', 'Sample Size & Statistical Power: Number of planned experimental trials to be specified in Step 4')}</p>`;
-        }
-
-        // Section III Expected Performance Targets
-        let targetMetricContent = '';
-        if (rawTargetMetric) {
-          targetMetricContent = `The prototype must autonomously satisfy its primary operational objective: <em>${targetMetric}</em>${rawTrials ? `, verified across ${trials}` : ''}. Empirical validation requires that sensor acquisition, decision processing, and actuator output execute within specified accuracy and real-time latency thresholds.`;
-        } else {
-          targetMetricContent = fieldVal('', 'Core Functional Performance Target: Specify quantified benchmarks and pass/fail thresholds in Step 4');
-        }
-
-        let safetyTargetContent = '';
-        if (rawSafety) {
-          safetyTargetContent = `The prototype must demonstrate fault-tolerant operation under maximum operating load, implementing safety mitigations: <em>${safety}</em>. The pass/fail criterion mandates deterministic fail-safe behavior upon any detected anomaly, ensuring user protection and component preservation.`;
-        } else {
-          safetyTargetContent = fieldVal('', 'System Safety and Failsafe Criteria: Specify safety thresholds and hazard mitigations in Step 3');
-        }
-
-        let budgetTargetContent = '';
-        if (rawBudget) {
-          budgetTargetContent = `The total fabrication and component procurement cost for the functional prototype is strictly constrained to a maximum Bill of Materials (BOM) ceiling of ${budgetDisplay}. Verification involves an itemized BOM audit tracking all electronic sensors, microcontroller boards, mechanical structures, and power supplies to ensure expense compliance.`;
-        } else {
-          budgetTargetContent = fieldVal('', 'Economic Feasibility & BOM Ceiling: Specify maximum budget ceiling in Step 2');
-        }
-
-        let sustainTargetContent = '';
-        if (data['sustainability-justification'] && String(data['sustainability-justification']).trim()) {
-          sustainTargetContent = `The engineering design incorporates sustainable community deployment criteria: <em>${escapeHtmlClient(String(data['sustainability-justification']).trim())}</em>. System verification requires that mechanical and electronic components satisfy local maintenance serviceability and operational longevity standards.`;
-        } else {
-          sustainTargetContent = fieldVal('', 'Community Sustainability & Longevity: Specify repairability and durability criteria in Step 4');
-        }
-
-        // Prior Art paragraph in I.A
-        let priorArtNarrative = '';
-        if (rawPriorArt) {
-          priorArtNarrative = `<p>Existing manual or commercial methodologies in the domain of <em>${broadArea}</em> exhibit operational constraints. Prior art failure assessment identifies key limitations: <em>${priorArt}</em>. The proposed prototype addresses these deficiencies through localized embedded design.</p>`;
-        } else {
-          priorArtNarrative = isPreview
-            ? `<p class="preview-empty">[Prior Art &amp; Technical Limitations: Describe limitations of current solutions in Step 1 to document the engineering gap.]</p>`
-            : `<p><em>[Prior Art &amp; Technical Limitations: Describe limitations of current solutions in Step 1 to document the engineering gap.]</em></p>`;
         }
 
         return `
@@ -6125,13 +5748,13 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
   <p style="font-size:9pt;color:#64748b;margin-bottom:10pt;">IM (Introduction &amp; Proposed Methodology) Format — IMRAD Template</p>
   <h1 style="font-size:16pt;font-weight:bold;color:#0f172a;line-height:1.35;margin-bottom:10pt;">${title}</h1>
   <p style="font-size:10pt;color:#334155;margin-bottom:4pt;"><strong>Student Researchers / Authors:</strong> ${authors}</p>
-  <p style="font-size:9.5pt;color:#475569;margin-bottom:4pt;"><strong>Research Category:</strong> ${broadArea}</p>
+  <p style="font-size:9.5pt;color:#475569;margin-bottom:4pt;"><strong>Research Category:</strong> Robotics and Intelligent Machines</p>
   <p style="font-size:9pt;color:#64748b;">Submitted: ${submissionDate}</p>
 </div>
 
 <!-- ABSTRACT -->
 <h2>ABSTRACT</h2>
-<p>This pre-experimentation concept proposal presents the engineering design framework for <strong>${title}</strong>, developed by ${authors}. The project addresses ${specificProb}. The proposed prototype integrates sensory data acquisition (${sensor}), embedded real-time computation (${brain}), and deterministic actuation (${actuator}) to deliver an offline-capable, community-appropriate engineering solution. The prototype is designed to fulfill target performance benchmarks (${targetMetric})${rawTrials ? ` verified across ${trials}` : ''}, with inferential statistical validation employing ${statTreat}.</p>
+<p>This pre-experimentation concept proposal presents the engineering design framework for <strong>${title}</strong>, developed by ${authors}. The project addresses ${specificProb}. The proposed prototype integrates sensory data acquisition (${sensor}), embedded real-time computation (${brain}), and deterministic actuation (${actuator}) to deliver an offline-capable, community-appropriate engineering solution. The prototype is designed to fulfill target performance benchmarks (${targetMetric}) verified across ${trials}, with inferential statistical validation employing ${statTreat}.</p>
 
 <!-- I. INTRODUCTION -->
 <h2>I. INTRODUCTION</h2>
@@ -6139,7 +5762,7 @@ CRITICAL RULES FOR REVERSE-ENGINEERING EXTRACTION:
 <!-- A. Background and Rationale -->
 <h3>A. Background and Rationale</h3>
 <p>${qps}</p>
-${priorArtNarrative}
+<p>Existing manual or commercial methodologies in the domain of <em>${broadArea}</em> exhibit critical operational bottlenecks, including prohibitive implementation costs, dependency on network connectivity, and unacceptable response latencies under field conditions. Prior art failure assessment identifies the following major limitations: <em>${priorArt}</em>. The engineering development of this prototype provides a localized, cost-effective countermeasure addressing these community-level constraints.</p>
 
 <!-- B. Review of Related Literature and Studies -->
 <h3>B. Review of Related Literature and Studies</h3>
@@ -6157,7 +5780,7 @@ ${rrlNarrativeHtml}
 <ol style="margin-left:18pt;margin-bottom:10pt;">
   <li>Design and assemble a working prototype integrating ${sensor} (sensing subsystem), ${brain} (processing core), and ${actuator} (actuation subsystem).</li>
   <li>Implement the following autonomous functional operations: <em>${funcReqs}</em></li>
-  <li>Demonstrate target performance metrics of <strong>${targetMetric}</strong>${rawTrials ? `, verified across ${trials}` : ''}.</li>
+  <li>Demonstrate target performance metrics of <strong>${targetMetric}</strong>, verified across ${trials}.</li>
   <li>Validate prototype performance using ${statTreat} to establish empirical proof at significance level α = 0.05.</li>
 </ol>
 
@@ -6192,7 +5815,7 @@ ${rrlNarrativeHtml}
     </tr>
     <tr>
       <td style="width:25%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;"><strong>Economic Budget Ceiling</strong></td>
-      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${budgetDisplay}</td>
+      <td style="width:35%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">₱${budget} total Bill of Materials (BOM) cost</td>
       <td style="width:40%;border:1px solid #cbd5e1;padding:6pt 8pt;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Maintains community accessibility and educational deployability within local procurement constraints.</td>
     </tr>
   </tbody>
@@ -6253,7 +5876,7 @@ ${rrlNarrativeHtml}
   <tr>
     <td colspan="5" style="border:1.5px dashed #ef4444;background:#fee2e2;padding:6px;text-align:center;">
       <strong style="color:#b91c1c;font-size:9pt;">POWER SUBSYSTEM:</strong>
-      <span style="font-size:8.5pt;color:#7f1d1d;">${power}${rawPwrDist ? ' — ' + pwrDist : ''}</span>
+      <span style="font-size:8.5pt;color:#7f1d1d;">${power} — ${pwrDist}</span>
     </td>
   </tr>
 </table>
@@ -6261,7 +5884,7 @@ ${rrlNarrativeHtml}
 
 <!-- B. Materials and Components -->
 <h3>B. Bill of Materials (BOM) and Component Specifications</h3>
-<p>Hardware components were selected for technical suitability, local commercial availability, and adherence to the specified Bill of Materials (BOM) budget ceiling of ${budgetDisplay}:</p>
+<p>Hardware components were selected for technical suitability, local commercial availability, and adherence to the specified Bill of Materials (BOM) budget ceiling of ₱${budget}:</p>
 <table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:10pt;margin-bottom:14pt;font-size:9pt;">
   <thead>
     <tr style="background-color:#f1f5f9;">
@@ -6276,25 +5899,25 @@ ${rrlNarrativeHtml}
       <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#0369a1;display:inline-block;white-space:nowrap;">SENSE</strong></td>
       <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Sensor Input &amp; Environmental Data Acquisition</td>
       <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${sensor}</td>
-      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${senseJustif}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Primary input stimulus for autonomous detection and measurement of the target variable.</td>
     </tr>
     <tr>
       <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#15803d;display:inline-block;white-space:nowrap;">THINK</strong></td>
       <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Embedded Microcontroller &amp; Processing Core</td>
       <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${brain}</td>
-      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${brainJustif}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Executes the deterministic control algorithm and coordinates all subsystem I/O channels in real time.</td>
     </tr>
     <tr>
       <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#b45309;display:inline-block;white-space:nowrap;">ACT</strong></td>
       <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Physical Actuation &amp; Output Drivers</td>
       <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${actuator}</td>
-      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${actJustif}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Delivers the mechanical, electrical, or visual response as commanded by the processing core.</td>
     </tr>
     <tr>
       <td style="width:14%;border:1px solid #cbd5e1;padding:7px 4px;text-align:center;vertical-align:top;background-color:#f8fafc;word-break:normal;white-space:nowrap;"><strong style="color:#b91c1c;display:inline-block;white-space:nowrap;">POWER</strong></td>
       <td style="width:26%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Power Storage &amp; Voltage Regulation</td>
       <td style="width:28%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${power}</td>
-      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">${powerJustif}</td>
+      <td style="width:32%;border:1px solid #cbd5e1;padding:7px 8px;vertical-align:top;word-break:normal;overflow-wrap:break-word;">Regulated, isolated power rails for logic and actuation subsystems. Distribution: ${pwrDist}</td>
     </tr>
   </tbody>
 </table>
@@ -6302,13 +5925,13 @@ ${rrlNarrativeHtml}
 <!-- C. Safety and Risk Assessment -->
 <h3>C. Safety and Risk Assessment (Recognize, Assess, Minimize, Prepare — RAMP Protocol)</h3>
 <p><strong>Identified Hazards and Engineering Mitigations:</strong> ${safety}</p>
-<p><strong>Failure Mode and Effects Analysis (FMEA) Countermeasures:</strong> ${fmeaCountermeasures}</p>
+<p><strong>Failure Mode and Effects Analysis (FMEA) Countermeasures:</strong> The prototype integrates hardware safety mechanisms including ${sigCond} to prevent electrical damage. Software-level watchdog timers and fail-safe state transitions ensure the system enters a safe idle state on sensor fault or communication timeout.</p>
 
 <!-- D. Testing Protocol -->
 <h3>D. Testing Protocol</h3>
 <p><strong>Phase 1 — Subsystem Verification (Benchtop Calibration / Individual Parts on Desk):</strong> ${subsysVer}</p>
 <p><strong>Phase 2 — System Validation (Operational Trials / Whole Machine in Real Life):</strong> ${sysVal}</p>
-<p><strong>Testing Mode:</strong> ${testingMode}${data['test-scale-size'] ? ` (${scaleSize})` : ''}</p>
+<p><strong>Testing Mode:</strong> ${testingMode} (${scaleSize})</p>
 <p><strong>Testing Procedure:</strong> ${testProc}</p>
 <p><strong>Scaling Logic &amp; Feasibility:</strong> ${scalingLogic}</p>
 <table border="1" cellpadding="7" cellspacing="0" style="width:100%;table-layout:fixed;border-collapse:collapse;margin-top:8pt;margin-bottom:12pt;font-size:9pt;">
@@ -6343,19 +5966,19 @@ ${rrlNarrativeHtml}
 <p><strong>Statistical Method:</strong> ${statTreat}</p>
 <p><strong>Method Justification:</strong> ${statJustifVal}</p>
 <p><strong>Null and Alternative Hypotheses:</strong> ${statHyp}</p>
-${sampleSizeHtml}
+<p><strong>Sample Size &amp; Statistical Power:</strong> This study plans ${trials} of independent, repeated experimental cycles. This sample size satisfies the <em>Central Limit Theorem</em> (N ≥ 30) and enables detection of statistically significant differences between the prototype and the baseline control at significance level α = 0.05.</p>
 
 <!-- III. EXPECTED PERFORMANCE TARGETS -->
 <h2>III. EXPECTED PERFORMANCE TARGETS AND VERIFICATION CRITERIA</h2>
-<p>To establish empirical proof of concept and confirm engineering efficacy, the proposed prototype will be evaluated against quantified pass/fail benchmarks across four core domains: functional performance, system safety, economic feasibility, and long-term sustainability.</p>
+<p>To establish empirical proof of concept and confirm engineering efficacy, the proposed prototype will be evaluated against rigorous, quantified pass/fail benchmarks across four core domains: functional performance, system safety, economic feasibility, and long-term sustainability.</p>
 
-<p><strong>Core Functional Performance Target.</strong> ${targetMetricContent}</p>
+<p><strong>Core Functional Performance Target.</strong> The prototype must autonomously satisfy its primary operational objective: <em>${targetMetric}</em>. Verification will be conducted through Phase 2 System Validation consisting of structured operational trials across ${trials}. Prototype acceptance requires achieving and maintaining an empirical success rate of &ge; 95% across all test cycles, demonstrating that sensor acquisition, decision processing, and actuator output execute within specified accuracy and real-time latency thresholds.</p>
 
-<p><strong>System Safety and Failsafe Operations.</strong> ${safetyTargetContent}</p>
+<p><strong>System Safety and Failsafe Operations.</strong> The prototype must demonstrate fault-tolerant operation with zero electrical backfeed, actuator stalls, or thermal runaway events under maximum operating load. Safety verification will follow a comprehensive Failure Mode and Effects Analysis (FMEA) protocol during benchtop stress testing, intentionally simulating power voltage drops, sensor disconnections, and physical obstruction. The pass/fail criterion mandates a 100% deterministic fail-safe shutdown upon any detected anomaly, ensuring user protection and component preservation.</p>
 
-<p><strong>Economic Feasibility and Bill of Materials (BOM) Ceiling.</strong> ${budgetTargetContent}</p>
+<p><strong>Economic Feasibility and Bill of Materials (BOM) Ceiling.</strong> The total fabrication and component procurement cost for the functional prototype is strictly constrained to a maximum Bill of Materials (BOM) ceiling of ₱${budget}. Verification involves an itemized Bill of Materials (BOM) audit and lifecycle cost accounting tracking all electronic sensors, microcontroller boards, mechanical structures, and power supplies. Prototype feasibility is confirmed if the final build expense remains less than or equal to the designated financial ceiling while preserving all operational specifications.</p>
 
-<p><strong>Community Sustainability and Longevity.</strong> ${sustainTargetContent}</p>
+<p><strong>Community Sustainability and Longevity.</strong> The engineering design incorporates sustainable community deployment criteria: <em>${sustain}</em>. System verification will be conducted via modular component lifecycle audits and maintenance serviceability assessments. The pass criterion requires that all wear-prone mechanical and electronic parts utilize standardized, locally serviceable components, satisfying community-level repairability and operational longevity standards.</p>
 
 <!-- REFERENCES -->
 <h2>REFERENCES</h2>
@@ -7792,7 +7415,7 @@ Instructions:
 
                   <div id="materials-apply-status" class="hidden text-xs font-semibold text-emerald-800 bg-emerald-100 border border-emerald-300 p-2 rounded-xl flex items-center gap-1.5">
                     <i class="ph ph-check-circle-fill text-emerald-600 text-sm"></i>
-                    <span>✓ Applied! Material and Signal Conditioning slots above have been populated.</span>
+                    <span>✓ Applied! All 4 Material slots (Sensor, Microcontroller, Actuator, Power) above have been populated.</span>
                   </div>
                 </div>`;
 
@@ -7807,13 +7430,11 @@ Instructions:
                   const b = document.getElementById('mat-brain');
                   const a = document.getElementById('mat-actuator');
                   const p = document.getElementById('mat-power');
-                  const sc = document.getElementById('signal-conditioning');
 
                   if (s && parsed.sensor) { s.value = parsed.sensor; s.dispatchEvent(new Event('input', { bubbles: true })); saveFieldToStorage('mat-sensor', parsed.sensor); }
                   if (b && parsed.brain) { b.value = parsed.brain; b.dispatchEvent(new Event('input', { bubbles: true })); saveFieldToStorage('mat-brain', parsed.brain); }
                   if (a && parsed.actuator) { a.value = parsed.actuator; a.dispatchEvent(new Event('input', { bubbles: true })); saveFieldToStorage('mat-actuator', parsed.actuator); }
                   if (p && parsed.power) { p.value = parsed.power; p.dispatchEvent(new Event('input', { bubbles: true })); saveFieldToStorage('mat-power', parsed.power); }
-                  if (sc && parsed.circuitAdvice) { sc.value = parsed.circuitAdvice; sc.dispatchEvent(new Event('input', { bubbles: true })); saveFieldToStorage('signal-conditioning', parsed.circuitAdvice); }
 
                   if (matStatus) matStatus.classList.remove('hidden');
                   btnApplyMat.innerHTML = '<i class="ph ph-check-circle-fill"></i> Applied to Slots!';
@@ -8422,7 +8043,7 @@ Instructions:
           btnSuggestTitle.innerHTML = '<i class="ph ph-spinner animate-spin text-sm"></i> Thinking...';
           btnSuggestTitle.disabled = true;
 
-          const contextData = JSON.stringify(collectFormData(), null, 2);
+          const contextData = JSON.stringify(savedData, null, 2);
 
           const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
@@ -8558,7 +8179,7 @@ Rules for ROBO/RIM Category Titles:
           btnRefineTitle.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Polishing...';
           btnRefineTitle.disabled = true;
 
-          const contextData = JSON.stringify(collectFormData(), null, 2);
+          const contextData = JSON.stringify(savedData, null, 2);
           const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
 
 ${getGradeLevelDirective(currentGradeLevel)}
@@ -9009,7 +8630,7 @@ INSTRUCTIONS:
 1. CRITICAL: DO NOT PROVIDE ANY NUMERIC SCORES OR POINTS (no 0-100, no scores). This is a purely qualitative advisory deliberation to give the student constructive, actionable feedback from each persona to improve their proposal.
 2. DO NOT MENTION WEIGHTS OR PERCENTAGES.
 3. Calibrate vocabulary and sentence complexity to Grade ${currentGradeLevel} STEM level.
-4. Keep feedback encouraging, respectful, yet scientifically rigorous and specific (naming the student's actual sensors, actuators, and target metrics). If any hardware, sensor, or testing fields are missing or not yet entered by the student, explicitly guide them on what components to specify rather than assuming or inventing hardware for them.
+4. Keep feedback encouraging, respectful, yet scientifically rigorous and specific (naming the student's actual sensors, actuators, and target metrics).
 5. PRESENTATION & NOTATION RULES:
    - ABSOLUTELY NO LATEX SYNTAX ($$, $, \\frac, \\text, \\times, etc.): Write all formulas, resolutions, and tolerances in clean, readable plain text with standard Unicode characters (e.g. Sensitivity = TP / (TP + FN), 320 × 240, N ≥ 30, ±2 mm).
    - NO RAW PIPE TABLES: Do NOT use markdown pipe tables (|---|). Use clearly labeled bullet points for comparisons.
@@ -9076,7 +8697,7 @@ INSTRUCTIONS:
           const parsed = JSON.parse(rawText.replace(/^```json\n/, '').replace(/\n```$/, '').trim());
 
           activePersonaFeedbackData = parsed;
-          const currentSig = computeProposalContentSignature(formData);
+          const currentSig = (((formData['project-title'] || '').trim().toLowerCase()) + '|' + ((formData['specific-problem'] || '').trim().toLowerCase())).trim();
           localStorage.setItem('ersa_persona_feedback_v2', JSON.stringify({ projectSig: currentSig, feedback: parsed }));
           renderPersonaFeedback(activePersonaTab);
           showValidationToast('4-Persona Committee Deliberation complete!', 'success');
@@ -9091,39 +8712,36 @@ INSTRUCTIONS:
         }
       }
 
-      // Computes a full content hash across all proposal fields to prevent stale deliberation reuse
-      function computeProposalContentSignature(data) {
-        if (!data) return '';
-        const keys = [
-          'project-title', 'specific-problem', 'broad-area',
-          'research-gap-1', 'research-gap-2', 'research-gap-3',
-          'gap-author-1', 'gap-author-2', 'gap-author-3',
-          'qps', 'functional-requirements',
-          'mechanical-constraints', 'software-constraints', 'budget-limit',
-          'var-independent', 'var-dependent', 'var-control',
-          'mat-sensor', 'mat-brain', 'mat-actuator', 'mat-power', 'signal-conditioning',
-          'control-architecture', 'ramp-safety',
-          'subsystem-verification', 'system-validation', 'testing-procedure',
-          'trials-planned', 'target-metric', 'statistical-hypothesis'
-        ];
-        return keys.map(k => (data[k] || '').toString().trim().toLowerCase()).join('||');
-      }
-
       function ensurePersonaFeedbackRendered() {
         const formData = collectFormData();
-        const currentSig = computeProposalContentSignature(formData);
+        const currentTitle = (formData['project-title'] || '').trim().toLowerCase();
+        const currentProblem = (formData['specific-problem'] || '').trim().toLowerCase();
+        const currentSig = (currentTitle + '|' + currentProblem).trim();
 
         if (!activePersonaFeedbackData) {
           const savedStr = localStorage.getItem('ersa_persona_feedback_v2');
           if (savedStr) {
             try {
               const saved = JSON.parse(savedStr);
-              if (saved && saved.projectSig === currentSig) {
-                activePersonaFeedbackData = saved.feedback;
-              } else {
-                // Stale or modified proposal inputs: discard obsolete cache
-                activePersonaFeedbackData = null;
-                localStorage.removeItem('ersa_persona_feedback_v2');
+              if (saved && saved.projectSig) {
+                // If the saved deliberation matches the current project, restore it
+                if (saved.projectSig === currentSig || (!currentTitle && !currentProblem)) {
+                  activePersonaFeedbackData = saved.feedback;
+                } else {
+                  // Different project! Discard stale cross-project cache
+                  activePersonaFeedbackData = null;
+                  localStorage.removeItem('ersa_persona_feedback_v2');
+                }
+              } else if (saved && saved.consensus) {
+                // Legacy cache without projectSig: check if title or headline matches
+                const overview = (saved.consensus.overview || '').toLowerCase();
+                const headline = (saved.consensus.headline || '').toLowerCase();
+                if (currentTitle && !overview.includes(currentTitle) && !headline.includes(currentTitle)) {
+                  activePersonaFeedbackData = null;
+                  localStorage.removeItem('ersa_persona_feedback_v2');
+                } else {
+                  activePersonaFeedbackData = saved;
+                }
               }
             } catch (e) {
               activePersonaFeedbackData = null;
@@ -9160,667 +8778,6 @@ INSTRUCTIONS:
           ensurePersonaFeedbackRendered();
         }
       });
-
-      // =========================================================================
-      // --- COMMITTEE CLARIFICATION CHAT & INTERACTIVE NODE GUIDANCE SYSTEM ---
-      // =========================================================================
-
-      const GUIDED_SECTION_MAP = {
-        'specific-problem': { step: 0, selector: '#specific-problem', label: 'Problem Statement', levelName: 'Level 1: Problem ID' },
-        'research-gap': { step: 0, selector: '#gaps-container', label: 'Literature Gap & RRL Citation', levelName: 'Level 1: Problem ID' },
-        'broad-area': { step: 0, selector: '#broad-area', label: 'Research Area', levelName: 'Level 1: Problem ID' },
-        'qps': { step: 1, selector: '#qps', label: 'Qualitative Problem Statement (QPS)', levelName: 'Level 2: QPS & Limits' },
-        'functional-requirements': { step: 1, selector: '#functional-requirements', label: 'Engineering Requirements & Benchmarks', levelName: 'Level 2: QPS & Limits' },
-        'mechanical-constraints': { step: 1, selector: '#mechanical-constraints', label: 'Design Constraints & Limits', levelName: 'Level 2: QPS & Limits' },
-        'project-scope': { step: 1, selector: '#project-scope', label: 'Scope & Delimitations', levelName: 'Level 2: QPS & Limits' },
-        'variables': { step: 2, selector: '#var-independent', label: 'Variables (Independent & Dependent)', levelName: 'Level 3: Variables & BOM' },
-        'var-independent': { step: 2, selector: '#var-independent', label: 'Independent Variable', levelName: 'Level 3: Variables & BOM' },
-        'var-dependent': { step: 2, selector: '#var-dependent', label: 'Dependent Variable', levelName: 'Level 3: Variables & BOM' },
-        'hardware': { step: 2, selector: '#mat-sensor', label: 'Hardware Triad (Sense-Think-Act)', levelName: 'Level 3: Variables & BOM' },
-        'mat-power': { step: 2, selector: '#mat-power', label: 'Power & Voltage Architecture', levelName: 'Level 3: Variables & BOM' },
-        'control-architecture': { step: 2, selector: '#control-architecture', label: 'Control & Firmware Architecture', levelName: 'Level 3: Variables & BOM' },
-        'target-metric': { step: 3, selector: '#target-metric', label: 'Target Performance Metric', levelName: 'Level 4: Testing & Stats' },
-        'testing-procedure': { step: 3, selector: '#testing-procedure', label: 'Testing Protocol & Procedure', levelName: 'Level 4: Testing & Stats' },
-        'trials-planned': { step: 3, selector: '#trials-planned', label: 'Trial Count (N ≥ 30 Repeated Trials)', levelName: 'Level 4: Testing & Stats' },
-        'statistical-treatment': { step: 3, selector: '#statistical-treatment', label: 'Statistical Treatment & Metrology', levelName: 'Level 4: Testing & Stats' },
-        'statistical-hypothesis': { step: 3, selector: '#statistical-hypothesis', label: 'Null & Alternative Hypotheses', levelName: 'Level 4: Testing & Stats' },
-        'project-title': { step: 4, selector: '#project-title', label: 'Project Title', levelName: 'Level 5: Project Title' },
-        'researchers': { step: 5, selector: '#researchers-container', label: 'Student Researchers & Authors', levelName: 'Level 6: Proposal & Feedback' }
-      };
-
-      const activeFlaggedSections = {};
-      let activeChatChannel = 'committee';
-      let clarificationChatMessages = [];
-      let guidedDotObserver = null;
-
-      // Update pulsating red dots over stepper node indicators in the top bar
-      function updateStepIndicatorDots() {
-        const stepHasFlag = [false, false, false, false, false, false];
-        Object.keys(activeFlaggedSections).forEach(key => {
-          const sec = GUIDED_SECTION_MAP[key];
-          if (sec && sec.step >= 0 && sec.step < 6) {
-            stepHasFlag[sec.step] = true;
-          }
-        });
-
-        stepIndicators.forEach((indicator, index) => {
-          let dot = indicator.querySelector(`.ersa-node-dot[data-step-dot="${index}"]`);
-          if (stepHasFlag[index]) {
-            if (!dot) {
-              dot = document.createElement('span');
-              dot.className = 'ersa-node-dot ersa-indicator-dot';
-              dot.setAttribute('data-step-dot', index);
-              dot.setAttribute('title', `Level ${index + 1} contains items flagged for revision`);
-              indicator.appendChild(dot);
-            }
-            dot.style.opacity = '1';
-          } else {
-            if (dot) {
-              dot.style.opacity = '0';
-              setTimeout(() => { if (dot.parentNode) dot.remove(); }, 250);
-            }
-          }
-        });
-
-        updateActiveFlaggedSummaryBadge();
-      }
-
-      function updateActiveFlaggedSummaryBadge() {
-        const summaryBadge = document.getElementById('active-flagged-summary');
-        const countText = document.getElementById('active-flagged-count-text');
-        if (!summaryBadge || !countText) return;
-
-        const count = Object.keys(activeFlaggedSections).length;
-        if (count > 0) {
-          countText.textContent = `${count} section${count > 1 ? 's' : ''} flagged for revision`;
-          summaryBadge.classList.remove('hidden');
-          summaryBadge.classList.add('flex');
-        } else {
-          summaryBadge.classList.add('hidden');
-          summaryBadge.classList.remove('flex');
-        }
-      }
-
-      // Set pulsating red dot and badge tag on a specific node section
-      function setSectionGuideDot(key, reason = 'Needs Revision') {
-        const sec = GUIDED_SECTION_MAP[key];
-        if (!sec) return;
-
-        activeFlaggedSections[key] = {
-          step: sec.step,
-          label: sec.label,
-          levelName: sec.levelName,
-          reason: reason
-        };
-
-        const targetEl = document.querySelector(sec.selector);
-        if (targetEl) {
-          const parent = targetEl.parentElement;
-          if (parent) {
-            parent.classList.add('ersa-attention-target');
-            let badge = parent.querySelector(`.ersa-section-badge-wrapper[data-guide-key="${key}"]`);
-            if (!badge) {
-              badge = document.createElement('div');
-              badge.className = 'ersa-section-badge-wrapper';
-              badge.setAttribute('data-guide-key', key);
-              badge.setAttribute('title', `${reason} (Click or inspect to dismiss)`);
-              badge.innerHTML = `
-                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                <span>🔴 ${escapeHtml(reason)}</span>
-                <span class="text-[9px] font-normal opacity-85 ml-1">✕</span>
-              `;
-              badge.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dismissGuidedDot(key);
-              });
-              parent.appendChild(badge);
-            } else {
-              badge.innerHTML = `
-                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                <span>🔴 ${escapeHtml(reason)}</span>
-                <span class="text-[9px] font-normal opacity-85 ml-1">✕</span>
-              `;
-            }
-          }
-
-          targetEl.classList.add('ersa-attention-glow');
-
-          // Attach user interaction listeners so touching or typing immediately clears it
-          const dismissOnInput = () => {
-            dismissGuidedDot(key);
-            targetEl.removeEventListener('focus', dismissOnInput);
-            targetEl.removeEventListener('input', dismissOnInput);
-          };
-          targetEl.addEventListener('focus', dismissOnInput);
-          targetEl.addEventListener('input', dismissOnInput);
-
-          // Observe element visibility for auto-dismissal when inspected
-          observeElementForAutoDismiss(targetEl, key);
-        }
-
-        updateStepIndicatorDots();
-      }
-
-      // Dismiss pulsating dot for a section once viewed
-      window.dismissGuidedDot = function(key) {
-        if (!activeFlaggedSections[key]) return;
-        const sec = GUIDED_SECTION_MAP[key];
-
-        if (sec) {
-          const targetEl = document.querySelector(sec.selector);
-          if (targetEl) {
-            targetEl.classList.remove('ersa-attention-glow');
-            const parent = targetEl.parentElement;
-            if (parent) {
-              const badge = parent.querySelector(`.ersa-section-badge-wrapper[data-guide-key="${key}"]`);
-              if (badge) {
-                badge.style.opacity = '0';
-                badge.style.transform = 'scale(0.7)';
-                setTimeout(() => { if (badge.parentNode) badge.remove(); }, 250);
-              }
-            }
-          }
-        }
-
-        delete activeFlaggedSections[key];
-        updateStepIndicatorDots();
-      };
-
-      // Clear all active dots
-      function clearAllGuidedDots() {
-        Object.keys(activeFlaggedSections).forEach(key => {
-          dismissGuidedDot(key);
-        });
-        showValidationToast('All notification dots cleared.', 'info');
-      }
-
-      // Jump directly to a flagged section, scroll to it, highlight it, and auto-dismiss after inspection
-      window.jumpToGuidedSection = function(key) {
-        const sec = GUIDED_SECTION_MAP[key];
-        if (!sec) return;
-
-        // Switch wizard step if needed
-        if (currentStep !== sec.step) {
-          currentStep = sec.step;
-          updateWizard();
-        }
-
-        setTimeout(() => {
-          let targetEl = document.querySelector(sec.selector);
-
-          // If jumping to research gaps, expand all gap blocks so no collapsed input hides content
-          if (key === 'research-gap') {
-            const gapBlocks = document.querySelectorAll('#gaps-container .gap-block');
-            let problemBlock = null;
-            gapBlocks.forEach(b => {
-              const ta = b.querySelector('textarea');
-              const val = (ta ? ta.value : '').trim();
-              if (val.toLowerCase() === 'dd' || (val.length > 0 && val.length < 15)) {
-                problemBlock = b;
-              }
-            });
-
-            // Expand all gap accordions in gapsContainer so the user can clearly inspect every gap
-            gapBlocks.forEach(b => {
-              const content = b.querySelector('.gap-content');
-              const icon = b.querySelector('.toggle-icon');
-              if (content) content.classList.remove('hidden');
-              if (icon) icon.classList.add('rotate-180');
-            });
-
-            if (problemBlock) {
-              const ta = problemBlock.querySelector('textarea');
-              if (ta) targetEl = ta;
-            } else {
-              const firstTa = document.querySelector('#research-gap-1');
-              if (firstTa) targetEl = firstTa;
-            }
-          } else if (targetEl) {
-            // Expand accordion if inside a collapsed gap block
-            const gapBlock = targetEl.closest('.gap-block');
-            if (gapBlock) {
-              const content = gapBlock.querySelector('.gap-content');
-              const icon = gapBlock.querySelector('.toggle-icon');
-              if (content && content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                if (icon) icon.classList.add('rotate-180');
-              }
-            }
-          }
-
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetEl.classList.add('ersa-attention-glow');
-
-            try {
-              if (typeof targetEl.focus === 'function') targetEl.focus();
-            } catch (e) {}
-
-            // Dismiss dot after 1.8 seconds of focused viewing
-            setTimeout(() => {
-              dismissGuidedDot(key);
-            }, 1800);
-          }
-        }, 180);
-      };
-
-      // Auto-dismiss observer when user scrolls and views the section
-      function observeElementForAutoDismiss(el, key) {
-        if (!('IntersectionObserver' in window)) return;
-        if (!guidedDotObserver) {
-          guidedDotObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
-                const guideKey = entry.target.getAttribute('data-ersa-observe-key');
-                if (guideKey && activeFlaggedSections[guideKey]) {
-                  const sec = GUIDED_SECTION_MAP[guideKey];
-                  if (sec && sec.step === currentStep) {
-                    setTimeout(() => {
-                      dismissGuidedDot(guideKey);
-                      guidedDotObserver.unobserve(entry.target);
-                    }, 1400);
-                  }
-                }
-              }
-            });
-          }, { threshold: 0.3 });
-        }
-
-        el.setAttribute('data-ersa-observe-key', key);
-        guidedDotObserver.observe(el);
-      }
-
-      // Heuristic project diagnostics engine: checks current inputs and detects weak/missing sections
-      function diagnoseProjectWeaknesses(formData) {
-        const flags = [];
-        const title = (formData['project-title'] || '').trim();
-        const problem = (formData['specific-problem'] || '').trim();
-        const broad = (formData['broad-area'] || '').trim();
-        const gap = (formData['research-gap-1'] || '').trim();
-        const gapAuthor = (formData['gap-author-1'] || '').trim();
-        const qps = (formData['qps'] || '').trim();
-        const funcReq = (formData['functional-requirements'] || '').trim();
-        const iv = (formData['var-independent'] || '').trim();
-        const dv = (formData['var-dependent'] || '').trim();
-        const sensor = (formData['mat-sensor'] || '').trim();
-        const brain = (formData['mat-brain'] || '').trim();
-        const actuator = (formData['mat-actuator'] || '').trim();
-        const power = (formData['mat-power'] || '').trim();
-        const metric = (formData['target-metric'] || '').trim();
-        const procedure = (formData['testing-procedure'] || '').trim();
-        const trials = parseInt(formData['trials-planned'] || '0', 10);
-        const hypothesis = (formData['statistical-hypothesis'] || '').trim();
-
-        if (!problem || problem.length < 25) {
-          flags.push({ key: 'specific-problem', reason: 'Vague problem statement; needs localized target beneficiary' });
-        }
-        if (!gap || gap.length < 15 || gap.toLowerCase() === 'dd') {
-          flags.push({ key: 'research-gap', reason: 'Literature gap statement is too brief; needs 2–3 sentences detailing technological limitations' });
-        } else if (!gapAuthor) {
-          flags.push({ key: 'research-gap', reason: 'Missing literature author citation or reference' });
-        }
-        if (!qps) {
-          flags.push({ key: 'qps', reason: 'Qualitative problem statement (QPS) is not yet synthesized' });
-        }
-        if (!funcReq || !/\d/.test(funcReq)) {
-          flags.push({ key: 'functional-requirements', reason: 'Needs quantitative engineering requirements with numerical units' });
-        }
-        if (!iv || !dv) {
-          flags.push({ key: 'variables', reason: 'Independent or dependent variable is incomplete' });
-        }
-        if (!sensor || !brain || !actuator) {
-          flags.push({ key: 'hardware', reason: 'Sense-Think-Act triad components are missing or incomplete' });
-        }
-        if (!power || !/(v|volt|battery|rail|boost|buck)/i.test(power)) {
-          flags.push({ key: 'mat-power', reason: 'Power architecture needs explicit voltage rail isolation' });
-        }
-        if (isNaN(trials) || trials < 30) {
-          flags.push({ key: 'trials-planned', reason: 'Trial count is below N ≥ 30 repeated trials standard' });
-        }
-        if (!hypothesis || !/H₀|H0|null|alternative/i.test(hypothesis)) {
-          flags.push({ key: 'statistical-hypothesis', reason: 'Missing formal null and alternative hypotheses' });
-        }
-        if (!procedure || procedure.length < 30) {
-          flags.push({ key: 'testing-procedure', reason: 'Testing protocol lacks step-by-step metrology steps' });
-        }
-        if (!title || title.length < 15) {
-          flags.push({ key: 'project-title', reason: 'Title needs formal IV, DV, and system name alignment' });
-        }
-
-        return flags;
-      }
-
-      // Format chat message with rich text and convert [FLAG:key:reason] into interactive jump pills
-      function formatClarificationChatMessage(content) {
-        if (!content) return '';
-        let html = formatRichContent(content);
-
-        // Transform [FLAG:key:reason] tokens into interactive clickable action pills with pulsating dot
-        html = html.replace(/\[FLAG:([a-zA-Z0-9_-]+):([^\]]+)\]/g, (match, key, reason) => {
-          const sec = GUIDED_SECTION_MAP[key];
-          const label = sec ? `${sec.levelName}: ${sec.label}` : key;
-          return `
-            <div class="my-2">
-              <button type="button" class="btn-jump-to-guided inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold rounded-xl border border-rose-200 shadow-2xs transition-all cursor-pointer hover:shadow-xs active:scale-95" onclick="jumpToGuidedSection('${key}')">
-                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                <span>📍 Jump to ${escapeHtml(label)}</span>
-                <span class="text-[10px] text-rose-600 font-normal">(${escapeHtml(reason)})</span>
-              </button>
-            </div>
-          `;
-        });
-
-        return html;
-      }
-
-      // Append message to clarification chat UI
-      function appendClarificationMessage(sender, text, personaKey = 'committee') {
-        const container = document.getElementById('committee-chat-messages');
-        if (!container) return;
-
-        const isUser = (sender === 'user');
-        const msgEl = document.createElement('div');
-        msgEl.className = `flex gap-3 ${isUser ? 'justify-end' : 'justify-start'} animate-fadeIn`;
-
-        const personaConfig = {
-          committee: { name: 'Review Committee', icon: 'ph-users-four', bg: 'bg-indigo-600', text: 'text-indigo-600', badge: 'Consensus' },
-          mentor: { name: 'The Mentor', icon: 'ph-chalkboard-teacher', bg: 'bg-purple-600', text: 'text-purple-600', badge: 'Methodology' },
-          techie: { name: 'The Techie', icon: 'ph-gear-six', bg: 'bg-blue-600', text: 'text-blue-600', badge: 'Hardware' },
-          practitioner: { name: 'The Practitioner', icon: 'ph-user-check', bg: 'bg-emerald-600', text: 'text-emerald-600', badge: 'Usability' },
-          challenger: { name: 'The Challenger', icon: 'ph-shield-warning', bg: 'bg-amber-600', text: 'text-amber-600', badge: 'Risk & Defense' }
-        };
-
-        const cfg = personaConfig[personaKey] || personaConfig.committee;
-        const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        if (isUser) {
-          msgEl.innerHTML = `
-            <div class="max-w-[85%] sm:max-w-[75%] space-y-1">
-              <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-xs p-3.5 sm:p-4 text-xs sm:text-sm shadow-xs leading-relaxed">
-                ${escapeHtml(text)}
-              </div>
-              <div class="text-[10px] text-slate-400 text-right pr-1">You · ${timeStr}</div>
-            </div>
-            <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">
-              <i class="ph ph-user"></i>
-            </div>
-          `;
-        } else {
-          msgEl.innerHTML = `
-            <div class="w-8 h-8 rounded-xl ${cfg.bg} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
-              <i class="ph ${cfg.icon}"></i>
-            </div>
-            <div class="max-w-[85%] sm:max-w-[78%] space-y-1">
-              <div class="flex items-center gap-2 mb-0.5">
-                <span class="font-bold text-xs text-slate-800">${cfg.name}</span>
-                <span class="text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">${cfg.badge}</span>
-                <span class="text-[10px] text-slate-400">${timeStr}</span>
-              </div>
-              <div class="bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-4 text-xs sm:text-sm text-slate-800 shadow-2xs leading-relaxed">
-                ${formatClarificationChatMessage(text)}
-              </div>
-            </div>
-          `;
-        }
-
-        container.appendChild(msgEl);
-        container.scrollTop = container.scrollHeight;
-      }
-
-      // Execute Clarification Chat Query (supports Gemini AI with Heuristic fallback)
-      async function submitCommitteeClarification(userQuestion) {
-        if (!userQuestion || !userQuestion.trim()) return;
-        const question = userQuestion.trim();
-
-        const inputEl = document.getElementById('committee-chat-input');
-        const submitBtn = document.getElementById('btn-send-committee-chat');
-        if (inputEl) inputEl.value = '';
-        if (submitBtn) submitBtn.disabled = true;
-
-        appendClarificationMessage('user', question);
-
-        // Typing indicator
-        const container = document.getElementById('committee-chat-messages');
-        const typingEl = document.createElement('div');
-        typingEl.id = 'chat-typing-indicator';
-        typingEl.className = 'flex items-center gap-2 text-xs text-slate-400 p-2 italic animate-pulse';
-        typingEl.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Committee deliberating on your question...`;
-        if (container) {
-          container.appendChild(typingEl);
-          container.scrollTop = container.scrollHeight;
-        }
-
-        const formData = collectFormData();
-        const isRequestingFixes = /fix|point out|where|guide|needs fixing|check my|red dot/i.test(question);
-
-        // Diagnose project state
-        const detectedWeaknesses = diagnoseProjectWeaknesses(formData);
-
-        // If user explicitly asks what needs fixing or guidance, light up notification dots immediately
-        if (isRequestingFixes) {
-          if (detectedWeaknesses.length > 0) {
-            detectedWeaknesses.slice(0, 4).forEach(item => {
-              setSectionGuideDot(item.key, item.reason);
-            });
-            showValidationToast(`Committee flagged ${Math.min(detectedWeaknesses.length, 4)} sections with red pulsating notification dots!`, 'info');
-          } else {
-            showValidationToast('Excellent! All core proposal fields are populated without major gaps.', 'success');
-          }
-        }
-
-        const apiKey = sessionApiKey;
-        let responseText = '';
-
-        if (apiKey) {
-          try {
-            const contextJson = JSON.stringify(formData, null, 2);
-            const deliberationSummary = activePersonaFeedbackData ? JSON.stringify(activePersonaFeedbackData, null, 2) : 'No deliberation cached yet';
-
-            const prompt = `[Current System Date & Time: ${new Date().toLocaleString()}]
-
-${getGradeLevelDirective(currentGradeLevel)}
-
-${ERSA_REVIEWER_ALIGNMENT_DIRECTIVE}
-
-You are the autonomous ERSA Review Committee Clarification Adviser.
-The student is asking a clarification question about their engineering proposal in Robotics and Intelligent Machines (ROBO/RIM).
-Current Target Channel Persona: ${activeChatChannel.toUpperCase()}
-
-STUDENT PROPOSAL INPUTS:
-${contextJson}
-
-ACTIVE 4-PERSONA DELIBERATION DATA:
-${deliberationSummary}
-
-STUDENT QUESTION:
-"${question}"
-
-INSTRUCTIONS:
-1. Provide a direct, encouraging, scientifically rigorous academic clarification tailored to Grade ${currentGradeLevel}.
-2. CRITICAL ACCURACY & LIVE INPUT VERIFICATION RULE:
-   - Base all critique, action items, and flags STRICTLY on the live STUDENT PROPOSAL INPUTS above.
-   - The ACTIVE 4-PERSONA DELIBERATION DATA is for background advisory reference only.
-   - If the deliberation summary mentions an issue or placeholder (such as "dd") that DOES NOT EXIST in the live STUDENT PROPOSAL INPUTS, DO NOT repeat it or flag it. The student has already corrected their inputs!
-   - NEVER invent or claim placeholder text exists unless you literally see it in the STUDENT PROPOSAL INPUTS JSON.
-3. If answering as a specific persona (${activeChatChannel}):
-   - Mentor: focus on variables, hypothesis, 30 repeated trials, and logbook.
-   - Techie: focus on Sense-Think-Act triad, power isolation, sensors, and circuitry.
-   - Practitioner: focus on usability, ergonomics, community budget, and field durability.
-   - Challenger: focus on failure modes, low voltage sag, sensor drift, and baseline manual comparison.
-   - Committee: synthesize across all 4 perspectives.
-3. CRITICAL INTERACTIVE NODE GUIDANCE:
-   If you point out specific areas of the student's proposal that need improvement, embed exact tag tokens using this syntax:
-   [FLAG:section_key:Short reason]
-   Available keys:
-   • specific-problem (Level 1 Problem Statement)
-   • research-gap (Level 1 Literature Gap & RRL)
-   • qps (Level 2 Qualitative Problem Statement)
-   • functional-requirements (Level 2 Benchmark Requirements)
-   • mechanical-constraints (Level 2 Design Limits)
-   • variables (Level 3 Variables)
-   • hardware (Level 3 Sense-Think-Act Triad)
-   • mat-power (Level 3 Power Architecture)
-   • trials-planned (Level 4 30 Repeated Trials)
-   • testing-procedure (Level 4 Testing Protocol)
-   • statistical-hypothesis (Level 4 Hypotheses)
-   • project-title (Level 5 Title)
-   Example: "Your testing protocol must specify at least 30 repeated trials [FLAG:trials-planned:Needs N ≥ 30 repeated trials]. Also, define your sensor voltage isolation [FLAG:mat-power:Specify buck converter and power isolation]."
-4. NO LATEX SYNTAX ($$, \\frac, \\times). Write clean Unicode (N ≥ 30, ±2 mm, α = 0.05).
-5. NO RAW PIPE TABLES. Use bullet points.`;
-
-            const { data } = await callGeminiWithFallback(apiKey, {
-              contents: [{ parts: [{ text: prompt }] }]
-            });
-
-            const rawAiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (rawAiText) responseText = rawAiText;
-          } catch (err) {
-            console.warn("Clarification Chat Gemini API error, falling back to heuristic engine:", err);
-          }
-        }
-
-        // Heuristic fallback response engine if offline or API unavailable
-        if (!responseText) {
-          if (isRequestingFixes) {
-            if (detectedWeaknesses.length > 0) {
-              const itemsList = detectedWeaknesses.slice(0, 4).map((w, i) => {
-                const sec = GUIDED_SECTION_MAP[w.key];
-                return `${i + 1}. **${sec ? sec.levelName : 'Section'} — ${sec ? sec.label : w.key}**: ${w.reason}. [FLAG:${w.key}:${w.reason}]`;
-              }).join('\n\n');
-
-              responseText = `Here is our committee audit of your proposal. We have flagged the primary sections needing revisions and placed **red pulsating notification dots** over them:\n\n${itemsList}\n\n💡 **How to inspect:** Click any of the red button badges above to navigate straight to that section. The pulsating dot will automatically disappear as soon as you view and inspect it!`;
-            } else {
-              responseText = `🎉 **Outstanding work!** Our audit shows that all foundational fields across Levels 1 through 5 are filled out.\n\nTo further elevate your proposal toward an ISEF **"STRONG GO"**, we recommend ensuring:\n- **Level 3**: Motor and logic rails have separate power isolation.\n- **Level 4**: The 30 repeated trials logbook protocol details your baseline comparison.\n\nAsk us if you need help with specific component selections or statistical hypothesis formulas!`;
-            }
-          } else if (/trial|30|repetition|sample/i.test(question)) {
-            setSectionGuideDot('trials-planned', 'Verify N ≥ 30 repeated trials');
-            responseText = `🎓 **The Mentor clarifies:**\nIn competitive robotics and STEM fairs, engineering designs require a minimum of **N ≥ 30 repeated trials** per test condition to satisfy the **Central Limit Theorem**.\n\nWhy is this critical?\n1. **Eliminates False Positives:** A single working demo does not prove reliability. Sensors drift with heat and battery levels change.\n2. **Statistical Validity:** N ≥ 30 allows sampling distributions to approximate normality, empowering your Two-Sample or Paired t-Test (at α = 0.05) to detect genuine engineering performance differences.\n\n[FLAG:trials-planned:Verify minimum N ≥ 30 repeated trials in your protocol]`;
-          } else if (/hardware|sensor|microcontroller|brain|actuator/i.test(question)) {
-            setSectionGuideDot('hardware', 'Check Sense-Think-Act triad');
-            setSectionGuideDot('mat-power', 'Verify power isolation');
-            responseText = `⚙️ **The Techie clarifies:**\nFor an ISEF-ready robotics proposal, make sure your **Sense-Think-Act triad** avoids the generic "kit clone" trap:\n\n- **Sense:** Use calibrated digital sensors with documented tolerances (e.g. VL53L0X ToF for millimeter ranging rather than basic uncalibrated ultrasonic modules).\n- **Think:** Choose a microcontroller with appropriate hardware interrupts and logic levels (e.g. ESP32-WROOM-32 or STM32).\n- **Act:** Isolate motor coils using a dedicated H-bridge driver (e.g. TB6612FNG) rather than powering servos directly from MCU 5V pins.\n\n[FLAG:hardware:Specify exact models for sensor, brain, and actuator] [FLAG:mat-power:Document separate logic and motor power rails]`;
-          } else if (/risk|failure|challenger|defense/i.test(question)) {
-            setSectionGuideDot('mechanical-constraints', 'Document failure mitigations');
-            responseText = `🔬 **The Challenger clarifies:**\nWhen defending your proposal before judges, expect challenges on real-world vulnerabilities:\n\n1. **Voltage Sag:** When motors accelerate under load, supply voltage can drop, causing the microcontroller to brown out. Document decoupling capacitors (e.g. 470µF) and buck converters.\n2. **Baseline Defense:** Why is an autonomous robotic machine better than a simple mechanical jig? Prepare a direct speed, accuracy, and error-rate baseline comparison.\n\n[FLAG:mechanical-constraints:Add power decoupling and failure mitigation limits]`;
-          } else {
-            responseText = `🏛️ **Committee Response:**\nThank you for your question. To ensure your concept proposal is defense-ready, refine your inputs across each level:\n\n- Verify that your target metrics have concrete units (%, ms, mm, ₱).\n- Ensure your hardware architecture includes dedicated power isolation.\n- Plan at least 30 repeated trials to satisfy the Mentor's statistical metrology standard.\n\nWould you like the committee to highlight specific sections? Click **"🔴 Point out what needs fixing"** anytime!`;
-          }
-        }
-
-        // Remove typing indicator and append response
-        if (typingEl && typingEl.parentNode) typingEl.remove();
-        appendClarificationMessage(activeChatChannel, responseText, activeChatChannel);
-
-        // Auto parse any flag tokens in the response and set the pulsating dots
-        const flagMatches = responseText.matchAll(/\[FLAG:([a-zA-Z0-9_-]+):([^\]]+)\]/g);
-        for (const match of flagMatches) {
-          const key = match[1];
-          const reason = match[2];
-          setSectionGuideDot(key, reason);
-        }
-
-        if (submitBtn) submitBtn.disabled = false;
-      }
-
-      // Initialize Clarification Chat UI and Listeners
-      function initCommitteeClarificationChat() {
-        // Channel Buttons
-        document.querySelectorAll('.chat-channel-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const ch = e.currentTarget.getAttribute('data-channel');
-            if (ch) {
-              activeChatChannel = ch;
-              document.querySelectorAll('.chat-channel-btn').forEach(b => {
-                if (b.getAttribute('data-channel') === ch) {
-                  b.className = 'chat-channel-btn active px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-indigo-600 text-white shadow-xs';
-                } else {
-                  b.className = 'chat-channel-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 shadow-2xs';
-                }
-              });
-            }
-          });
-        });
-
-        // Quick Prompt Action Chips
-        document.querySelectorAll('.chat-quick-prompt-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const p = e.currentTarget.getAttribute('data-prompt');
-            if (p) submitCommitteeClarification(p);
-          });
-        });
-
-        // Form Submit
-        const chatForm = document.getElementById('committee-chat-form');
-        const chatInput = document.getElementById('committee-chat-input');
-        if (chatForm && chatInput) {
-          chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const q = chatInput.value;
-            if (q && q.trim()) submitCommitteeClarification(q);
-          });
-        }
-
-        // Header open shortcut button
-        const btnOpenChat = document.getElementById('btn-open-clarification-chat');
-        if (btnOpenChat) {
-          btnOpenChat.addEventListener('click', () => {
-            const panel = document.getElementById('committee-clarification-panel');
-            if (panel) {
-              panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              if (chatInput) {
-                setTimeout(() => chatInput.focus(), 300);
-              }
-            }
-          });
-        }
-
-        // Clear all flags button
-        const btnClearFlags = document.getElementById('btn-clear-all-flags');
-        if (btnClearFlags) {
-          btnClearFlags.addEventListener('click', clearAllGuidedDots);
-        }
-
-        // Reset chat button
-        const btnResetChat = document.getElementById('btn-clear-clarification-chat');
-        if (btnResetChat) {
-          btnResetChat.addEventListener('click', () => {
-            const container = document.getElementById('committee-chat-messages');
-            if (container) container.innerHTML = '';
-            renderInitialClarificationMessage();
-            clearAllGuidedDots();
-            showValidationToast('Clarification chat reset.', 'info');
-          });
-        }
-
-        // Render initial welcome greeting
-        renderInitialClarificationMessage();
-      }
-
-      function renderInitialClarificationMessage() {
-        const initialText = `Welcome to the **Committee Clarification Desk**! 👋\n\nWe are here to help you translate our 4-Persona Deliberation into a competition-ready proposal. You can:\n- Ask for clarifications regarding our methodology, hardware, usability, or risk feedback.\n- Ask how to write specific sections (e.g. hypothesis, BOM, or testing protocols).\n- Click **"🔴 Point out what needs fixing"** above, and we will highlight specific nodes and sections with interactive pulsating red notification dots to guide your revisions!`;
-        appendClarificationMessage('committee', initialText, 'committee');
-      }
-
-      // Initialize Committee Clarification Chat
-      initCommitteeClarificationChat();
-
-      // Listen for step changes to re-check and auto-observe visible flagged elements
-      document.addEventListener('ersa:stepChanged', (e) => {
-        const step = e.detail && e.detail.step;
-        if (step !== undefined) {
-          updateStepIndicatorDots();
-
-          // Auto observe elements in current step
-          Object.keys(activeFlaggedSections).forEach(key => {
-            const sec = GUIDED_SECTION_MAP[key];
-            if (sec && sec.step === step) {
-              const el = document.querySelector(sec.selector);
-              if (el) observeElementForAutoDismiss(el, key);
-            }
-          });
-        }
-      });
-
 
       // --- Phase 6: Generate Final Proposal (Uses Instant IM Concept Proposal Preview Blueprint) ---
       const btnGenerateProposal = document.getElementById('btn-generate-proposal');
@@ -9874,9 +8831,7 @@ NOTE: Physical testing has NOT yet been conducted; this is a pre-experimentation
 
 LANGUAGE & TONE DIRECTIVE:
 Strictly adhere to the Grade ${currentGradeLevel} Directive provided above. Adjust the vocabulary, syntax complexity, and academic tone according to the student's grade level.
-ANTI-HALLUCINATION & DATA INTEGRITY DIRECTIVES:
-1. STRICT DATA INTEGRITY: Do NOT invent, assume, or fabricate any hardware components, sensors, microcontrollers, actuators, circuit components (resistors, capacitors, optocouplers), literature citations, or numerical experimental targets that are not explicitly provided in the student's JSON input.
-2. MISSING FIELDS: If any field in the JSON data is blank, empty, or unentered by the student, denote it cleanly as [Field: To be specified by student] (e.g. "[Sensor: To be specified by student]"). NEVER fill in dummy hardware, fake sample sizes, or synthesized citations.
+Maintain strict scientific and engineering rigor. Explain technical concepts directly and vividly.
 
 Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <table>, <thead>, <tbody>, <tr>, <th>, <td>) so it renders beautifully in a browser and exports cleanly to Microsoft Word. DO NOT USE MARKDOWN.`;
 
@@ -10142,16 +9097,10 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
           if (!el.id || el.id === 'gemini-api-key' || el.id === 'load-draft-input') return;
           if (el.type === 'checkbox') {
             if (el.checked) data[el.id] = el.value || 'true';
-            else delete data[el.id];
           } else if (el.type === 'radio') {
             if (el.checked) data[el.name || el.id] = el.value;
-          } else if (el.value !== undefined) {
-            const val = typeof el.value === 'string' ? el.value.trim() : el.value;
-            if (val !== '') {
-              data[el.id] = el.value;
-            } else {
-              delete data[el.id];
-            }
+          } else if (el.value !== undefined && el.value !== '') {
+            data[el.id] = el.value;
           }
         });
 
@@ -10165,34 +9114,14 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
           if (val) data[`researcher-${idx + 1}`] = val;
         });
 
-        // Ensure dynamic gaps and citations are captured cleanly from DOM without stale leftover keys
-        Object.keys(data).forEach(k => {
-          if (k === 'research-gap' || k.startsWith('research-gap') || k.startsWith('gap-') || k === 'literature-gap') {
-            delete data[k];
-          }
-        });
-        Object.keys(savedData).forEach(k => {
-          if (k === 'research-gap' || k === 'literature-gap' || k === 'undefined' || k === 'null') {
-            delete savedData[k];
-          }
-        });
-
+        // Ensure dynamic gaps and citations are captured from DOM
         const gapBlocks = document.querySelectorAll('#gaps-container .gap-block');
         gapBlocks.forEach((block, idx) => {
           const gIndex = idx + 1;
           const gTa = block.querySelector('textarea');
-          const rawVal = gTa ? gTa.value.trim() : '';
-
-          // Only store gap text if it is present; for optional gaps (Gap 2+), ignore accidental single/double-letter typos like 'dd'
-          if (rawVal && (gIndex === 1 || rawVal.length > 3 || !/^(dd|asdf|test|\.+)$/i.test(rawVal))) {
-            data[`research-gap-${gIndex}`] = rawVal;
-          }
-
+          if (gTa && gTa.value.trim()) data[`research-gap-${gIndex}`] = gTa.value.trim();
           block.querySelectorAll('input').forEach(inp => {
-            if (inp.id && inp.value.trim()) {
-              const baseType = inp.id.replace(/-\d+$/, '');
-              data[`${baseType}-${gIndex}`] = inp.value.trim();
-            }
+            if (inp.id && inp.value.trim()) data[inp.id] = inp.value.trim();
           });
         });
 
@@ -10410,47 +9339,20 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
             activePersonaFeedbackData = null;
             try { localStorage.removeItem('ersa_persona_feedback_v2'); } catch (e) {}
 
-            // 1. Completely reset existing in-memory state and form inputs to prevent cross-draft contamination
-            savedData = {};
-            if (form) {
-              form.querySelectorAll('input:not(#gemini-api-key):not(#gas-webapp-url), textarea, select').forEach(el => {
-                if (el.type === 'checkbox' || el.type === 'radio') {
-                  el.checked = false;
-                } else {
-                  el.value = '';
-                }
-              });
-            }
-
-            // 2. Clear dynamic researcher and gap DOM containers
-            if (researchersContainer) {
-              researchersContainer.innerHTML = '';
-              researcherCount = 0;
-            }
-            if (gapsContainer) {
-              gapsContainer.innerHTML = '';
-              gapCount = 0;
-            }
-
             let restoredCount = 0;
-
-            // 3. Restore all simple input/textarea/select fields
+            // Restore all simple input/textarea/select fields
             for (const key in data) {
-              if (key.startsWith('_') || key.startsWith('researcher-') || key.startsWith('research-gap-') || key.startsWith('gap-')) continue;
+              if (key.startsWith('_')) continue;
               const el = document.getElementById(key);
               if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) {
-                const val = data[key] !== undefined && data[key] !== null ? String(data[key]) : '';
-                el.value = val;
-                if (val.trim()) {
-                  savedData[key] = val;
-                  restoredCount++;
-                }
+                el.value = data[key] || '';
                 el.dispatchEvent(new Event('input', { bubbles: true }));
                 el.dispatchEvent(new Event('change', { bubbles: true }));
+                restoredCount++;
               }
             }
 
-            // 4. Restore researcher fields — dynamically instantiate all researcher rows present in draft
+            // Restore researcher fields — dynamically instantiate all researcher rows present in draft
             let maxResearcher = 0;
             for (const key in data) {
               const m = key.match(/^researcher-(\d+)$/);
@@ -10459,89 +9361,70 @@ Organize the output using clean, semantic standard HTML tags (<h1>, <h2>, <h3>, 
               }
             }
 
-            if (maxResearcher === 0) {
-              researcherCount = 1;
-              createResearcherBlock(1, '');
-            } else {
-              for (let ri = 1; ri <= maxResearcher; ri++) {
+            if (researchersContainer && maxResearcher > 0) {
+              const existingRows = researchersContainer.querySelectorAll('.researcher-row');
+              for (let ri = existingRows.length + 1; ri <= maxResearcher; ri++) {
                 researcherCount = ri;
-                const rVal = data[`researcher-${ri}`] || '';
-                createResearcherBlock(ri, rVal);
-                if (rVal && rVal.trim()) {
-                  savedData[`researcher-${ri}`] = rVal.trim();
-                  restoredCount++;
-                }
+                createResearcherBlock(ri, data[`researcher-${ri}`] || '');
               }
             }
-            reindexResearchers();
 
-            // 5. Restore gap fields — dynamically rebuild gap blocks present in draft
+            for (let ri = 1; ri <= maxResearcher; ri++) {
+              const rKey = `researcher-${ri}`;
+              const el = document.getElementById(rKey);
+              if (el && data[rKey]) {
+                el.value = data[rKey];
+                saveFieldToStorage(rKey, data[rKey]);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                restoredCount++;
+              }
+            }
+
+            // Restore gap fields — rebuild gap blocks if needed
             let maxGap = 0;
             for (const key in data) {
               const m = key.match(/^research-gap-(\d+)$/);
-              if (m && data[key] && String(data[key]).trim()) {
-                maxGap = Math.max(maxGap, parseInt(m[1]));
-              }
+              if (m && data[key] && String(data[key]).trim()) maxGap = Math.max(maxGap, parseInt(m[1]));
             }
 
-            if (maxGap === 0) {
-              for (let gi = 1; gi <= 3; gi++) {
-                gapCount = gi;
-                const block = createGapBlock(gi);
-                if (gi === 1) block.querySelector('.toggle-icon')?.classList.add('rotate-180');
-                else block.querySelector('.gap-content')?.classList.add('hidden');
+            const gapsBtnAdd = document.getElementById('btn-add-gap');
+            const gapsCont = document.getElementById('gaps-container');
+            if (gapsCont && gapsBtnAdd) {
+              // Add gap blocks until we have enough
+              const existingBlocks = gapsCont.querySelectorAll('.gap-block');
+              for (let gi = existingBlocks.length + 1; gi <= maxGap; gi++) {
+                gapsBtnAdd.click();
               }
+              // Now fill them
+              setTimeout(() => {
+                for (let gi = 1; gi <= maxGap; gi++) {
+                  const fields = ['research-gap-', 'gap-author-', 'gap-year-', 'gap-title-', 'gap-publisher-', 'gap-url-', 'gap-type-'];
+                  for (const prefix of fields) {
+                    const fid = prefix + gi;
+                    const fel = document.getElementById(fid);
+                    if (fel && data[fid] !== undefined) {
+                      fel.value = data[fid];
+                      fel.dispatchEvent(new Event('input', { bubbles: true }));
+                      fel.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                  }
+                }
+                // Trigger local storage save
+                if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+                showValidationToast('Draft loaded successfully! ' + restoredCount + ' fields restored.', 'success');
+              }, 300);
             } else {
-              for (let gi = 1; gi <= maxGap; gi++) {
-                gapCount = gi;
-                const gapVal = data[`research-gap-${gi}`] || '';
-                const aVal = data[`gap-author-${gi}`] || '';
-                const yVal = data[`gap-year-${gi}`] || '';
-                const tVal = data[`gap-title-${gi}`] || '';
-                const pVal = data[`gap-publisher-${gi}`] || '';
-                const uVal = data[`gap-url-${gi}`] || '';
-                const typeVal = data[`gap-type-${gi}`] || 'Technological Gap';
-
-                const block = createGapBlock(gi, gapVal, aVal, yVal, tVal, pVal, uVal, typeVal);
-                if (gi === 1) block.querySelector('.toggle-icon')?.classList.add('rotate-180');
-                else block.querySelector('.gap-content')?.classList.add('hidden');
-
-                if (gapVal && gapVal.trim()) { savedData[`research-gap-${gi}`] = gapVal.trim(); restoredCount++; }
-                if (aVal && aVal.trim()) savedData[`gap-author-${gi}`] = aVal.trim();
-                if (yVal && yVal.trim()) savedData[`gap-year-${gi}`] = yVal.trim();
-                if (tVal && tVal.trim()) savedData[`gap-title-${gi}`] = tVal.trim();
-                if (pVal && pVal.trim()) savedData[`gap-publisher-${gi}`] = pVal.trim();
-                if (uVal && uVal.trim()) savedData[`gap-url-${gi}`] = uVal.trim();
-                if (typeVal) savedData[`gap-type-${gi}`] = typeVal;
-              }
-              while (gapCount < 3) {
-                gapCount++;
-                const block = createGapBlock(gapCount);
-                block.querySelector('.gap-content')?.classList.add('hidden');
-              }
+              if (typeof saveToLocalStorage === 'function') saveToLocalStorage();
+              showValidationToast('Draft loaded! ' + restoredCount + ' fields restored.', 'success');
             }
-            reindexGaps();
-
-            // 6. Save clean synchronized state to local storage
-            safeSetItem(storageKey, JSON.stringify(savedData));
-
-            // 7. Refresh all reactive previews and components
-            if (typeof updateQpsSentenceAndPreview === 'function') updateQpsSentenceAndPreview();
-            if (typeof updateQpsGoalPreview === 'function') updateQpsGoalPreview();
-            if (typeof updateEngineeringGoalPreview === 'function') updateEngineeringGoalPreview();
-            if (typeof checkBudgetFeasibility === 'function') checkBudgetFeasibility();
-            if (testingModeSelect) updateTestingModeDisplay(testingModeSelect.value);
-            if (testingMethodSelect) updateTestingMethodDisplay(testingMethodSelect.value);
-            if (statTreatmentSelect) updateStatisticalTreatmentDisplay(statTreatmentSelect.value);
-
-            showValidationToast('Draft loaded successfully! ' + restoredCount + ' fields restored.', 'success');
 
             // Scroll back to top / step 1
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
           } catch (err) {
-            console.error("Draft load error:", err);
             showValidationToast('Could not read file. Make sure it\'s a valid .ersa file.', 'error');
+            console.error('Load draft error:', err);
           }
         };
         reader.readAsText(file);
