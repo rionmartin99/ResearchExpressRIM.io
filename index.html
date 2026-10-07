@@ -1,10 +1,10 @@
 <!--
 CHANGELOG:
+[October 07, 2026, 05:40 PM] v4.9.7 - New Feature: Integrated inline Send button container inside Committee Clarification chat to prevent line break wrapping, and added varied Gemini models (3.8 Flash, 3.7 Flash, 3.5 Flash Lite, 2.5 Flash) with Settings model selector and automatic cascade fallback identical to ERSA Reviewer.
 [October 07, 2026, 05:25 PM] v4.9.6 - Fix: Hoisted persona consensus state variables to prevent Temporal Dead Zone ReferenceError during initial auto-save execution, restoring button interactivity across Settings, Import PDF, and step navigation.
 [October 07, 2026, 04:05 PM] v4.9.5 - Fix: Prevented stale deliberation cache and phantom "dd" warnings by expanding cache invalidation across all fields, calculating full content signature, auto-expanding collapsed gaps on inspection, and enforcing live input priority in Committee Clarification Chat.
 [October 07, 2026, 03:50 PM] v4.9.4 - Fix: Eliminated raw HTML tags from document Scaling Logic by preventing double-escaping, added dedicated Signal Conditioning & Interfacing input field in Step 3 linked to AI circuit advice, and implemented smart BOM hardware auto-synthesis fallback.
 [October 07, 2026, 03:30 PM] v4.9.3 - Fix: Eliminated input field cross-contamination by purging stale keys on gap deletion/reindexing, removing cross-node aliases in PDF extraction, guarding starter chips against overwrites, and isolating draft loading.
-[October 07, 2026, 02:50 PM] v4.9.2 - Fix: Synchronized form data collection to prune cleared inputs, hardened Gemini prompts against fabricating phantom hardware, and aligned backend synthesizeProposalHtml in Code.gs and codev2.gs to eliminate irrelevant auto-injected details.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -2423,18 +2423,19 @@ CHANGELOG:
 
           <!-- Chat Input Area -->
           <div class="p-3 sm:p-4 bg-white border-t border-slate-200">
-            <form id="committee-chat-form" class="flex items-center gap-2">
-              <div class="relative flex-1">
+            <div id="committee-chat-form" class="flex flex-row items-center gap-2 w-full" style="display: flex !important; flex-direction: row !important; align-items: center !important;">
+              <div class="relative flex-1 min-w-0" style="flex: 1 1 0% !important; min-width: 0 !important;">
                 <input type="text" id="committee-chat-input"
                   class="w-full rounded-2xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 px-4 py-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all outline-none"
-                  placeholder="Ask the committee a clarification question or type 'Where do I need to fix?'..." />
+                  placeholder="Ask the committee a clarification question or type 'Where do I need to fix?'..." autocomplete="off" />
               </div>
-              <button type="submit" id="btn-send-committee-chat"
-                class="px-4 sm:px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
+              <button type="button" id="btn-send-committee-chat"
+                class="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                style="flex-shrink: 0 !important; white-space: nowrap !important;">
                 <span>Send</span>
                 <i class="ph ph-paper-plane-right"></i>
               </button>
-            </form>
+            </div>
             <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400 px-1">
               <span>💡 Tip: Click <strong>&quot;🔴 Point out what needs fixing&quot;</strong> to light up interactive red notification dots on nodes needing attention.</span>
               <span class="hidden sm:inline">Press Enter to send</span>
@@ -2727,6 +2728,29 @@ CHANGELOG:
         </select>
       </div>
 
+      <!-- Gemini AI Model Selection (Varied Free Models with Seamless Auto-Cascading - ERSA Reviewer Aligned) -->
+      <div class="mb-5 pb-5 border-b border-slate-100">
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="setting-gemini-model" class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="ph ph-cpu text-indigo-600 text-base"></i> Gemini AI Model
+          </label>
+          <span id="settings-model-badge"
+            class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">3.8 Flash</span>
+        </div>
+        <p class="text-xs text-slate-500 mb-2.5">Choose your preferred Gemini model. If rate limits (429) or free quotas are reached, ERSA automatically cascades to the next available free model without interrupting your research.</p>
+        <select id="setting-gemini-model"
+          class="input-glass w-full rounded-xl p-3 text-slate-800 text-sm font-semibold border border-slate-200 bg-white cursor-pointer">
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest 2026 · Default Free Tier)</option>
+          <option value="gemini-3.7-flash">Gemini 3.7 Flash (High-Speed Free Tier)</option>
+          <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Ultra-Fast Free Tier)</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Reliable Fallback Free Tier)</option>
+        </select>
+        <div class="flex items-center gap-1.5 mt-2 text-[11px] text-emerald-700 bg-emerald-50/80 rounded-lg p-2 border border-emerald-100">
+          <i class="ph ph-shield-check text-emerald-600 text-sm shrink-0"></i>
+          <span><strong>Zero-Manual Fallback:</strong> Automatically cascades to backup free models if your preferred model is busy.</span>
+        </div>
+      </div>
+
       <!-- Gemini API Section -->
       <div class="flex items-center justify-between mb-1">
         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Google Gemini API Key</label>
@@ -2990,10 +3014,31 @@ CHANGELOG:
       const storageKey = 'lumina_edp_express_state';
       const apiKeyStorageKey = 'lumina_gemini_key';
       const gasUrlStorageKey = 'ersa_gas_webapp_url';
+      const modelStorageKey = 'ersa_gemini_model';
       const DEFAULT_GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzpFqGQn3eY-xVYAkywvec57gfmEXzdWNoAP1e_Xix9FB_7Ii-g5iZmGBWXbsYIZl83/exec';
       let savedData = {};
       let sessionApiKey = '';
       let sessionGasUrl = '';
+
+      // Free Google Models in priority order (Newest first, auto-cascading down on quota limits - aligned with ERSA Reviewer)
+      const GEMINI_FREE_MODELS = [
+        'gemini-3.8-flash',
+        'gemini-3.7-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-2.5-flash'
+      ];
+      const throttledGeminiModels = {};
+
+      function getStoredModel() {
+        const saved = safeGetItem(modelStorageKey) || safeGetItem('ersa_model');
+        if (saved && GEMINI_FREE_MODELS.includes(saved)) return saved;
+        return GEMINI_FREE_MODELS[0]; // Default to latest: gemini-3.8-flash
+      }
+      function setStoredModel(m) {
+        if (m && GEMINI_FREE_MODELS.includes(m)) {
+          safeSetItem(modelStorageKey, m);
+        }
+      }
 
       // Hoisted Persona Consensus State (prevents TDZ ReferenceError when saveFieldToStorage is invoked during initialization)
       let activePersonaTab = 'consensus';
@@ -3905,6 +3950,15 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
         if (settingGradeLevel && currentGradeLevel) {
           settingGradeLevel.value = currentGradeLevel;
         }
+        const settingGeminiModel = document.getElementById('setting-gemini-model');
+        const settingsModelBadge = document.getElementById('settings-model-badge');
+        if (settingGeminiModel) {
+          const curModel = getStoredModel();
+          settingGeminiModel.value = curModel;
+          if (settingsModelBadge) {
+            settingsModelBadge.textContent = curModel.replace('gemini-', '');
+          }
+        }
         modal.style.pointerEvents = 'auto';
         dialog.style.pointerEvents = 'auto';
         modal.classList.remove('hidden', 'pointer-events-none');
@@ -3978,9 +4032,10 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
       function updateApiKeyStatusBadge(key) {
         const badge = document.getElementById('api-key-status-badge');
         if (!badge) return;
+        const currentModelName = getStoredModel().replace('gemini-', '');
         if (key && key.length > 8) {
           badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1';
-          badge.innerHTML = '<i class="ph ph-check-circle"></i> Key Saved';
+          badge.innerHTML = `<i class="ph ph-check-circle"></i> Key Saved · ${currentModelName}`;
         } else {
           badge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1';
           badge.innerHTML = '<i class="ph ph-x-circle"></i> No Key Set';
@@ -3995,6 +4050,14 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
           e.stopPropagation();
           sessionApiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
           safeSetItem(apiKeyStorageKey, sessionApiKey);
+          const settingGeminiModel = document.getElementById('setting-gemini-model');
+          if (settingGeminiModel && settingGeminiModel.value) {
+            setStoredModel(settingGeminiModel.value);
+            const settingsModelBadge = document.getElementById('settings-model-badge');
+            if (settingsModelBadge) {
+              settingsModelBadge.textContent = settingGeminiModel.value.replace('gemini-', '');
+            }
+          }
           updateApiKeyStatusBadge(sessionApiKey);
           if (gasUrlInput) {
             sessionGasUrl = gasUrlInput.value.trim();
@@ -4005,7 +4068,7 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
           }
           closeModal();
           if (sessionApiKey) {
-            showValidationToast('Settings & API Key saved! AI features unlocked.', 'success');
+            showValidationToast(`Settings saved! AI ready with ${getStoredModel().replace('gemini-', '')}.`, 'success');
           } else {
             showValidationToast('Settings saved successfully.', 'info');
           }
@@ -4228,34 +4291,23 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
         btnReuploadPdf.addEventListener('click', resetPdfModalViews);
       }
 
-      // --- Adaptive Gemini API Engine (Free Models with Fallback) ---
-      // Hierarchy: Primary (3.7 Flash) -> Secondary (3.5 Flash Lite) -> Tertiary (2.5 Flash)
-      const GEMINI_FREE_MODELS = [
-        'gemini-3.7-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-2.5-flash'
-      ];
-      const throttledGeminiModels = {};
-
+      // --- Adaptive Gemini API Engine (Free Models with Fallback - Mirroring ERSA Reviewer) ---
       async function callGeminiWithFallback(apiKey, payload, options = {}) {
         const { silentNotification = false } = options;
         const now = Date.now();
 
-        // Check which models are currently available vs throttled
-        const sortedModels = [...GEMINI_FREE_MODELS].sort((a, b) => {
-          const aThrottled = (throttledGeminiModels[a] && throttledGeminiModels[a] > now) ? 1 : 0;
-          const bThrottled = (throttledGeminiModels[b] && throttledGeminiModels[b] > now) ? 1 : 0;
-          return aThrottled - bThrottled;
-        });
+        const preferredModel = getStoredModel();
+        // Sequence: preferred model first, followed by the remaining free models in priority order
+        const modelQueue = [preferredModel, ...GEMINI_FREE_MODELS.filter(m => m !== preferredModel)];
 
         let lastError = null;
-        const primaryModel = GEMINI_FREE_MODELS[0];
         let wasAdapted = false;
+        let originalModel = modelQueue[0];
 
-        for (let i = 0; i < sortedModels.length; i++) {
-          const model = sortedModels[i];
+        for (let i = 0; i < modelQueue.length; i++) {
+          const model = modelQueue[i];
           const isThrottled = throttledGeminiModels[model] && throttledGeminiModels[model] > now;
-          if (isThrottled && i < sortedModels.length - 1) {
+          if (isThrottled && i < modelQueue.length - 1) {
             wasAdapted = true;
             continue;
           }
@@ -4284,7 +4336,7 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
               const isModelIssue = statusCode === 404 || lowerMsg.includes('not found') || lowerMsg.includes('is not supported');
 
               if (isRateLimit || isTemporary || isModelIssue) {
-                console.warn(`[Gemini Engine] Model ${model} limit/error (${statusCode}: ${errMsg}). Adapting to fallback...`);
+                console.warn(`[Gemini Engine] Model ${model} limit/error (${statusCode}: ${errMsg}). Cascading to next free model...`);
                 // Cooldown model for 60 seconds
                 throttledGeminiModels[model] = Date.now() + 60000;
                 wasAdapted = true;
@@ -4297,13 +4349,13 @@ All generated suggestions, refinements, hardware selections, testing plans, and 
             }
 
             // Successfully received response
-            if (wasAdapted && model !== primaryModel && !silentNotification) {
+            if (wasAdapted && model !== originalModel && !silentNotification) {
               if (typeof showValidationToast === 'function') {
-                showValidationToast(`Adapted to ${model} (switched from ${primaryModel} due to free tier limit)`, 'info');
+                showValidationToast(`Quota reached on ${originalModel}. Automatically switched to ${model}!`, 'info');
               }
             }
 
-            return { data, modelUsed: model };
+            return { data, modelUsed: model, wasAdapted, originalModel };
           } catch (fetchErr) {
             if (fetchErr.message && (fetchErr.message.includes('API_KEY_INVALID') || fetchErr.message.includes('API key not valid'))) {
               throw fetchErr;
@@ -9754,14 +9806,30 @@ INSTRUCTIONS:
           });
         });
 
-        // Form Submit
+        // Chat Submit Handlers (Enter key and Send button click)
         const chatForm = document.getElementById('committee-chat-form');
         const chatInput = document.getElementById('committee-chat-input');
-        if (chatForm && chatInput) {
-          chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const q = chatInput.value;
-            if (q && q.trim()) submitCommitteeClarification(q);
+        const btnSendChat = document.getElementById('btn-send-committee-chat');
+
+        const handleChatSubmit = (e) => {
+          if (e) e.preventDefault();
+          if (!chatInput) return;
+          const q = chatInput.value;
+          if (q && q.trim()) submitCommitteeClarification(q);
+        };
+
+        if (chatForm) {
+          chatForm.addEventListener('submit', handleChatSubmit);
+        }
+        if (btnSendChat) {
+          btnSendChat.addEventListener('click', handleChatSubmit);
+        }
+        if (chatInput) {
+          chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleChatSubmit();
+            }
           });
         }
 
